@@ -11,6 +11,7 @@
 ###JSON
 - JSON的下标是字符串、数组的下标是数字
 - JSON没有length（JSON有什么才能读什么）
+- 循环的另一个写法：for（var i in 数组）——JSON的循环用这个方法写
 
 ###一些基础函数
 ![字符串操作](图片31.png)
@@ -28,7 +29,7 @@
 - 任何数和NAN作运算结果都是NAN
 - NAN和NAN不相等，可以用isNAN判断
 - == 先转类型，再比较；=== 不转类型，直接比较
-- 循环的另一个写法：for（var i in 数组）——JSON的循环用这个方法写
+
 
 - 函数不定参数，就是传入arguments[i]，可以有无数个参数
 
@@ -178,7 +179,7 @@ arr2 =arr1  //arr2是arr1的引用
 
 # BOM #
 ![BOM](图片27.png)
-![BOM](图片28.png)
+![BOM](图片38.png)
 
 
 # COOKIE #
