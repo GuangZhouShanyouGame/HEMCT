@@ -269,3 +269,115 @@ oAjax.onreadystatechange = function() {
  - 类似CSS中的class（一次给一组元素加样式）
  - 共享同一方法或属性
  - 实际应用：用构造函数加属性，用原型加方法 ——混合方式构造对象
+
+####5.call方法可以改变函数执行时的this
+
+####6.继承
+![Alt text](./1481522801428.png)
+
+
+
+###BOM应用
+####1.打开窗口
+```javascript
+window.open(jumpTo) 
+```
+  - 第一个参数为跳转的页面
+  - 第二个参数为是否新建（‘_blank’为新建，‘_self’为覆盖当前页面）
+
+####2.关闭窗口
+```javascript
+window.close()
+```
+  - 火狐浏览器不能关闭用户打开的界面
+
+####3.写窗口
+```javascript
+document.write(‘’)
+```
+  - 先清空再写
+
+
+####4.浏览器版本、类型
+```javascript
+window.navigator.userAgent
+```
+
+####5.尺寸
+![获取尺寸](./1481522990812.png)
+> 两个获取滚动距离的方法可以用||并起来，解决兼容问题
+
+![Alt text](./1481523039132.png)
+
+
+###COOKIE基础与应用
+
+![Alt text](./1481523058702.png)
+> cookie赋值不会覆盖，相当于+=
+
+####1.设置过期时间
+```javascript
+ var oDate = new Date();
+   oDate.setDate(oDate.getDate() + 14);
+   document.cookie = ‘user = blue;expires=’ + oDate;
+   //函数封装
+   function setCookie(name, value, iDay){
+	  var oDate=new Date();
+	  oDate.setDate(oDate.getDate()+iDay);
+	  document.cookie=name+'='+value+';expires='+oDate;
+   }
+```
+
+####2.读取cookie
+```javascript
+  //函数封装
+  function getCookie(name)
+{
+	var arr=document.cookie.split('; ');
+	
+	for(var i=0;i<arr.length;i++)
+	{
+		var arr2=arr[i].split('=');
+		
+		if(arr2[0]==name)
+		{
+			return arr2[1];
+		}
+	}
+	
+	return '';
+}
+```
+
+####3.删除cookie
+```javascript
+  //函数封装
+  function removeCookie(name)
+{
+	setCookie(name, 1, -1); //参数name、value、expireDay
+}
+```
+
+
+###正则表达式
+![search,match](./1481523218222.png)
+![replace](./1481523224695.png)
+![字符串](./1481523248556.png)
+![字符串](./1481523256941.png)
+![量词变化](./1481523266296.png)
+> 转义字符.尽量少用，可以考虑用排除[^]某种特殊情况代替.
+![量词](./1481523291507.png)
+- 例子：检验邮箱
+```javascript
+var re = /\w+@[a-z0-9]+\.[a-z]+/i
+//      \w+  @ [a-z0-9]+  \. [a-z]+ /i
+re.test(oTxt.value)	//
+若字符串一部分符合，返回true
+```
+-  ^  行首
+- $  行尾
+
+
+
+
+
