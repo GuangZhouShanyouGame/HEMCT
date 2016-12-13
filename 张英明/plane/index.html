@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1.0">
+	<title>PlaneFight</title>
+	<script src="http://24haowan-cdn.shanyougame.com/public/js/zepto.js"></script>
+	<script src="http://24haowan-cdn.shanyougame.com/public/js/phaser-2.6.2.min.js"></script>
+	<script src="http://24haowan-cdn.shanyougame.com/public/js/require.min.js"></script>
+	<!--<script src="http://24haowan-cdn.shanyougame.com/public/js/vconsole.min.js"></script>-->
+	<style type="text/css">
+	html, body {
+		padding: 0px;
+		margin: 0px;
+	}
+	</style>
+</head>
+<body>
+<script>
+//    function Enemy(config) {
+//        this.init = function() {
+//            this.enemys = game.add.group();
+//            this.enemys.enableBody = true;
+//            this.enemys.createMultiple(config.selfPool, config.selfPic);
+//            this.enemys.setAll('outOfBoundsKill', true);
+//            this.enemys.setAll('checkWorldBounds', true);
+//            // 敌人的子弹
+//            this.enemyBullets = game.add.group();
+//            this.enemyBullets.enableBody = true;
+//            this.enemyBullets.createMultiple(config.bulletsPool, config.bulletPic);
+//            this.enemyBullets.setAll('outOfBoundsKill', true);
+//            this.enemyBullets.setAll('checkWorldBounds', true);
+//            // 敌人的随机位置范围
+//            this.maxWidth = game.width - game.cache.getImage(config.selfPic).width;
+//            // 产生敌人的定时器
+//            game.time.events.loop(Phaser.Timer.SECOND * config.selfTimeInterval, this.generateEnemy, this);
+//            // 敌人的爆炸效果
+//            this.explosions = game.add.group();
+//            this.explosions.createMultiple(config.explodePool, config.explodePic);
+//            this.explosions.forEach(function(explosion) {
+//                explosion.animations.add(config.explodePic);
+//            }, this);
+//        }
+//        // 产生敌人
+//        this.generateEnemy = function() {
+//            var e = this.enemys.getFirstExists(false);
+//            if(e) {
+//                e.reset(game.rnd.integerInRange(0, this.maxWidth), -game.cache.getImage(config.selfPic).height);   //????
+//                e.life = config.life;
+//                e.body.velocity.y = config.velocity;
+//            }
+//        }
+//        // 敌人开火
+//        this.enemyFire = function() {
+//            this.enemys.forEachExists(function(enemy) {
+//                var bullet = this.enemyBullets.getFirstExists(false);
+//                if(bullet) {
+//                    if(game.time.now > (enemy.bulletTime || 0)) {
+//                        bullet.reset(enemy.x + config.bulletX, enemy.y + config.bulletY);
+//                        bullet.body.velocity.y = config.bulletVelocity;
+//                        enemy.bulletTime = game.time.now + config.bulletTimeInterval;
+//                    }
+//                }
+//            }, this);
+//        };
+//        // 打中了敌人
+//        this.hitEnemy = function(myBullet, enemy) {
+//            try {
+//                config.firesound.play();
+//            } catch(e) {}
+//            myBullet.kill();                           //kill????
+//            enemy.life--;
+//            if(enemy.life <= 0) {                     //???
+//                try {
+//                    config.crashsound.play();
+//                } catch(e) {}
+//                enemy.kill();
+//                var explosion = this.explosions.getFirstExists(false);
+//                explosion.reset(enemy.body.x, enemy.body.y);
+//                explosion.play(config.explodePic, 30, false, true);
+//                score += config.score;
+//                config.game.updateText();
+//            }
+//        };
+//    }
+</script>
+	<script type="text/javascript" src="js/main.js"></script>
+
+</body>
+</html>
