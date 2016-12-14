@@ -142,10 +142,10 @@ define(function() {
 					this.rndSize();
 					
 					game.physics.enable(this.dog, Phaser.Physics.ARCADE);
-					this.dog.body.gravity.y = 2600;
+					this.dog.body.gravity.y = 3100;
 
 					game.physics.enable(this.dinosaur, Phaser.Physics.ARCADE);
-					this.dinosaur.body.gravity.y = 2600;
+					this.dinosaur.body.gravity.y = 3100;
 
 					this.speed = game.world.width / 2;
 
@@ -170,14 +170,17 @@ define(function() {
 				}
 
 				this.jump = function() { //点击屏幕后挑跳起
-					this.tap.play();
-					if (arguments[0].x >= game.width / 4) { //点击屏幕左半边，狗起跳
+					
+					if (arguments[0].x >= game.width / 4 && this.dog.body.y+this.dog.body.height == this.platform.body.y) { //点击屏幕左半边，并且狗在地面上，狗起跳
 						this.dog.body.velocity.y = -1000;
 						this.dog.animations.play('jump', 10, true);
-					} else { //点击屏幕右半边，恐龙起跳
+						this.tap.play();
+					}else if(arguments[0].x < game.width / 4 && this.dinosaur.body.y + this.dinosaur.body.height == this.platform.body.y) { //点击屏幕右半边，并且恐龙在地面上，恐龙起跳
 						this.dinosaur.body.velocity.y = -900;
 						this.dinosaur.animations.play('jump', 10, true);
+						this.tap.play();
 					}
+					else{}
 				}
 
 				this.dog_run = function() {
@@ -245,7 +248,7 @@ define(function() {
 					this.emitter.makeParticles('emitter');
 					this.emitter.x = this.hitPositionx;
 					this.emitter.y = this.hitPositiony;
-					
+
 					//console.log('x:' +this.hitPositionx　+ ',y:' +　this.hitPositiony);
 					//this.hitPositionx = Math.abs(this.dog.x-this.dinosaur.x);
 					this.emitter.start(true, 2000, null, 40);
