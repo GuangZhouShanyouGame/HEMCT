@@ -291,9 +291,10 @@ define(function() {
 					this.crash.anchor.set(0.5);
 					
 					this.crashTween = game.add.tween(this.crash).to({						
-
+						width:this.crash.width*3,
+						height:this.crash.height*3,
 						alpha: 0,
-					}, 1500, Phaser.Easing.Linear.None, false, 0, 0, false);
+					}, 1800, Phaser.Easing.Linear.None, false, 0, 0, false);
 
 					this.crashTween.start();
 

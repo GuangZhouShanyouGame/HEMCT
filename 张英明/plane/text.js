@@ -1,6 +1,4 @@
 
-
-
 /***********************/
 
 function Enemy(config) {
@@ -10,24 +8,24 @@ function Enemy(config) {
         this.enemys.createMultiple(config.selfPool, config.selfPic);
         this.enemys.setAll('outOfBoundsKill', true);
         this.enemys.setAll('checkWorldBounds', true);
-        // 敌人的子弹
+        // 鏁屼汉鐨勫瓙寮�
         this.enemyBullets = game.add.group();
         this.enemyBullets.enableBody = true;
         this.enemyBullets.createMultiple(config.bulletsPool, config.bulletPic);
         this.enemyBullets.setAll('outOfBoundsKill', true);
         this.enemyBullets.setAll('checkWorldBounds', true);
-        // 敌人的随机位置范围
+        // 鏁屼汉鐨勯殢鏈轰綅缃寖鍥�
         this.maxWidth = game.width - game.cache.getImage(config.selfPic).width;
-        // 产生敌人的定时器
+        // 浜х敓鏁屼汉鐨勫畾鏃跺櫒
         game.time.events.loop(Phaser.Timer.SECOND * config.selfTimeInterval, this.generateEnemy, this);
-        // 敌人的爆炸效果
+        // 鏁屼汉鐨勭垎鐐告晥鏋�
         this.explosions = game.add.group();
         this.explosions.createMultiple(config.explodePool, config.explodePic);
         this.explosions.forEach(function(explosion) {
             explosion.animations.add(config.explodePic);
         }, this);
     }
-    // 产生敌人
+    // 浜х敓鏁屼汉
     this.generateEnemy = function() {
         var e = this.enemys.getFirstExists(false);
         if(e) {
@@ -36,7 +34,7 @@ function Enemy(config) {
             e.body.velocity.y = config.velocity;
         }
     }
-    // 敌人开火
+    // 鏁屼汉寮€鐏�
     this.enemyFire = function() {
         this.enemys.forEachExists(function(enemy) {
             var bullet = this.enemyBullets.getFirstExists(false);
@@ -49,7 +47,7 @@ function Enemy(config) {
             }
         }, this);
     };
-    // 打中了敌人
+    // 鎵撲腑浜嗘晫浜�
     this.hitEnemy = function(myBullet, enemy) {
         try {
             config.firesound.play();
@@ -76,19 +74,19 @@ var game = new Phaser.Game(240, 400, Phaser.CANVAS, 'game');
 
 game.States = {};
 
-// 分数
+// 鍒嗘暟
 var score = 0;
 
-// 生成Title
+// 鐢熸垚Title
 var makeTitle = function(score) {
     if(score < 1000) {
-        return "简版飞机大战，还挺难的，我才" + score + "分，你能得多少分呢？";
+        return "绠€鐗堥鏈哄ぇ鎴橈紝杩樻尯闅剧殑锛屾垜鎵�" + score + "鍒嗭紝浣犺兘寰楀灏戝垎鍛紵";
     } else {
-        return "简版飞机大战，我是天才，得了" + score + "分，你能得多少分呢？";
+        return "绠€鐗堥鏈哄ぇ鎴橈紝鎴戞槸澶╂墠锛屽緱浜�" + score + "鍒嗭紝浣犺兘寰楀灏戝垎鍛紵";
     }
 }
 
-// 关闭分享
+// 鍏抽棴鍒嗕韩
 var onCloseShare = function() {
     document.getElementById('share').style.display = 'none';
 };
@@ -147,17 +145,17 @@ game.States.preload = function() {
 
 game.States.main = function() {
     this.create = function() {
-        // 背景
+        // 鑳屾櫙
         var bg = game.add.tileSprite(0, 0, game.width, game.height, 'background');
-        // 版权
+        // 鐗堟潈
         this.copyright = game.add.image(12, game.height - 16, 'copyright');
-        // 我的飞机
+        // 鎴戠殑椋炴満
         this.myplane = game.add.sprite(100, 100, 'myplane');
         this.myplane.animations.add('fly');
         this.myplane.animations.play('fly', 12, true);
-        // 开始按钮
+        // 寮€濮嬫寜閽�
         this.startbutton = game.add.button(70, 200, 'startbutton', this.onStartClick, this, 1, 1, 0);
-        // 背景音乐
+        // 鑳屾櫙闊充箰
         this.normalback = game.add.audio('normalback', 0.2, true);
         this.normalback.play();
     };
@@ -169,39 +167,39 @@ game.States.main = function() {
 
 game.States.start = function() {
     this.create = function() {
-        // 物理系统
+        // 鐗╃悊绯荤粺
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        // 背景
+        // 鑳屾櫙
         var bg = game.add.tileSprite(0, 0, game.width, game.height, 'background');
         bg.autoScroll(0, 20);
-        // 我的飞机
+        // 鎴戠殑椋炴満
         this.myplane = game.add.sprite(100, 100, 'myplane');
         this.myplane.animations.add('fly');
         this.myplane.animations.play('fly', 12, true);
         game.physics.arcade.enable(this.myplane);
         this.myplane.body.collideWorldBounds = true;
         this.myplane.level = 2;
-        // 动画
+        // 鍔ㄧ敾
         var tween = game.add.tween(this.myplane).to({y: game.height - 40}, 1000, Phaser.Easing.Sinusoidal.InOut, true);
         tween.onComplete.add(this.onStart, this);
-        // 背景音乐
+        // 鑳屾櫙闊充箰
         this.playback = game.add.audio('playback', 0.2, true);
         this.playback.play();
-        // 开火音乐
+        // 寮€鐏煶涔�
         this.pi = game.add.audio('pi', 1, false);
-        // 打中敌人音乐
+        // 鎵撲腑鏁屼汉闊充箰
         this.firesound = game.add.audio('fashe', 5, false);
-        // 爆炸音乐
+        // 鐖嗙偢闊充箰
         this.crash1 = game.add.audio('crash1', 10, false);
         this.crash2 = game.add.audio('crash2', 10, false);
         this.crash3 = game.add.audio('crash3', 20, false);
-        // 挂了音乐
+        // 鎸備簡闊充箰
         this.ao = game.add.audio('ao', 10, false);
-        // 接到了奖音乐
+        // 鎺ュ埌浜嗗闊充箰
         this.deng = game.add.audio('deng', 10, false);
     };
     this.onStart = function() {
-        // 我的子弹
+        // 鎴戠殑瀛愬脊
         this.mybullets = game.add.group();
         this.mybullets.enableBody = true;
         this.mybullets.createMultiple(50, 'mybullet');
@@ -209,10 +207,10 @@ game.States.start = function() {
         this.mybullets.setAll('checkWorldBounds', true);
         this.myStartFire = true;
         this.bulletTime = 0;
-        // 我的飞机允许拖拽
+        // 鎴戠殑椋炴満鍏佽鎷栨嫿
         this.myplane.inputEnabled = true;
         this.myplane.input.enableDrag(false);
-        // 奖
+        // 濂�
         this.awards = game.add.group();
         this.awards.enableBody = true;
         this.awards.createMultiple(1, 'award');
@@ -220,11 +218,11 @@ game.States.start = function() {
         this.awards.setAll('checkWorldBounds', true);
         this.awardMaxWidth = game.width - game.cache.getImage('award').width;
         game.time.events.loop(Phaser.Timer.SECOND * 30, this.generateAward, this);
-        // 分数
+        // 鍒嗘暟
         var style = {font: "16px Arial", fill: "#ff0000"};
         this.text = game.add.text(0, 0, "Score: 0", style);
         score = 0;
-        // 敌机
+        // 鏁屾満
         var enemyTeam = {
             enemy1: {
                 game: this,
@@ -291,7 +289,7 @@ game.States.start = function() {
         this.enemy3 = new Enemy(enemyTeam.enemy3);
         this.enemy3.init();
     };
-    // 产生一个奖
+    // 浜х敓涓€涓
     this.generateAward = function() {
         var award = this.awards.getFirstExists(false);
         if(award) {
@@ -299,7 +297,7 @@ game.States.start = function() {
             award.body.velocity.y = 500;
         }
     };
-    // 自己开火
+    // 鑷繁寮€鐏�
     this.myFireBullet = function() {
         if(this.myplane.alive && game.time.now > this.bulletTime) {
             try {
@@ -346,7 +344,7 @@ game.States.start = function() {
             }
         }
     };
-    // 被敌机打中
+    // 琚晫鏈烘墦涓�
     this.hitMyplane = function(myplane, bullet) {
         bullet.kill();
         if(myplane.level > 1) {
@@ -356,12 +354,12 @@ game.States.start = function() {
             this.dead();
         }
     };
-    // 与敌机撞击
+    // 涓庢晫鏈烘挒鍑�
     this.crashMyplane = function(myplane, enemy) {
         myplane.kill();
         this.dead();
     }
-    // 得奖了
+    // 寰楀浜�
     this.getAward = function(myplane, award) {
         award.kill();
         try {
@@ -371,11 +369,11 @@ game.States.start = function() {
             myplane.level++;
         }
     };
-    // 更新分数
+    // 鏇存柊鍒嗘暟
     this.updateText = function() {
         this.text.setText("Score: " + score);
     };
-    // 挂了
+    // 鎸備簡
     this.dead = function() {
         try {
             this.ao.play();
@@ -385,19 +383,19 @@ game.States.start = function() {
         myexplode.animations.play('myexplode', 30, false, true);
         anim.onComplete.add(this.gotoOver, this);
     };
-    // 跳转到Over场景
+    // 璺宠浆鍒癘ver鍦烘櫙
     this.gotoOver = function() {
         this.playback.stop();
         game.state.start('over');
     };
-    // 更新函数
+    // 鏇存柊鍑芥暟
     this.update = function() {
         if(this.myStartFire) {
             this.myFireBullet();
             this.enemy1.enemyFire();
             this.enemy2.enemyFire();
             this.enemy3.enemyFire();
-            // 碰撞检测
+            // 纰版挒妫€娴�
             game.physics.arcade.overlap(this.mybullets, this.enemy1.enemys, this.enemy1.hitEnemy, null, this.enemy1);
             game.physics.arcade.overlap(this.mybullets, this.enemy2.enemys, this.enemy2.hitEnemy, null, this.enemy2);
             game.physics.arcade.overlap(this.mybullets, this.enemy3.enemys, this.enemy3.hitEnemy, null, this.enemy3);
@@ -414,32 +412,32 @@ game.States.start = function() {
 
 game.States.over = function() {
     this.create = function() {
-        // 背景
+        // 鑳屾櫙
         var bg = game.add.tileSprite(0, 0, game.width, game.height, 'background');
-        // 版权
+        // 鐗堟潈
         this.copyright = game.add.image(12, game.height - 16, 'copyright');
-        // 我的飞机
+        // 鎴戠殑椋炴満
         this.myplane = game.add.sprite(100, 100, 'myplane');
         this.myplane.animations.add('fly');
         this.myplane.animations.play('fly', 12, true);
-        // 分数
+        // 鍒嗘暟
         var style = {font: "bold 32px Arial", fill: "#ff0000", boundsAlignH: "center", boundsAlignV: "middle"};
         this.text = game.add.text(0, 0, "Score: " + score, style);
         this.text.setTextBounds(0, 0, game.width, game.height);
-        // 重来按钮
+        // 閲嶆潵鎸夐挳
         this.replaybutton = game.add.button(30, 300, 'replaybutton', this.onReplayClick, this, 0, 0, 1);
-        // 分享按钮
+        // 鍒嗕韩鎸夐挳
         this.sharebutton = game.add.button(130, 300, 'sharebutton', this.onShareClick, this, 0, 0, 1);
-        // 背景音乐
+        // 鑳屾櫙闊充箰
         this.normalback = game.add.audio('normalback', 0.2, true);
         this.normalback.play();
     };
-    // 重来
+    // 閲嶆潵
     this.onReplayClick = function() {
         this.normalback.stop();
         game.state.start('start');
     };
-    // 分享
+    // 鍒嗕韩
     this.onShareClick = function() {
         document.title = makeTitle(score);
         document.getElementById('share').style.display = 'block';
@@ -453,3 +451,6 @@ game.state.add('start', game.States.start);
 game.state.add('over', game.States.over);
 
 game.state.start('boot');
+/**
+ * Created by 24haowan on 2016/12/6.
+ */
