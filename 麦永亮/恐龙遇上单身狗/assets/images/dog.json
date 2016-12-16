@@ -1,39 +1,30 @@
 {"frames": [
 
 {
-	"filename": "单身狗跑1.png",
-	"frame": {"x":0,"y":0,"w":255,"h":255},
+	"filename": "单身狗1.png",
+	"frame": {"x":0,"y":0,"w":231,"h":223},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":255,"h":255},
-	"sourceSize": {"w":255,"h":255},
+	"spriteSourceSize": {"x":0,"y":0,"w":231,"h":223},
+	"sourceSize": {"w":231,"h":223},
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "单身狗跑2.png",
-	"frame": {"x":255,"y":0,"w":255,"h":255},
+	"filename": "单身狗2.png",
+	"frame": {"x":231,"y":0,"w":231,"h":223},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":255,"h":255},
-	"sourceSize": {"w":255,"h":255},
-	"pivot": {"x":0.5,"y":0.5}
-},
-{
-	"filename": "单身狗跳.png",
-	"frame": {"x":510,"y":0,"w":255,"h":255},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":255,"h":255},
-	"sourceSize": {"w":255,"h":255},
+	"spriteSourceSize": {"x":0,"y":0,"w":231,"h":223},
+	"sourceSize": {"w":231,"h":223},
 	"pivot": {"x":0.5,"y":0.5}
 }],
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
 	"version": "1.0",
-	"image": "dinosaur-run.png",
+	"image": "dog.png",
 	"format": "RGBA8888",
-	"size": {"w":765,"h":255},
+	"size": {"w":462,"h":223},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:b0dc4eda656f994c10ae71aa4ca91793:7a60a53232ab145810608799c301f55b:f2d0518ca8c992b5015ec6dd004c5fc1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:06aec7438b921bcd07d5c874840a7636:f6b599483840d1823e37dc110103c6a0:ec6c3e0b9eb3cd3c555a7c426f3b0ee8$"
 }
 }
