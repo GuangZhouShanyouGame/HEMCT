@@ -98,9 +98,9 @@ define(function() {
 					this.tap = game.add.sound('tap');
 					this.hit = game.add.sound('hit');
 
-					this.platform = game.add.sprite(0, game.height * 0.65, 'platform');
+					this.platform = game.add.sprite(0, game.height * 0.66, 'platform');
 					this.platform.anchor.setTo(0.5, 0);
-					this.platform.width = game.world.width * 4;
+					this.platform.width = game.world.width * 3;
 					game.physics.enable(this.platform, Phaser.Physics.ARCADE);
 					this.platform.body.immovable = true;
 
@@ -258,7 +258,6 @@ define(function() {
 
 					game.physics.arcade.collide(this.dinosaur, this.platform, this.dinosaur_run, null, this);
 					game.physics.arcade.collide(this.dog, this.platform, this.dog_run, null, this);
-
 					game.physics.arcade.collide(this.dog, this.dinosaur, this.gameEnd, null, this);
 					// 每一帧更新都会触发
 				};
@@ -290,13 +289,18 @@ define(function() {
 					this.crash = game.add.sprite(this.hitPositionx,this.hitPositiony,'crash');
 					this.crash.anchor.set(0.5);
 					
-					this.crashTween = game.add.tween(this.crash).to({						
-						width:this.crash.width*3,
-						height:this.crash.height*3,
-						alpha: 0,
-					}, 1800, Phaser.Easing.Linear.None, false, 0, 0, false);
+					this.crashTweenScale = game.add.tween(this.crash).to({						
+						width:this.crash.width*2.5,
+						height:this.crash.height*2.5,
+						//alpha: 0,
+					}, 150, Phaser.Easing.Linear.None, false, 0, 0, false);
 
-					this.crashTween.start();
+					this.crashTweenAlpha = game.add.tween(this.crash).to({						
+						alpha: 0,
+					}, 1500, Phaser.Easing.Linear.None, false, 0, 0, false);
+
+					this.crashTweenScale.start();
+					this.crashTweenAlpha.start();
 
 					game.input.onDown.remove(this.jump, this);
 
