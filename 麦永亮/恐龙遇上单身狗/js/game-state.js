@@ -56,18 +56,20 @@ define(function() {
 					game.load.atlasJSONArray('dinosaur', 'assets/images/dinosaur.png', 'assets/images/dinosaur.json')
 					game.load.image('bg', "assets/images/bg.png");
 					game.load.image('platform', "assets/images/platform.png");
-					game.load.image('crash', 'assets/images/crash.png')
+					game.load.image('crash', 'assets/images/crash.png');
+					game.load.image('shadow','assets/images/shadow.png');
 
 					//加载得分榜图片
 					game.load.image('white', 'assets/images/white.png');
 					game.load.image('gold', 'assets/images/gold.png');
 
 					//加载音效
-					game.load.audio('bgm', "assets/audio/BGM.mp3");								
+					game.load.audio('bgm', "assets/audio/BGM.mp3");	
+					game.load.audio('hit', 'assets/audio/hit.mp3');							
 
 					// 安卓只能同时播放一个音乐					
 					if (self.gameManager.device.platform != 'android') {						
-						game.load.audio('hit', 'assets/audio/hit.mp3');
+						
 						game.load.audio('tap', 'assets/audio/tap.mp3');	
 					}
 				};
@@ -81,7 +83,7 @@ define(function() {
 					if (self.gameManager.device.platform != 'android') {
 						self.musicManager.init(['bgm', 'tap','hit']);
 					} else {
-						self.musicManager.init(['bgm']);
+						self.musicManager.init(['bgm','hit']);
 					}
 					game.state.start('play');
 				}
@@ -94,17 +96,7 @@ define(function() {
 					// 此处写游戏逻辑					
 					self.musicManager.play("bgm", true); //play(key, volume, loop)
 
-					//this.BGM = game.add.sound('bgm');
-					//this.BGM.loop = true;
-					//this.BGM.play();					
-
-					game.physics.startSystem(Phaser.Physics.ARCADE);
-
-					/*
-					if (self.gameManager.device.platform != 'android') {						
-						this.tap = game.add.sound('tap');
-						this.hit = game.add.sound('hit');
-					}	*/				
+					game.physics.startSystem(Phaser.Physics.ARCADE);								
 
 					this.platform = game.add.sprite(0, game.height * 0.66, 'platform');
 					this.platform.anchor.setTo(0.5, 0);
@@ -128,15 +120,13 @@ define(function() {
 
 					this.offset = new Phaser.Point(0, 40); //阴影偏移量
 
-					this.dinosaurshadow = game.add.sprite(game.world.centerX, game.world.centerY, 'dinosaur');
-					this.dinosaurshadow.tint = 0x000000;
-					this.dinosaurshadow.alpha = 0.6;
-					this.dinosaurshadow.anchor.set(0.5);
+					this.dinosaurshadow = game.add.sprite(game.world.centerX, game.world.centerY, 'shadow');
+					
+					this.dinosaurshadow.anchor.setTo(0.53,0.5);
 
-					this.dogshadow = game.add.sprite(game.world.centerX, game.world.centerY, 'dog');
-					this.dogshadow.tint = 0x000000;
-					this.dogshadow.alpha = 0.6;
-					this.dogshadow.anchor.set(0.5);
+					this.dogshadow = game.add.sprite(game.world.centerX, game.world.centerY, 'shadow');
+					
+					this.dogshadow.anchor.setTo(0.55,0.5);
 
 					this.dinosaur = game.add.sprite(-game.world.width * 0.2, game.height - 448 - 130, 'dinosaur');
 					this.dinosaur.animations.add('run', [0]);
@@ -156,7 +146,7 @@ define(function() {
 					this.dinosaur.body.gravity.y = 3000;
 
 					this.rndSize();
-					this.speed = game.world.width / 2;
+					this.speed = game.world.width / 2 +20;
 
 					this.dinosaur.body.velocity.x = this.speed;
 					this.dog.body.velocity.x = -this.speed;
@@ -178,8 +168,6 @@ define(function() {
 					this.dinosaurJumpTween = game.add.tween(this.dinosaur).to({ //恐龙跳起时角度改变的动画
 						rotation: 0.2
 					}, 600, null, false, 0, 0, false);
-
-
 				};
 
 				this.rndSize = function() {
@@ -187,20 +175,20 @@ define(function() {
 
 					if (this.factor == 1) {
 						this.dog.scale.setTo(0.3, 0.3);
-						this.dogshadow.scale.setTo(0.3, 0.10); //让阴影有扁平的效果
+						this.dogshadow.scale.setTo(0.3, 0.3); 
 						this.dogshadow.y = this.platform.body.y - this.dog.height / 2 + this.offset.y; //阴影y坐标位置
 
 						this.dinosaur.scale.setTo(-0.6, 0.6);
-						this.dinosaurshadow.scale.setTo(-0.6, 0.2); //让阴影有扁平的效果
+						this.dinosaurshadow.scale.setTo(-0.6, 0.6); 
 						this.dinosaurshadow.y = this.platform.body.y - this.dinosaurshadow.height / 2 + this.offset.y / 2;
 					} else {
 						this.dog.scale.setTo(0.6, 0.6);
-						this.dogshadow.scale.setTo(0.6, 0.2); //让阴影有扁平的效果
-						this.dogshadow.y = this.platform.body.y - this.dog.height / 2 + this.offset.y * 1.5;
+						this.dogshadow.scale.setTo(0.6, 0.6); 
+						this.dogshadow.y = this.platform.body.y - this.dog.height / 2 + this.offset.y * 1.8;
 
 						this.dinosaur.scale.setTo(-0.3, 0.3);
-						this.dinosaurshadow.scale.setTo(-0.3, 0.10); //让阴影有扁平的效果
-						this.dinosaurshadow.y = this.platform.body.y - this.dinosaurshadow.height / 2 + 　this.offset.y / 2;
+						this.dinosaurshadow.scale.setTo(-0.3, 0.3); 
+						this.dinosaurshadow.y = this.platform.body.y - this.dinosaurshadow.height / 2 + 　this.offset.y / 4;
 					}
 
 					//console.log('dog: '+ (this.dog.body.y + this.dog.body.height));
@@ -239,7 +227,8 @@ define(function() {
 
 						this.rndSize(); //随机分配大小
 
-						this.speed += 20; //每次速度加快
+						if(self.score<=25)
+							this.speed += 15; //每次速度加快
 						//速度要设定一个上限
 
 						this.dog.body.velocity.x = -this.speed;
@@ -291,9 +280,8 @@ define(function() {
 					}
 				}
 
-				this.playCrash = function() { //撞击后效果函数
-					if (self.gameManager.device.platform != 'android') 
-						self.musicManager.play('hit'); //播放撞击音效
+				this.playCrash = function() { //撞击后效果函数					
+					self.musicManager.play('hit'); //播放撞击音效
 					this.dog.play('crash'); //播放小狗撞击动画（其实就是换张图）
 					this.dinosaur.play('crash');
 					this.crash = game.add.sprite(this.getCrashPosition('x'), this.getCrashPosition('y'), 'crash'); //生成撞击效果图
@@ -319,11 +307,12 @@ define(function() {
 
 				// 游戏结束
 				this.gameEnd = function() {
+					self.musicManager.stop("bgm"); //bgm停止播放
 					this.playCrash(); //撞击后效果
 
 					game.input.onDown.remove(this.jump, this); //去除点击跳起功能
 
-					self.musicManager.stop("bgm"); //bgm停止播放
+					
 
 					this.dogShadowTween.stop();
 					this.dinosaurShadowTween.stop();
