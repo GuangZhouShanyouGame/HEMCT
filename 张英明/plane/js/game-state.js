@@ -95,8 +95,8 @@ define(function(){
                     } else {
                         self.musicManager.init(['bgm']);
                     }
-                    bgm = game.add.sound("bgm",true);
-                    bgm.play();
+                    //bgm = game.add.sound("bgm",true);
+                    //bgm.play();
                     game.state.start('play');
                     
                 }
@@ -178,20 +178,28 @@ define(function(){
                         this.checkInputInPlane();
                     },this);
                 };
+                this.fire =0;
+                this.fires =0;
                 this.generateBullet = function(){
-                    if(this.plane.alive){
+                    if(this.plane.alive){                        
+                        this.fire++;
+                        console.log('fire:'+ this.fire);
                         var bullet;
                         var bulletHeight = game.cache.getImage('bullet').height;
                         var bulletWidth = game.cache.getImage('bullet').width;
                         bullet = this.bulletGroup.getFirstExists(false);
                         bullet.height = bulletHeight * 1.7;
                         bullet.width = bulletWidth * 1.3;
+                        if(self.gameManager.device.platform != 'android'){
+                                self.musicManager.stop('fire');
+                                self.musicManager.play('fire',false);                                
+                                this.fires++;
+                                console.log('sound:'+ this.fires);
+                            }
                         if(bullet && this.BulletAward == 1){
                             bullet.reset(this.plane.x - 5,this.plane.y - this.plane.height + 25 );
                             bullet.body.velocity.y = -game.world.height  / 1.5;
-                            if(self.gameManager.device.platform != 'android'){
-                                self.musicManager.play('fire',false);
-                            }
+                            
                         }
                         if(bullet && this.BulletAward == 2){
                             bullet = this.bulletGroup.getFirstExists(false);
