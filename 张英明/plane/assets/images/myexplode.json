@@ -2,19 +2,19 @@
 
 {
 	"filename": "7.png",
-	"frame": {"x":1,"y":1,"w":248,"h":241},
+	"frame": {"x":0,"y":0,"w":249,"h":249},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":4,"w":248,"h":241},
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
 	"sourceSize": {"w":249,"h":249},
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "8.png",
-	"frame": {"x":1,"y":244,"w":245,"h":244},
+	"filename": "myexplode2.png",
+	"frame": {"x":249,"y":0,"w":249,"h":249},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":2,"w":245,"h":244},
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
 	"sourceSize": {"w":249,"h":249},
 	"pivot": {"x":0.5,"y":0.5}
 }],
@@ -23,8 +23,8 @@
 	"version": "1.0",
 	"image": "myexplode.png",
 	"format": "RGBA8888",
-	"size": {"w":250,"h":489},
+	"size": {"w":498,"h":249},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:75ee43a21b443fd8ff5bfa93753cc3e9:7af6357c05c52271aae21e42bb066fa9:866a21840db3e53e150e217d2e1d5278$"
+	"smartupdate": "$TexturePacker:SmartUpdate:c46b83ebc2bd8eab599261e3093733f6:7af6357c05c52271aae21e42bb066fa9:866a21840db3e53e150e217d2e1d5278$"
 }
 }

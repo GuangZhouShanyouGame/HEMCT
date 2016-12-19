@@ -10,31 +10,31 @@ define(function(){
         game: null,
         gameManager: null,
         musicManager: null,
-
         init: function(){
             var self = this;
             var game = this.game;
+
             score = 0;
-            boomCount = 8;
+            
             enemyTeam = {
                 enemy1: {
                     pic: 'enemy1',
                     count: 10,
-                    speed: game.height /2,
+                    speed: game.height,
                     life: 1,
                     score: 10
                 },
                 enemy2: {
                     pic: 'enemy2',
                     count: 5,
-                    speed: game.height / 3,
+                    speed: 2 * game.height / 3,
                     life: 4,
                     score: 40
                 },
                 enemy3: {
                     pic: 'enemy3',
                     count: 5,
-                    speed: game.height / 6,
+                    speed: 2 * game.height / 6,
                     life: 8,
                     score: 80
                 },
@@ -84,6 +84,10 @@ define(function(){
 
                 };
             };
+            //bgm;
+            var boomCount = 8;
+            var bgm;
+            
             game.States.create = function(){
                 this.create = function(){
                     if(self.gameManager.device.platform != 'android'){
@@ -91,8 +95,10 @@ define(function(){
                     } else {
                         self.musicManager.init(['bgm']);
                     }
+                    bgm = game.add.sound("bgm",true);
+                    bgm.play();
                     game.state.start('play');
-                    self.musicManager.play('bgm');
+                    
                 }
             };
             game.States.play = function(){
@@ -103,34 +109,28 @@ define(function(){
                     this.inputInPlane = false;
                     this.BulletAward = 1;
 
-                    this.bg = game.add.sprite(0,0,"background");
-                    if(this.bg.width>this.bg.height){
-                        var bgScale=game.world.height/this.bg.height;
-                    }else{
-                        bgScale=game.world.width/this.bg.width;
-                    }
-                    this.bg.scale.setTo(bgScale,bgScale);
+                    var bg = game.add.sprite(0,0,"background");
+                    bg.width = game.world.width;
+                    bg.height = game.world.height;
+                    var plante = game.add.tileSprite(0,0,game.world.width,game.world.height,"plante");
 
-                    this.plante = game.add.tileSprite(0,0,game.width,game.height,"plante");
-                    if(this.plante.width>this.plante.height){
-                        var planteScale=game.world.height/this.plante.height;
+                    /*if(plante.width>plante.height){
+                        var scaleBtn=game.width*(game.width / 2)/plante.width;
                     }else{
-                        planteScale=game.world.width/this.plante.width;
+                        scaleBtn=game.width*(game.height / 2)/plante.height;
                     }
-                    this.plante.scale.setTo(planteScale,planteScale);
+                    plante.scale.setTo(scaleBtn,scaleBtn);*/
+                    
+                    plante.width = game.world.width;
+                    plante.height = game.world.height;
                     game.physics.startSystem(Phaser.Physics.ARCADE);
-                    this.plante.autoScroll(0,game.height / 20);
+                    plante.autoScroll(0,game.height / 20);
 
                     this.plane = game.add.sprite(game.world.centerX,game.world.centerY * 1.5 ,"plane");
-                    this.plane.anchor.setTo(0.5);
+                    this.plane.anchor.setTo(0.5,0.8);
                     game.physics.enable(this.plane,Phaser.Physics.ARCADE);
                     this.plane.body.collideWorldBounds = true;
-                    this.plane.body.setSize(100,60,30,30);
-                    
-                    this.bombIcon = game.add.sprite(50,game.world.height - 250,"bombIcon");
-                    this.boomCountText = document.getElementById("bombCountText");
-                    this.boomCountText.textContent = "X" + boomCount;
-                    //this.boomCountText = game.add.text(150, game.world.height - 210, "X " + boomCount, style);
+                    this.plane.body.setSize(100,60,30,30);            
 
                     this.boomawards = game.add.group();
                     this.boomawards.enableBody = true;
@@ -146,27 +146,33 @@ define(function(){
                     this.enemyGroup3 = groupInit(enemyTeam.enemy3);
                     this.enemyLitileTimer1 = game.time.events.loop(2000, this.generateEnemy1, this);
 
+                    this.bombIcon = game.add.sprite(100,game.world.height - 150,"bombIcon");
+                    this.bombIcon.anchor.setTo(0.5);
+                    this.boomCountText = game.add.text(this.bombIcon.width + 70, game.world.height - 150, "X " + boomCount+" ", { font: " 36px score",fill: "#FE9400"});
 
                     this.titleGroup = game.add.group();
                     this.scoreBg = game.add.sprite(0,16,"score_bg");
-                    this.score = game.add.sprite(12,16,"score");
-                    this.scoreText = document.getElementById("score");
-                    this.scoreText.textContent = score;
-                    //this.scoreText = game.add.text(game.world.centerX + 100,35,"0",style);
-                    //this.scoreText.font = "score";
+                    this.score = game.add.sprite(-10,16,"score");
+                    this.scoreText = game.add.text(this.score.width + 27,54,"0 ",{ font: " 36px score",fill: "#FE9400"});
+                    this.scoreText.anchor.setTo(0.3,0.5);
 
                     this.titleGroup.add(this.scoreBg);
                     this.titleGroup.add(this.score);
-                    //this.titleGroup.add(this.scoreText);
+                    this.titleGroup.add(this.scoreText);
                     this.titleGroup.x = 50 ;
                     this.titleGroup.y = 50 ;
                     game.input.onDown.add(function(e){
-                        if(e.x < this.bombIcon.x + this.bombIcon.width / 4 && e.x > this.bombIcon.x - this.bombIcon.width / 2
-                            && e.y < this.bombIcon.y / 2 + this.bombIcon.height / 2 && e.y > this.bombIcon.y / 2 - this.bombIcon.height / 2){
+                        if(e.x < this.bombIcon.x /2 + this.bombIcon.width / 2 && e.x > this.bombIcon.x / 2- this.bombIcon.width / 4
+                            && e.y < this.bombIcon.y / 2 + this.bombIcon.height / 2 && e.y > this.bombIcon.y / 2 - this.bombIcon.height / 4){
                             if(boomCount > 0){
-                                this.clearEnemy();
-                                boomCount--;
-                                this.boomCountText.textContent = boomCount;
+                                var bombIconScale = game.add.tween(this.bombIcon.scale).to({
+                                    x:1.2,y:1.2
+                                },150,Phaser.Easing.Quadratic.Out, true, 0, 0, true);
+                                bombIconScale.onComplete.add(function(){
+                                    this.clearEnemy();
+                                    boomCount--;
+                                    this.boomCountText.text = "X "+ boomCount + " ";
+                                },this);                              
                             }
                         }
                         this.checkInputInPlane();
@@ -181,21 +187,21 @@ define(function(){
                         bullet.height = bulletHeight * 1.7;
                         bullet.width = bulletWidth * 1.3;
                         if(bullet && this.BulletAward == 1){
-                            bullet.reset(this.plane.x - 5,this.plane.y - 60 );
+                            bullet.reset(this.plane.x - 5,this.plane.y - this.plane.height + 25 );
                             bullet.body.velocity.y = -game.world.height  / 1.5;
                             if(self.gameManager.device.platform != 'android'){
-                                self.musicManager.play('fire');
+                                self.musicManager.play('fire',false);
                             }
                         }
                         if(bullet && this.BulletAward == 2){
                             bullet = this.bulletGroup.getFirstExists(false);
                             if(bullet){
-                                bullet.reset(this.plane.x - 40,this.plane.y - 60);
+                                bullet.reset(this.plane.x - 40,this.plane.y - this.plane.height + 25);
                                 bullet.body.velocity.y = -game.world.height  / 1.5;
                             }
                             bullet = this.bulletGroup.getFirstExists(false);
                             if(bullet){
-                                bullet.reset(this.plane.x + 40,this.plane.y - 60);
+                                bullet.reset(this.plane.x + 40,this.plane.y - this.plane.height + 25);
                                 bullet.body.velocity.y = -game.world.height  / 1.5;
                             }
                         }
@@ -246,14 +252,14 @@ define(function(){
                 };
                 this.generateBulletAward = function(){
                     var randomX = game.rnd.integerInRange(0, game.width - game.cache.getImage('bulletAward').width);
-                    var randomY = game.cache.getImage('bulletAward').height;
+                    var randomY = 0;
                     this.bulletAward = game.add.sprite(randomX, randomY, 'bulletAward');
                     game.physics.enable(this.bulletAward,Phaser.Physics.ARCADE);
-                    this.bulletAward.body.velocity.y = game.world.height / 5;
+                    this.bulletAward.body.velocity.y = game.height / 5;
                 };
 
                 this.updateScore = function(){
-                    this.scoreText.textContent = score;
+                    this.scoreText.text = score + " ";
                     if( score >= 30 && score < 130 ){
                         this.enemyLitileTimer1.delay = 1000;
                     } else if( score >= 130 && score < 300 && this.timerControl == 0){
@@ -269,7 +275,6 @@ define(function(){
                         this.enemyLitileTimer1.delay = 250;
                         this.enemyMiddleTimer1.delay = 3000;
                         this.enemyBigTimer1.delay = 3000;
-                        console.log(2);
                     } else if( score >= 700 && score < 1000 && this.timerControl == 3){
                         this.timerControl++;
                         this.enemyLitileTimer1.delay = 200;
@@ -295,14 +300,14 @@ define(function(){
                     enemy.life--;
                     if(enemy.life > 0){
                         if(self.gameManager.device.platform != 'android'){
-                            self.musicManager.play('HurtMetal');
+                            self.musicManager.play('HurtMetal',false);
                         }
                     }
                     if(enemy.life <= 0){
                         enemy.kill();
                         boomAnimat(enemy);
                         if(self.gameManager.device.platform != 'android'){
-                            self.musicManager.play('bomb');
+                            self.musicManager.play('bomb',false);
                         }
                         score += enemy.score;
                         this.updateScore();
@@ -331,7 +336,9 @@ define(function(){
                     }
                     var anim = myexplode.animations.add('myexplode',[0,1],32);
                     myexplode.animations.play('myexplode');
-
+                    if(self.gameManager.device.platform != 'android'){
+                            self.musicManager.play('bomb',false);
+                        }
                     anim.onComplete.add(function(e){
                         e.destroy();
                         game.state.start("end");
@@ -372,7 +379,7 @@ define(function(){
                         score += enemy3.score;
                     },true);
                     if(self.gameManager.device.platform != 'android'){
-                        self.musicManager.play('bomb');
+                        self.musicManager.play('bomb',false);
                     }
                     this.updateScore();
                 };
@@ -384,28 +391,27 @@ define(function(){
                 this.update = function(){
                     if(this.inputInPlane){
                         if (game.input.pointer1.isDown){
-                            this.plane.x = game.input.x * 2;
-                            this.plane.y = game.input.y * 2;
+                            this.plane.x = game.input.pointer1.x * 2;
+                            this.plane.y = game.input.pointer1.y * 2;
                         }
-                        game.input.onUp.add(function(){
+                        if(game.input.pointer1.isUp){
                             this.inputInPlane = false;
-                        },this);
+                        };
                     }
                     game.physics.arcade.overlap(this.bulletGroup, this.enemyGroup1, this.hitEnemy, null, this);
                     game.physics.arcade.overlap(this.bulletGroup, this.enemyGroup2, this.hitEnemy, null, this);
                     game.physics.arcade.overlap(this.bulletGroup, this.enemyGroup3, this.hitEnemy, null, this);
-                    //game.physics.arcade.overlap(this.plane, this.enemyGroup1, this.crashPlane, null, this);
-                    //game.physics.arcade.overlap(this.plane, this.enemyGroup2, this.crashPlane, null, this);
-                    //game.physics.arcade.overlap(this.plane, this.enemyGroup3, this.crashPlane, null, this);
+                    game.physics.arcade.overlap(this.plane, this.enemyGroup1, this.crashPlane, null, this);
+                    game.physics.arcade.overlap(this.plane, this.enemyGroup2, this.crashPlane, null, this);
+                    game.physics.arcade.overlap(this.plane, this.enemyGroup3, this.crashPlane, null, this);
                     game.physics.arcade.overlap(this.plane, this.boomawards, this.getBoomAward, null, this);
                     game.physics.arcade.overlap(this.plane, this.bulletAward, this.getBulletAward, null, this);
                 };
             };
             game.States.end = function(){
                 this.create = function(){
-                    self.musicManager.stop("bgm");
-                    document.getElementById("bombCountText").style.display = "none";
-                    document.getElementById("score").style.display = "none";
+                    //self.musicManager.stop();
+                    bgm.fadeOut(1000);
                     var style = {font: "bold 32px Arial", fill: "#ff0000", boundsAlignH: "center", boundsAlignV: "middle"};
                     this.text = game.add.text(0, 0, "Score: " + score, style);
                     this.text.setTextBounds(0, 0, game.width, game.height);
