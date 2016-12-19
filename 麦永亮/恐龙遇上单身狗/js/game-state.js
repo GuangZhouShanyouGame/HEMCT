@@ -63,9 +63,7 @@ define(function() {
 					game.load.image('gold', 'assets/images/gold.png');
 
 					//加载音效
-					game.load.audio('bgm', "assets/audio/BGM.mp3");
-					game.load.audio('hit', 'assets/audio/hit.mp3');
-					game.load.audio('tap', 'assets/audio/tap.mp3');					
+					game.load.audio('bgm', "assets/audio/BGM.mp3");								
 
 					// 安卓只能同时播放一个音乐					
 					if (self.gameManager.device.platform != 'android') {						
@@ -102,11 +100,11 @@ define(function() {
 
 					game.physics.startSystem(Phaser.Physics.ARCADE);
 
+					/*
 					if (self.gameManager.device.platform != 'android') {						
 						this.tap = game.add.sound('tap');
 						this.hit = game.add.sound('hit');
-					}
-					
+					}	*/				
 
 					this.platform = game.add.sprite(0, game.height * 0.66, 'platform');
 					this.platform.anchor.setTo(0.5, 0);
@@ -213,7 +211,7 @@ define(function() {
 					if ((this.dog.body.y + this.dog.body.height == this.platform.body.y) && (this.dinosaur.body.y + this.dinosaur.body.height == this.platform.body.y)) {
 						//当两个动物都在地面时才执行
 						if (self.gameManager.device.platform != 'android') 
-							this.tap.play(); //点击时的音效	
+							self.musicManager.play('tap');//点击时的音效	
 						
 						if (arguments[0].x >= game.width / 4) {
 							//点击屏幕右半边，并且狗在地面上，狗起跳
@@ -295,14 +293,14 @@ define(function() {
 
 				this.playCrash = function() { //撞击后效果函数
 					if (self.gameManager.device.platform != 'android') 
-						this.hit.play(); //播放撞击音效
+						self.musicManager.play('hit'); //播放撞击音效
 					this.dog.play('crash'); //播放小狗撞击动画（其实就是换张图）
 					this.dinosaur.play('crash');
 					this.crash = game.add.sprite(this.getCrashPosition('x'), this.getCrashPosition('y'), 'crash'); //生成撞击效果图
 					this.crash.anchor.set(0.5);
-					this.crashTweenScale = game.add.tween(this.crash).to({
-						width: this.crash.width * 2.5,
-						height: this.crash.height * 2.5,
+					this.crashTweenScale = game.add.tween(this.crash).from({
+						width: this.crash.width * 0.5,
+						height: this.crash.height * 0.5,
 					}, 150, Phaser.Easing.Linear.None, false, 0, 0, false); //150ms内变大的动画
 
 					this.crashTweenAlpha = game.add.tween(this.crash).to({
