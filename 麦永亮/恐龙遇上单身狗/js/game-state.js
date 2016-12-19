@@ -91,7 +91,7 @@ define(function() {
 			game.States.play = function() {
 				this.create = function() {
 					// 此处写游戏逻辑					
-					self.musicManager.play("bgm");					
+					self.musicManager.play("bgm",true);	 //play(key, volume, loop)
 
 					//this.BGM = game.add.sound('bgm');
 					//this.BGM.loop = true;
@@ -232,8 +232,12 @@ define(function() {
 						this.rndSize(); //随机分配大小
 
 						this.speed += 20; //每次速度加快
+						//速度要设定一个上限
+
 						this.dog.body.velocity.x = -this.speed;
 						this.dinosaur.body.velocity.x = this.speed;
+
+
 						//console.log('speed:' + this.speed);
 					}
 				}
@@ -283,7 +287,6 @@ define(function() {
 
 				this.playCrash = function() { //撞击后效果函数
 					this.hit.play(); //播放撞击音效
-
 					this.dog.play('crash'); //播放小狗撞击动画（其实就是换张图）
 					this.dinosaur.play('crash');
 					this.crash = game.add.sprite(this.getCrashPosition('x'), this.getCrashPosition('y'), 'crash'); //生成撞击效果图
