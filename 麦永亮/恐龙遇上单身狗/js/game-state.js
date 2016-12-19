@@ -127,12 +127,12 @@ define(function() {
 					this.dogshadow = game.add.sprite(game.world.centerX, game.world.centerY, 'shadow');					
 					this.dogshadow.anchor.setTo(0.53,0.5);
 
-					this.dinosaur = game.add.sprite(-game.world.width * 0.2, game.height - 448 - 130, 'dinosaur');
+					this.dinosaur = game.add.sprite(-game.world.width * 0.2, game.height*0.58, 'dinosaur');
 					this.dinosaur.animations.add('run', [0]);
 					this.dinosaur.animations.add('crash', [1]);
 					this.dinosaur.anchor.setTo(0.5, 0.5);
 					
-					this.dog = game.add.sprite(game.width + game.world.width * 0.2, game.height - 448 - 130, 'dog');
+					this.dog = game.add.sprite(game.width + game.world.width * 0.2, game.height*0.58, 'dog');
 					this.dog.animations.add('run', [0]);
 					this.dog.animations.add('crash', [1]);
 					this.dog.anchor.setTo(0.5, 0.5);
@@ -300,9 +300,10 @@ define(function() {
 
 				/*
 				this.render = function(){
-					game.debug.body(this.dog);
+					game.debug.body(this.platform);
 					game.debug.body(this.dinosaur);		//debug狗和恐龙的碰撞体积
-				}*/
+				}
+				*/
 
 				// 游戏结束
 				this.gameEnd = function() {
