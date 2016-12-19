@@ -31,6 +31,11 @@ define(function() {
 					$(game.canvas).css("height", game.world.height / 2);
 					// 设置默认背景颜色
 					game.stage.backgroundColor = '#aaa';
+
+					//加载音效
+					game.load.audio('bgm', "assets/audio/BGM.mp3");
+					game.load.audio('hit', 'assets/audio/hit.mp3');
+					game.load.audio('tap', 'assets/audio/tap.mp3');
 				};
 				this.create = function() {
 					// 进入preload状态
@@ -58,16 +63,12 @@ define(function() {
 
 					//加载得分榜图片
 					game.load.image('white', 'assets/images/white.png');
-					game.load.image('gold', 'assets/images/gold.png');
-					//加载音效
-					game.load.audio('bg', "assets/audio/BGM.mp3");
-					game.load.audio('hit', 'assets/audio/hit.mp3');
-					game.load.audio('tap', 'assets/audio/tap.mp3');
+					game.load.image('gold', 'assets/images/gold.png');		
 
-					// 安卓只能同时播放一个音乐
+					// 安卓只能同时播放一个音乐					
 					if (self.gameManager.device.platform != 'android') {
-						game.load.audio('input', "assets/audio/tap.mp3");
-					}
+						game.load.audio('tap', "assets/audio/tap.mp3");
+					}					
 				};
 			};
 
@@ -75,14 +76,13 @@ define(function() {
 			// 开始界面
 			game.States.create = function() {
 				this.create = function() {
-					// 初始化音乐
-
+					// 初始化音乐					
 					if (self.gameManager.device.platform != 'android') {
-						self.musicManager.init(['bg', 'input']);
+						self.musicManager.init(['bgm', 'tap']);
 					} else {
-						self.musicManager.init(['bg']);
-					}
-					game.state.start('play');
+						self.musicManager.init(['bgm']);
+					}					
+					game.state.start('play');					
 				}
 			};
 
@@ -91,7 +91,11 @@ define(function() {
 			game.States.play = function() {
 				this.create = function() {
 					// 此处写游戏逻辑					
-					self.musicManager.play("bg");
+					self.musicManager.play("bgm");					
+
+					//this.BGM = game.add.sound('bgm');
+					//this.BGM.loop = true;
+					//this.BGM.play();					
 
 					game.physics.startSystem(Phaser.Physics.ARCADE);
 					this.tap = game.add.sound('tap');
@@ -198,22 +202,23 @@ define(function() {
 				}
 
 				this.jump = function() { //点击屏幕后挑跳起
-					if (arguments[0].x >= game.width / 4 && (this.dog.body.y + this.dog.body.height == this.platform.body.y) && (this.dinosaur.body.y + this.dinosaur.body.height == this.platform.body.y)) {
-						//点击屏幕右半边，并且狗在地面上，狗起跳
-						this.tap.play(); //点击时的音效
-						this.dog.body.velocity.y = -900; //起跳速度
-						this.dog.rotation = 0.2; //跳起时角度改变
-						this.dogJumpTween.start(); //播放狗跳起的动画
-						this.dogShadowTween.start(); //播放阴影动画
-						//this.dog.rotation = -0.2;
-					} else if (arguments[0].x < game.width / 4 && (this.dog.body.y + this.dog.body.height == this.platform.body.y) && (this.dinosaur.body.y + this.dinosaur.body.height == this.platform.body.y)) {
-						//点击屏幕左半边，并且恐龙在地面上，恐龙起跳
-						this.tap.play();
-						this.dinosaur.body.velocity.y = -900;
-						this.dinosaur.rotation = -0.2;
-						this.dinosaurJumpTween.start();
-						this.dinosaurShadowTween.start();
-					} else {}
+					if ((this.dog.body.y + this.dog.body.height == this.platform.body.y) && (this.dinosaur.body.y + this.dinosaur.body.height == this.platform.body.y)) {
+						//当两个动物都在地面时才执行
+						this.tap.play(); //点击时的音效		
+						if (arguments[0].x >= game.width / 4) {
+							//点击屏幕右半边，并且狗在地面上，狗起跳
+							this.dog.body.velocity.y = -900; //起跳速度
+							this.dog.rotation = 0.2; //跳起时角度改变
+							this.dogJumpTween.start(); //播放狗跳起的动画
+							this.dogShadowTween.start(); //播放阴影动画							
+						} else if (arguments[0].x < game.width / 4) {
+							//点击屏幕左半边，并且恐龙在地面上，恐龙起跳						
+							this.dinosaur.body.velocity.y = -900;
+							this.dinosaur.rotation = -0.2;
+							this.dinosaurJumpTween.start();
+							this.dinosaurShadowTween.start();
+						} 
+					}
 				}
 
 				this.next = function() { //更新下一轮
@@ -233,11 +238,11 @@ define(function() {
 					}
 				}
 
-				this.dog_run = function() {
+				this.dogRun = function() {
 					this.dog.rotation = 0; //在地上时角度为0
 				}
 
-				this.dinosaur_run = function() {
+				this.dinosaurRun = function() {
 					this.dinosaur.rotation = 0; //在地上时角度为0
 				}
 
@@ -246,8 +251,8 @@ define(function() {
 					this.dogshadow.x = this.dog.x + this.offset.x; //阴影随着狗移动
 					this.dinosaurshadow.x = this.dinosaur.x + this.offset.x;
 
-					game.physics.arcade.collide(this.dinosaur, this.platform, this.dinosaur_run, null, this);
-					game.physics.arcade.collide(this.dog, this.platform, this.dog_run, null, this);
+					game.physics.arcade.collide(this.dinosaur, this.platform, this.dinosaurRun, null, this);
+					game.physics.arcade.collide(this.dog, this.platform, this.dogRun, null, this);
 
 					game.physics.arcade.collide(this.dog, this.dinosaur, this.gameEnd, null, this); //狗和恐龙撞击时，游戏结束
 					// 每一帧更新都会触发
@@ -308,7 +313,7 @@ define(function() {
 
 					game.input.onDown.remove(this.jump, this); //去除点击跳起功能
 
-					self.musicManager.stop("bg"); //bgm停止播放
+					self.musicManager.stop("bgm"); //bgm停止播放
 
 					this.dogShadowTween.stop();
 					this.dinosaurShadowTween.stop();
