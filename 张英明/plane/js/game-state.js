@@ -95,8 +95,8 @@ define(function(){
                     } else {
                         self.musicManager.init(['bgm']);
                     }
-                    //bgm = game.add.sound("bgm",true);
-                    //bgm.play();
+                    bgm = game.add.sound("bgm",true);
+                    bgm.play();
                     game.state.start('play');
                     
                 }
@@ -113,16 +113,10 @@ define(function(){
                     bg.width = game.world.width;
                     bg.height = game.world.height;
                     var plante = game.add.tileSprite(0,0,game.world.width,game.world.height,"plante");
-
-                    /*if(plante.width>plante.height){
-                        var scaleBtn=game.width*(game.width / 2)/plante.width;
-                    }else{
-                        scaleBtn=game.width*(game.height / 2)/plante.height;
-                    }
-                    plante.scale.setTo(scaleBtn,scaleBtn);*/
                     
                     plante.width = game.world.width;
                     plante.height = game.world.height;
+                    console.log(plante.height,game.world.height /2);
                     game.physics.startSystem(Phaser.Physics.ARCADE);
                     plante.autoScroll(0,game.height / 20);
 
@@ -140,7 +134,7 @@ define(function(){
                     this.boomawards.createMultiple(6, 'boomAward');
 
                     this.bulletGroup = groupInit(enemyTeam.bullet);
-                    game.time.events.loop(250,this.generateBullet,this);
+                    this.bulletAwardTimer = game.time.events.loop(250,this.generateBullet,this);
                     this.enemyGroup1 = groupInit(enemyTeam.enemy1);
                     this.enemyGroup2 = groupInit(enemyTeam.enemy2);
                     this.enemyGroup3 = groupInit(enemyTeam.enemy3);
@@ -165,41 +159,25 @@ define(function(){
                         if(e.x < this.bombIcon.x /2 + this.bombIcon.width / 2 && e.x > this.bombIcon.x / 2- this.bombIcon.width / 4
                             && e.y < this.bombIcon.y / 2 + this.bombIcon.height / 2 && e.y > this.bombIcon.y / 2 - this.bombIcon.height / 4){
                             if(boomCount > 0){
-                                var bombIconScale = game.add.tween(this.bombIcon.scale).to({
-                                    x:1.2,y:1.2
-                                },150,Phaser.Easing.Quadratic.Out, true, 0, 0, true);
-                                bombIconScale.onComplete.add(function(){
-                                    this.clearEnemy();
-                                    boomCount--;
-                                    this.boomCountText.text = "X "+ boomCount + " ";
-                                },this);                              
+                                this.clearEnemy();
+                                boomCount--;
+                                this.boomCountText.text = "X "+ boomCount + " ";                              
                             }
                         }
                         this.checkInputInPlane();
                     },this);
                 };
-                this.fire =0;
-                this.fires =0;
                 this.generateBullet = function(){
-                    if(this.plane.alive){                        
-                        this.fire++;
-                        console.log('fire:'+ this.fire);
+                    if(this.plane.alive){
                         var bullet;
                         var bulletHeight = game.cache.getImage('bullet').height;
                         var bulletWidth = game.cache.getImage('bullet').width;
                         bullet = this.bulletGroup.getFirstExists(false);
                         bullet.height = bulletHeight * 1.7;
                         bullet.width = bulletWidth * 1.3;
-                        if(self.gameManager.device.platform != 'android'){
-                                self.musicManager.stop('fire');
-                                self.musicManager.play('fire',false);                                
-                                this.fires++;
-                                console.log('sound:'+ this.fires);
-                            }
                         if(bullet && this.BulletAward == 1){
                             bullet.reset(this.plane.x - 5,this.plane.y - this.plane.height + 25 );
                             bullet.body.velocity.y = -game.world.height  / 1.5;
-                            
                         }
                         if(bullet && this.BulletAward == 2){
                             bullet = this.bulletGroup.getFirstExists(false);
@@ -208,10 +186,16 @@ define(function(){
                                 bullet.body.velocity.y = -game.world.height  / 1.5;
                             }
                             bullet = this.bulletGroup.getFirstExists(false);
+                            bullet.height = bulletHeight * 1.7;
+                            bullet.width = bulletWidth * 1.3;
                             if(bullet){
                                 bullet.reset(this.plane.x + 40,this.plane.y - this.plane.height + 25);
                                 bullet.body.velocity.y = -game.world.height  / 1.5;
                             }
+                        }
+                        if(self.gameManager.device.platform != 'android'){
+                            self.musicManager.stop('fire');
+                            self.musicManager.play('fire',false);
                         }
                     }
                 };
@@ -315,6 +299,7 @@ define(function(){
                         enemy.kill();
                         boomAnimat(enemy);
                         if(self.gameManager.device.platform != 'android'){
+                            self.musicManager.stop('bomb');
                             self.musicManager.play('bomb',false);
                         }
                         score += enemy.score;
@@ -329,6 +314,7 @@ define(function(){
                 this.getBulletAward = function(plane,award){
                     award.kill();
                     this.BulletAward = 2;
+                    this.bulletAwardTimer.delay = 330;
                 };
                 this.crashPlane = function(plane,enemy){
                     var myexplode = game.add.sprite(this.plane.x - this.plane.width / 2, this.plane.y - this.plane.height / 2, 'myexplode');
@@ -356,7 +342,7 @@ define(function(){
                     var Enemyexplode = game.add.sprite(enemy.x,enemy.y, 'myexplode');
                         Enemyexplode.width = enemy.width;
                         Enemyexplode.height = enemy.height;
-                        var anim = Enemyexplode.animations.add('Enemyexplode',[0,1],32);
+                        var anim = Enemyexplode.animations.add('Enemyexplode',[0,1],20);
                         Enemyexplode.animations.play('Enemyexplode');
                         anim.onComplete.add(function(e){
                             e.destroy();
@@ -391,15 +377,18 @@ define(function(){
                     }
                     this.updateScore();
                 };
-                /*this.checkPlaneInWorld = function(){
-                 game.input.y = game.input.y > game.world.height / 2 - this.plane.height ? game.world.height / 2 - this.plane.height : game.input.y;
-                 game.input.x = game.input.x < 0 ? 0 : game.input.x;
-                 game.input.x = game.input.x > game.world.width / 2 - this.plane.width ? game.world.width / 2 - this.plane.width : game.input.x;
-                }*/
                 this.update = function(){
                     if(this.inputInPlane){
                         if (game.input.pointer1.isDown){
-                            this.plane.x = game.input.pointer1.x * 2;
+                            this.plane.x = game.input.pointer1.x * 2 - this.plane.width / 2 < 0 ? 70 : game.input.pointer1.x * 2;
+                            /*if(game.input.pointer1.x * 2 - this.plane.width / 2 > 0 && game.input.pointer1.x * 2 + this.plane.width / 4 < game.world.width){
+                                this.plane.x = game.input.pointer1.x * 2;
+                            } else if(game.input.pointer1.x * 2 - this.plane.width / 2 < 0){
+                                this.plane.x = 70;
+                            } else {
+                                this.plane.x = game.world.width - this.plane.width / 2;
+                            }*/
+                            //this.plane.x = game.input.pointer1.x * 2 + this.plane.width / 4 > game.world.width ? game.world.width - this.plane.width / 2: game.input.pointer1.x * 2;
                             this.plane.y = game.input.pointer1.y * 2;
                         }
                         if(game.input.pointer1.isUp){
