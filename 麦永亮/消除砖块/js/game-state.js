@@ -224,26 +224,45 @@ define(function() {
 					var posX = brick.posX;
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
+
+
 					if (this.Brick.countBricks(currentBrick) == 3) {
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).kill();
-						}
-						for (var j = minY; j < posY; j++) {
+						}				
+
+						
+						for (var j = posY - 1; j >= minY; j--) {
 							for (var i = 0; i < 4; i++) {
-								if (this.Brick.getBrick(i, j) != null)
-									this.Brick.getBrick(i, j).y -= game.cache.getImage("brick").height * scaleRate;
+								if (this.Brick.getBrick(i, j)) {
+									this.Brick.getBrick(i, j).y -= game.cache.getImage("brick").height * scaleRate; //向上移
+									this.Brick.setBrickPos(this.Brick.getBrick(i, j), i, j + 1); //重置后面的posY和id
+									
+								}
 							}
 						}
+						minY++;
+
+
+
 					} else if (this.Brick.countBricks(currentBrick) == 0) {
 						minY--;
 					}
 				}
 
+				var hit = false;
 				this.hitBrick = function(mybrick, brick) {
-					this.Brick.replaceBrick(mybrick, brick);
-					console.log('hitBrick');
+					if (!hit) {
+						this.Brick.replaceBrick(mybrick, brick);
+						console.log('hitBrick');
+						hit = true;
+						setTimeout(function() {
+							hit = false;
+						}, 30);
 
-					//this.killBrick(brick);
+						this.killBrick(brick);
+					}
+
 				}
 
 				this.update = function() {
