@@ -36,8 +36,6 @@ define(function() {
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
 					//this.bricks.setAll('checkWorldBounds', true);
-
-
 					//console.log(this.loopTime);
 					this.timerForBarriers = game.time.events.loop(this.loopTime, this.generateBricks, this); //每过一定时间生成一次砖块
 				}
@@ -54,7 +52,7 @@ define(function() {
 				}
 
 				this.getBrick = function(posX, posY) {
-					return bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
+					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
 				}
 
 				this.generateBricks = function() { //生成一行砖块，其中随机一个不生成
@@ -93,23 +91,25 @@ define(function() {
 
 				this.countBricks = function(startBrick) { //返回某一行其他砖块的个数
 					var moveX = 1;
-					var curX = startBrick.poxX + moveX;
+					var curX = startBrick.posX + moveX;
 					var curY = startBrick.posY;
 					var count = 0;
 
-					while (getBrick(curX, curY) != null) {
+					while (this.getBrick(curX, curY) != null) {
 						count++;
 						curX += moveX;
 					}
 
 					moveX = -1;
-					curX = startBrick.poxX + moveX;
+					curX = startBrick.posX + moveX;
 
-					while (getBrick(curX, curY) != null) {
+					while (this.getBrick(curX, curY) != null) {
 						count++;
 						curX += moveX;
 					}
+					console.log('count: '+ count);
 					return count;
+
 				}
 
 			}
@@ -202,7 +202,7 @@ define(function() {
 							myBrick.reset((game.width / 4) * i, game.height);
 							myBrick.width = game.world.width / 4;
 							myBrick.height = game.cache.getImage("brick").height * scaleRate;
-							myBrick.body.velocity.y = -300;
+							myBrick.body.velocity.y = -1000;
 							console.log(i);
 						}
 					}
@@ -220,9 +220,30 @@ define(function() {
 					}
 				}
 
-				this.hitBrick = function() {
-					this.Brick.replaceBrick(arguments[0], arguments[1]);
+				this.killBrick = function(brick) {
+					var posX = brick.posX;
+					var posY = brick.posY - 1;
+					var currentBrick = this.Brick.getBrick(posX, posY);
+					if (this.Brick.countBricks(currentBrick) == 3) {
+						for (var i = 0; i < 4; i++) {
+							this.Brick.getBrick(i, posY).kill();
+						}
+						for (var j = minY; j < posY; j++) {
+							for (var i = 0; i < 4; i++) {
+								if (this.Brick.getBrick(i, j) != null)
+									this.Brick.getBrick(i, j).y -= game.cache.getImage("brick").height * scaleRate;
+							}
+						}
+					} else if (this.Brick.countBricks(currentBrick) == 0) {
+						minY--;
+					}
+				}
+
+				this.hitBrick = function(mybrick, brick) {
+					this.Brick.replaceBrick(mybrick, brick);
 					console.log('hitBrick');
+
+					//this.killBrick(brick);
 				}
 
 				this.update = function() {
