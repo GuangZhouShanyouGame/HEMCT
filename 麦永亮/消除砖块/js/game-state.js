@@ -42,7 +42,7 @@ define(function() {
 
 				this.setBrickPos = function(brick, posX, posY) { //给brick加上posX，poxY（横纵的第几个）,和ID
 					brick.posX = posX;
-					brick.posY = posY;
+					brick.posY = posY;					
 					brick.id = this.setID(posX, posY);
 				}
 
@@ -70,7 +70,7 @@ define(function() {
 							}
 						}
 					}
-					maxY++;
+					maxY++;					
 				}
 
 				this.replaceBrick = function(myBrick, brick) { //把发射的砖块替换成上方滚动的砖块
@@ -80,7 +80,7 @@ define(function() {
 						b.reset(brick.x, brick.y + game.cache.getImage("brick").height * scaleRate);
 						b.width = game.world.width / 4;
 						b.height = game.cache.getImage("brick").height * scaleRate;
-						b.body.velocity.y = this.speed;
+						b.body.velocity.y = this.speed; 	
 						//b.body.width *= 0.8;					
 						this.setBrickPos(b, brick.posX, (brick.posY - 1));
 					}
@@ -107,7 +107,7 @@ define(function() {
 						count++;
 						curX += moveX;
 					}
-					console.log('count: ' + count);
+					console.log('count: '+ count);
 					return count;
 
 				}
@@ -225,6 +225,7 @@ define(function() {
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
 
+
 					if (this.Brick.countBricks(currentBrick) == 3) {
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).kill();
@@ -241,6 +242,7 @@ define(function() {
 							}
 						}
 						minY++;
+
 
 
 					} else if (this.Brick.countBricks(currentBrick) == 0) {
@@ -260,6 +262,7 @@ define(function() {
 
 						this.killBrick(brick);
 					}
+
 				}
 
 				this.update = function() {
