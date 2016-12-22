@@ -57,10 +57,10 @@ define(function() {
 					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
 				}
 
-				
+
 				this.generateBricks = function() { //生成一行砖块，其中随机一个不生成
 					this.nullPosition = game.rnd.integerInRange(0, 3);
-					
+
 					for (var i = 0; i < 4; i++) {
 						if (i != this.nullPosition) {
 							var b = this.bricks.getFirstExists(false);
@@ -147,8 +147,9 @@ define(function() {
 
 					game.load.image('bg', "assets/images/bg.png");
 					game.load.image('brick', "assets/images/brick.png");
-					game.load.image('line',"assets/images/line.png");
-					game.load.image('emitter',"assets/images/emitter.png");
+					game.load.image('line', "assets/images/line.png");
+					game.load.image('emitter', "assets/images/emitter.png");
+					game.load.image('bar', "assets/images/bar.png");
 
 					//加载得分榜图片
 					game.load.image('white', 'assets/images/white.png');
@@ -211,11 +212,13 @@ define(function() {
 					this.scoreText.anchor.setTo(0.5, 0.5);
 					//this.myBricks.setAll('outOfBoundsKill', true);
 					//this.myBricks.setAll('checkWorldBounds', true);
-					this.line = this.add.sprite(0,game.world.height*0.8,'line');
+					this.line = this.add.sprite(0, game.world.height * 0.8, 'line');
 					this.line.width = game.world.width;
-					this.line.height *=scaleRate;
+					this.line.height *= scaleRate;
 					game.physics.enable(this.line, Phaser.Physics.ARCADE);
 					this.line.body.immovable = true;
+
+					this.bar = this.add.sprite(10 + this.white.width + 15, 45, 'bar');
 
 					game.input.onDown.add(this.shootBrick, this);
 				};
@@ -245,6 +248,9 @@ define(function() {
 					}
 				}
 
+				this.multiple = 1;
+				this.combo = 0;
+
 				this.killBrick = function(brick) { //消除砖块函数
 					var posX = brick.posX;
 					var posY = brick.posY - 1;
@@ -252,23 +258,28 @@ define(function() {
 
 					if (this.Brick.countBricks(currentBrick) == 3) {
 						var completeKill = false;
-						for (var i = 0; i < 4; i++) {			
+						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).kill();
 							console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
-						}	
+						}
 						this.moveBrickBehind(posY);
 						//this.createEmitter(brick.y+brickHeight * 1.5);
+						this.combo++;
+						this.showCombo(brick.x, brick.y + brickHeight);
 						minY++;
-						self.score++;
+						self.score = self.score + this.multiple;
 						this.scoreText.text = self.score + ' ';
-					} else if (this.Brick.countBricks(currentBrick) == 0) {
+					} else if (this.Brick.countBricks(currentBrick) == 0) { //增加了一层
 						minY--;
+						this.combo = 0;
+					} else {
+						this.combo = 0;
 					}
 					console.log('minY: ' + minY);
 				}
 
-				this.moveBrickBehind = function(posY) {		//移动后方的砖块，并重置他们的posY与ID
-					for (var j = posY - 1; j >= minY-1; j--) {
+				this.moveBrickBehind = function(posY) { //移动后方的砖块，并重置他们的posY与ID
+					for (var j = posY - 1; j >= minY - 1; j--) {
 						for (var i = 0; i < 4; i++) {
 							if (this.Brick.getBrick(i, j)) {
 								this.Brick.getBrick(i, j).y -= brickHeight; //向上移
@@ -286,7 +297,7 @@ define(function() {
 					// 发射器宽度，所以范围是game.world.centerX-400 ~ game.world.centerX+400
 					this.emitter.width = game.world.width;
 					// 发射bubble
-					this.emitter.makeParticles('emitter',0,150,1,true);
+					this.emitter.makeParticles('emitter', 0, 150, 1, true);
 					// 最小速度和最大速度
 					this.emitter.minParticleSpeed.set(0, 0);
 					this.emitter.maxParticleSpeed.set(0, 120);
@@ -304,6 +315,18 @@ define(function() {
 					//console.log('emitter');
 				}
 
+				this.showCombo = function(x, y) {
+					this.comboText = this.add.text(x + game.world.width / 8, y, 'x' + this.combo, this.style);
+					this.comboText.anchor.setTo(0.5, 0);
+					this.comboTween = game.add.tween(this.comboText).to({
+						alpha: 0
+					}, 380, Phaser.Easing.Linear.None, false, 0, 0, false); //150ms内变大的动画
+					this.comboTween.start();
+					this.comboTween.onComplete.add(function() {
+						this.comboText.destroy();
+					}, this);
+				}
+
 				var hit = false;
 				this.hitBrick = function(mybrick, brick) {
 					if (!hit) {
@@ -318,14 +341,13 @@ define(function() {
 					}
 				}
 
-
-
 				this.update = function() {
 					// 每一帧更新都会触发
 					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
 					game.physics.arcade.overlap(this.line, this.Brick.bricks, this.gameEnd, null, this);
 					//game.physics.arcade.collide(this.line, this.emitter);
-					
+					this.bar.width = (game.world.width - this.bar.x - 20) * (this.combo % 100) / 100;
+
 				};
 				// 游戏结束
 				this.gameEnd = function() {
