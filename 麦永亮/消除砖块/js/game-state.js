@@ -25,14 +25,16 @@ define(function() {
 			var minY = 0;
 			var maxY = 0;
 			var scaleRate = 0;
+			var brickHeight = 0;
 
 			function Brick() {
 				scaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
+				brickHeight = game.cache.getImage("brick").height * scaleRate;
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
-					this.bricks.createMultiple(100, "brick");
-					this.speed = 100; //移动速度
+					this.bricks.createMultiple(80, "brick");
+					this.speed = 200; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
 					//this.bricks.setAll('checkWorldBounds', true);
@@ -42,7 +44,7 @@ define(function() {
 
 				this.setBrickPos = function(brick, posX, posY) { //给brick加上posX，poxY（横纵的第几个）,和ID
 					brick.posX = posX;
-					brick.posY = posY;					
+					brick.posY = posY;
 					brick.id = this.setID(posX, posY);
 				}
 
@@ -55,38 +57,41 @@ define(function() {
 					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
 				}
 
+				
 				this.generateBricks = function() { //生成一行砖块，其中随机一个不生成
 					this.nullPosition = game.rnd.integerInRange(0, 3);
+					
 					for (var i = 0; i < 4; i++) {
 						if (i != this.nullPosition) {
 							var b = this.bricks.getFirstExists(false);
 							if (b) {
-								b.reset(i * game.world.width / 4, -game.cache.getImage("brick").height * scaleRate);
+								b.reset(i * game.world.width / 4, -brickHeight);
 								b.width = game.world.width / 4;
-								b.height = game.cache.getImage("brick").height * scaleRate;
+								b.height = brickHeight;
 								b.body.velocity.y = this.speed;
 								//b.body.width *= 0.8;
 								this.setBrickPos(b, i, maxY);
 							}
 						}
 					}
-					maxY++;					
+					maxY++;
 				}
 
 				this.replaceBrick = function(myBrick, brick) { //把发射的砖块替换成上方滚动的砖块
 					myBrick.kill();
 					var b = this.bricks.getFirstExists(false);
 					if (b) {
-						b.reset(brick.x, brick.y + game.cache.getImage("brick").height * scaleRate);
+						b.reset(brick.x, brick.y + brickHeight);
 						b.width = game.world.width / 4;
-						b.height = game.cache.getImage("brick").height * scaleRate;
-						b.body.velocity.y = this.speed; 	
+						b.height = brickHeight;
+						b.body.velocity.y = this.speed;
 						//b.body.width *= 0.8;					
 						this.setBrickPos(b, brick.posX, (brick.posY - 1));
+						console.log('Reset');
 					}
 					//console.log('brick.posX: ' + brick.posX);
 					//console.log('brick.posY: ' + brick.posY);
-					console.log('hit brick id:' + brick.id);
+					//console.log('hit brick id:' + brick.id);
 				}
 
 				this.countBricks = function(startBrick) { //返回某一行其他砖块的个数
@@ -107,7 +112,7 @@ define(function() {
 						count++;
 						curX += moveX;
 					}
-					console.log('count: '+ count);
+					console.log('count: ' + count);
 					return count;
 
 				}
@@ -195,14 +200,14 @@ define(function() {
 					game.input.onDown.add(this.shootBrick, this);
 				};
 
-				this.resetShootBrick = function(i) { //重置发射的砖块
+				this.resetShootBrick = function(i) { //重置发射的砖块,发射速度在这里改
 					if (i <= 3) {
 						var myBrick = this.myBricks.getFirstExists(false);
 						if (myBrick) {
 							myBrick.reset((game.width / 4) * i, game.height);
 							myBrick.width = game.world.width / 4;
-							myBrick.height = game.cache.getImage("brick").height * scaleRate;
-							myBrick.body.velocity.y = -1000;
+							myBrick.height = brickHeight;
+							myBrick.body.velocity.y = -3000;
 							console.log(i);
 						}
 					}
@@ -220,33 +225,35 @@ define(function() {
 					}
 				}
 
-				this.killBrick = function(brick) {
+				this.killBrick = function(brick) { //消除砖块函数
 					var posX = brick.posX;
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
 
-
 					if (this.Brick.countBricks(currentBrick) == 3) {
-						for (var i = 0; i < 4; i++) {
+						var completeKill = false;
+						for (var i = 0; i < 4; i++) {			
 							this.Brick.getBrick(i, posY).kill();
-						}				
-
-						
-						for (var j = posY - 1; j >= minY; j--) {
-							for (var i = 0; i < 4; i++) {
-								if (this.Brick.getBrick(i, j)) {
-									this.Brick.getBrick(i, j).y -= game.cache.getImage("brick").height * scaleRate; //向上移
-									this.Brick.setBrickPos(this.Brick.getBrick(i, j), i, j + 1); //重置后面的posY和id
-									
-								}
-							}
-						}
+							console.log(this.Brick.getBrick(i, posY).alive);
+						}	
+						this.moveBrickBehind(posY);
 						minY++;
-
-
-
 					} else if (this.Brick.countBricks(currentBrick) == 0) {
 						minY--;
+					}
+					console.log('minY: ' + minY);
+				}
+
+				this.moveBrickBehind = function(posY) {		//移动后方的砖块，并重置他们的posY与ID
+					for (var j = posY - 1; j >= minY; j--) {
+						for (var i = 0; i < 4; i++) {
+							if (this.Brick.getBrick(i, j)) {
+								this.Brick.getBrick(i, j).y -= brickHeight; //向上移
+								this.Brick.setBrickPos(this.Brick.getBrick(i, j), i, j + 1); //重置后面的posY和id									
+							}
+							if (i === 3 && j === minY)
+								console.log('finish move');
+						}
 					}
 				}
 
@@ -258,11 +265,10 @@ define(function() {
 						hit = true;
 						setTimeout(function() {
 							hit = false;
-						}, 30);
+						}, 10);
 
 						this.killBrick(brick);
 					}
-
 				}
 
 				this.update = function() {
