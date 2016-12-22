@@ -130,7 +130,7 @@ define(function() {
 
                 //礼物与台阶碰撞
                 this.giftHitStair = function(stair, effectFunction){
-                    console.log(this.fallGifts);
+                    //console.log(this.fallGifts);
                     game.physics.arcade.collide(this.fallGifts, stair, effectFunction, null, this); //检测与台阶的碰撞
 
                 }
@@ -206,6 +206,7 @@ define(function() {
                         gift.balloonNum = config.balloonNum; //礼物绑定的气球数
                         gift.balloonTotalNum = config.balloonNum; //礼物绑定的总气球数，用于分数增加
                         gift.width = 89 * gift.balloonNum * 0.5;    
+                        gift.body.width = gift.width;
                         gift.reset(game.rnd.integerInRange(0 + 89 * gift.balloonNum, 800 - 89 * gift.balloonNum), game.height - game.cache.getImage(config.giftPic).height);
 
                         // if(gift.id == null){
@@ -431,7 +432,7 @@ define(function() {
                     this.balloonArray;
 
                     //台阶
-                    this.stair = game.add.image(0,game.height - 117 * 1.1, 'stair');
+                    this.stair = game.add.sprite(0,game.height - 117 * 1.1, 'stair');
                     this.stair.width *= 2;
                     this.stair.height *= 1.2;
 
@@ -465,7 +466,8 @@ define(function() {
                         game.debug.geom(this.balloonArray[i].line, '#fff09e', false );
 
                         // game.debug.body(this.balloonArray[i]);
-                        //game.debug.body(this.balloonArray[i].gift);
+                        game.debug.body(this.balloonArray[i].gift);
+                        game.debug.body(this.stair);
                     }
 
 
@@ -512,7 +514,7 @@ define(function() {
                         this.gifts[i].balloonsCollide(balloonArr);
                         this.balloonArray = this.balloonArray.concat(balloonArr);
 
-                        this.gifts[i].giftHitStair(this.stair, this.shake());
+                        this.gifts[i].giftHitStair(this.stair, this.shake);
                         //game.physics.arcade.collide(this.gifts[i], this.stair, this.shake(), null, this); //检测与台阶的碰撞
                     }
                     
@@ -536,6 +538,7 @@ define(function() {
                 this.shake = function() {
                     //屏幕震动
                     //  You can set your own intensity and duration
+                    console.log('shake');
                     game.camera.shake(0.02, 200);
 
 
