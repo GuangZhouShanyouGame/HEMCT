@@ -34,7 +34,7 @@ define(function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
 					this.bricks.createMultiple(80, "brick");
-					this.speed = 200; //移动速度
+					this.speed = 170; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
 					//this.bricks.setAll('checkWorldBounds', true);
@@ -147,7 +147,12 @@ define(function() {
 
 					game.load.image('bg', "assets/images/bg.png");
 					game.load.image('brick', "assets/images/brick.png");
+					game.load.image('line',"assets/images/line.png");
+					game.load.image('emitter',"assets/images/emitter.png");
 
+					//加载得分榜图片
+					game.load.image('white', 'assets/images/white.png');
+					game.load.image('gold', 'assets/images/gold.png');
 					//加载音效
 					game.load.audio('bg', "assets/audio/bg.mp3");
 					// 安卓只能同时播放一个音乐
@@ -194,8 +199,23 @@ define(function() {
 					this.myBricks = game.add.group(); //发射的砖块组
 					this.myBricks.enableBody = true;
 					this.myBricks.createMultiple(10, 'brick');
+
+					this.scoreBoard = game.add.group();
+					this.white = this.scoreBoard.create(10, 30, 'white'); //白色底
+					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌		
+					this.style = {
+						font: "45px sText",
+						fill: "#FE9400"
+					};
+					this.scoreText = this.add.text(this.white.x + this.white.width / 2 + 23, this.white.y + 5 + 30, self.score + ' ', this.style, this.scoreBoard);
+					this.scoreText.anchor.setTo(0.5, 0.5);
 					//this.myBricks.setAll('outOfBoundsKill', true);
 					//this.myBricks.setAll('checkWorldBounds', true);
+					this.line = this.add.sprite(0,game.world.height*0.8,'line');
+					this.line.width = game.world.width;
+					this.line.height *=scaleRate;
+					game.physics.enable(this.line, Phaser.Physics.ARCADE);
+					this.line.body.immovable = true;
 
 					game.input.onDown.add(this.shootBrick, this);
 				};
@@ -207,7 +227,7 @@ define(function() {
 							myBrick.reset((game.width / 4) * i, game.height);
 							myBrick.width = game.world.width / 4;
 							myBrick.height = brickHeight;
-							myBrick.body.velocity.y = -3000;
+							myBrick.body.velocity.y = -5000;
 							console.log(i);
 						}
 					}
@@ -237,7 +257,10 @@ define(function() {
 							console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 						}	
 						this.moveBrickBehind(posY);
+						//this.createEmitter(brick.y+brickHeight * 1.5);
 						minY++;
+						self.score++;
+						this.scoreText.text = self.score + ' ';
 					} else if (this.Brick.countBricks(currentBrick) == 0) {
 						minY--;
 					}
@@ -257,6 +280,30 @@ define(function() {
 					}
 				}
 
+				this.createEmitter = function(y) {
+					// 粒子器坐标点在(game.world.centerX, 200)，最大粒子数200
+					this.emitter = game.add.emitter(game.world.centerX, y, 150);
+					// 发射器宽度，所以范围是game.world.centerX-400 ~ game.world.centerX+400
+					this.emitter.width = game.world.width;
+					// 发射bubble
+					this.emitter.makeParticles('emitter',0,150,1,true);
+					// 最小速度和最大速度
+					this.emitter.minParticleSpeed.set(0, 0);
+					this.emitter.maxParticleSpeed.set(0, 120);
+					// 旋转、透明度、尺寸范围
+					//this.emitter.setRotation(0, 0);
+					this.emitter.setAlpha(0.8, 0.2);
+					this.emitter.setScale(0.2, 0.2, 0.1, 0.1);
+					// 重力
+					this.emitter.gravity = -200;
+					this.emitter.bounce.setTo(0.5, 0.5);
+					// false代表粒子不要一次性全部发射
+					// 5000代表生命时长，每个粒子最多存在5s
+					// 100代表频率，每100ms发射一个粒子
+					this.emitter.start(true, 500, null, 150);
+					//console.log('emitter');
+				}
+
 				var hit = false;
 				this.hitBrick = function(mybrick, brick) {
 					if (!hit) {
@@ -271,14 +318,19 @@ define(function() {
 					}
 				}
 
+
+
 				this.update = function() {
 					// 每一帧更新都会触发
 					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
+					game.physics.arcade.overlap(this.line, this.Brick.bricks, this.gameEnd, null, this);
+					//game.physics.arcade.collide(this.line, this.emitter);
 					
 				};
 				// 游戏结束
 				this.gameEnd = function() {
-
+					//this.Brick.bricks.setAll('body.speed',0);
+					game.state.start('end');
 				};
 			};
 
