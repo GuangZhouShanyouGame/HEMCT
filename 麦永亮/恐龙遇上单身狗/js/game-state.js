@@ -321,7 +321,7 @@ define(function() {
 					this.dog.body.destroy();
 					this.dinosaur.body.destroy();
 
-					game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+					game.time.events.add(Phaser.Timer.SECOND * 1.5, function() {
 						game.state.start('end');
 					}, this); //延迟两秒后进入end界面
 				};
