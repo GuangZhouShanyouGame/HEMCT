@@ -57,7 +57,6 @@ define(function() {
 					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
 				}
 
-
 				this.generateBricks = function() { //生成一行砖块，其中随机一个不生成
 					this.nullPosition = game.rnd.integerInRange(0, 3);
 
@@ -79,6 +78,7 @@ define(function() {
 
 				this.replaceBrick = function(myBrick, brick) { //把发射的砖块替换成上方滚动的砖块
 					myBrick.kill();
+					console.log(brick);
 					var b = this.bricks.getFirstExists(false);
 					if (b) {
 						b.reset(brick.x, brick.y + brickHeight);
@@ -114,9 +114,7 @@ define(function() {
 					}
 					console.log('count: ' + count);
 					return count;
-
 				}
-
 			}
 			// State - boot
 			// 游戏启动
@@ -236,6 +234,8 @@ define(function() {
 					}
 				}
 
+				
+
 				this.shootBrick = function() { //点击后发射砖块
 					if (arguments[0].x <= game.width / 8) { //4个位置
 						this.resetShootBrick(0);
@@ -263,7 +263,7 @@ define(function() {
 							//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 						}
 						this.moveBrickBehind(posY);
-						this.createEmitter(brick.y+brickHeight * 1.5);
+						//this.createEmitter(brick.y+brickHeight * 1.5);
 						this.combo++;
 						this.showCombo(brick.x, brick.y + brickHeight);
 						minY++;
@@ -341,10 +341,11 @@ define(function() {
 					// 每一帧更新都会触发
 					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
 					game.physics.arcade.overlap(this.line, this.Brick.bricks, this.gameEnd, null, this);
-					//game.physics.arcade.collide(this.line, this.emitter);
+					game.physics.arcade.collide(this.myBricks,this.myBricks);
 					this.bar.width = (game.world.width - this.bar.x - 20) * this.combo / 100;
 
 				};
+				
 				// 游戏结束
 				this.gameEnd = function() {
 					//this.Brick.bricks.setAll('body.speed',0);
