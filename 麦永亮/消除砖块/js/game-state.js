@@ -234,7 +234,7 @@ define(function() {
 						var completeKill = false;
 						for (var i = 0; i < 4; i++) {			
 							this.Brick.getBrick(i, posY).kill();
-							console.log(this.Brick.getBrick(i, posY).alive);
+							console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 						}	
 						this.moveBrickBehind(posY);
 						minY++;
@@ -245,7 +245,7 @@ define(function() {
 				}
 
 				this.moveBrickBehind = function(posY) {		//移动后方的砖块，并重置他们的posY与ID
-					for (var j = posY - 1; j >= minY; j--) {
+					for (var j = posY - 1; j >= minY-1; j--) {
 						for (var i = 0; i < 4; i++) {
 							if (this.Brick.getBrick(i, j)) {
 								this.Brick.getBrick(i, j).y -= brickHeight; //向上移
@@ -274,7 +274,7 @@ define(function() {
 				this.update = function() {
 					// 每一帧更新都会触发
 					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
-					//game.physics.arcade.overlap(this.Brick.bricks);
+					
 				};
 				// 游戏结束
 				this.gameEnd = function() {
