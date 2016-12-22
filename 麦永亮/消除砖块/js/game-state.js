@@ -33,8 +33,8 @@ define(function() {
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
-					this.bricks.createMultiple(80, "brick");
-					this.speed = 170; //移动速度
+					this.bricks.createMultiple(70, "brick");
+					this.speed = 150; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
 					//this.bricks.setAll('checkWorldBounds', true);
@@ -260,10 +260,10 @@ define(function() {
 						var completeKill = false;
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).kill();
-							console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
+							//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 						}
 						this.moveBrickBehind(posY);
-						//this.createEmitter(brick.y+brickHeight * 1.5);
+						this.createEmitter(brick.y+brickHeight * 1.5);
 						this.combo++;
 						this.showCombo(brick.x, brick.y + brickHeight);
 						minY++;
@@ -284,20 +284,18 @@ define(function() {
 							if (this.Brick.getBrick(i, j)) {
 								this.Brick.getBrick(i, j).y -= brickHeight; //向上移
 								this.Brick.setBrickPos(this.Brick.getBrick(i, j), i, j + 1); //重置后面的posY和id									
-							}
-							if (i === 3 && j === minY)
-								console.log('finish move');
+							}														
 						}
 					}
 				}
 
 				this.createEmitter = function(y) {
-					// 粒子器坐标点在(game.world.centerX, 200)，最大粒子数200
-					this.emitter = game.add.emitter(game.world.centerX, y, 150);
-					// 发射器宽度，所以范围是game.world.centerX-400 ~ game.world.centerX+400
+					// 粒子器坐标点在(game.world.centerX, y)，最大粒子数150
+					this.emitter = game.add.emitter(game.world.centerX, y, 100);
+					// 发射器宽度
 					this.emitter.width = game.world.width;
-					// 发射bubble
-					this.emitter.makeParticles('emitter', 0, 150, 1, true);
+					// 发射粒子
+					this.emitter.makeParticles('emitter', 0, 100, 1, true);
 					// 最小速度和最大速度
 					this.emitter.minParticleSpeed.set(0, 0);
 					this.emitter.maxParticleSpeed.set(0, 120);
@@ -308,11 +306,9 @@ define(function() {
 					// 重力
 					this.emitter.gravity = -200;
 					this.emitter.bounce.setTo(0.5, 0.5);
-					// false代表粒子不要一次性全部发射
-					// 5000代表生命时长，每个粒子最多存在5s
-					// 100代表频率，每100ms发射一个粒子
-					this.emitter.start(true, 500, null, 150);
-					//console.log('emitter');
+					// true代表粒子一次性全部发射
+					// 500代表生命时长，每个粒子最多存在500ms					
+					this.emitter.start(true, 500, null, 100);					
 				}
 
 				this.showCombo = function(x, y) {
@@ -346,7 +342,7 @@ define(function() {
 					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
 					game.physics.arcade.overlap(this.line, this.Brick.bricks, this.gameEnd, null, this);
 					//game.physics.arcade.collide(this.line, this.emitter);
-					this.bar.width = (game.world.width - this.bar.x - 20) * (this.combo % 100) / 100;
+					this.bar.width = (game.world.width - this.bar.x - 20) * this.combo / 100;
 
 				};
 				// 游戏结束
