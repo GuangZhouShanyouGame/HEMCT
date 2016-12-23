@@ -33,7 +33,7 @@ define(function() {
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
-					this.bricks.createMultiple(70, "brick");
+					this.bricks.createMultiple(1070, "brick");
 					this.speed = 150; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
@@ -58,7 +58,7 @@ define(function() {
 					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
 				}
 
-				this.generateBricks = function() { //生成一行砖块，其中随机一个不生成
+				this.generateBricks = function() { //在屏幕上方生成一行砖块，其中随机一个不生成
 					this.nullPosition = game.rnd.integerInRange(0, 3);
 
 					for (var i = 0; i < 4; i++) {
@@ -95,11 +95,11 @@ define(function() {
 					//console.log('hit brick id:' + brick.id);
 				}
 
-				this.countBricks = function(startBrick) { //返回某一行其他砖块的个数
+				this.countBricks = function(startBrick) { //返回某一行砖块的个数
 					var moveX = 1;
 					var curX = startBrick.posX + moveX;
 					var curY = startBrick.posY;
-					var count = 0;
+					var count = 1;
 
 					while (this.getBrick(curX, curY) != null) {
 						count++;
@@ -230,9 +230,10 @@ define(function() {
 							myBrick.width = game.world.width / 4;
 							myBrick.height = brickHeight;
 							myBrick.body.velocity.y = -5000;
-							console.log(i);
+							//console.log(i);
 						}
-					}
+					}				
+					
 				}				
 
 				this.shootBrick = function() { //点击后发射砖块
@@ -256,11 +257,12 @@ define(function() {
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
 
-					if (this.Brick.countBricks(currentBrick) == 3) {
+					if (this.Brick.countBricks(currentBrick) == 4) {
 						if (!kill) {
 							kill = true;
-							for (var i = 0; i < 4; i++) {
-								this.Brick.getBrick(i, posY).kill();
+							for (var i = 0; i < 4; i++) {								
+								this.Brick.getBrick(i, posY).destroy();
+								//如果换成 this.Brick.getBrick(i, posY).kill(); 时不时出出现错误
 								//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 							}
 							setTimeout(function() {
@@ -274,7 +276,7 @@ define(function() {
 							self.score = self.score + this.multiple;
 							this.scoreText.text = self.score + ' ';
 						}
-					} else if (this.Brick.countBricks(currentBrick) == 0) { //增加了一层
+					} else if (this.Brick.countBricks(currentBrick) == 1) { //增加了一层
 						minY--;
 						this.combo = 0;
 					} else {
