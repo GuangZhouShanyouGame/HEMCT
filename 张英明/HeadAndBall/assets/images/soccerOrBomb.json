@@ -1,0 +1,30 @@
+{"frames": [
+
+{
+	"filename": "bomb.png",
+	"frame": {"x":0,"y":0,"w":96,"h":96},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":96,"h":96},
+	"sourceSize": {"w":96,"h":96},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "soccer.png",
+	"frame": {"x":96,"y":0,"w":96,"h":96},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":96,"h":96},
+	"sourceSize": {"w":96,"h":96},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "soccerOrBomb.png",
+	"format": "RGBA8888",
+	"size": {"w":192,"h":96},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:223b7dec849cf9df84e69e69e7c04012:c230114f3fe43611a5e52d58fb8f101b:e61dfb24e3032498442f53d58e0743e8$"
+}
+}
