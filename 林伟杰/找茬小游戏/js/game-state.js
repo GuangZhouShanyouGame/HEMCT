@@ -26,7 +26,6 @@ define(function() {
             //新添加参数
             var score = 0;
             var countDown = 99; + " "//计时
-            var allLevel = 10;//游戏总关卡
             var level = 1;//设置当前关卡
             var timeText;
             var timer;//计时器
@@ -89,7 +88,10 @@ define(function() {
                     game.load.image('background','assets/images/bg.png');//背景图
                     game.load.image('star1','assets/images/star1.png');//空心星星
                     game.load.image('star2','assets/images/star2.png');//实心星星
-                    game.load.image('restart','assets/images/start-button.png');//重新开始按钮
+                    game.load.image('timeOver','assets/images/时间到.png');//重新开始按钮
+
+                    //加载字体
+                    // game.load.
                 };
             };
             // 开始界面
@@ -795,8 +797,8 @@ define(function() {
                             game.physics.enable(reduceTime,Phaser.Physics.ARCADE);
                             reduceTime.body.velocity.y = -40;
                             //播放点击错误动画
-                            var wrongTween = game.add.tween(wrong).to({alpha:0},100,null,true,1000,0,false);
-                            var reduceTween = game.add.tween(reduceTime).to({alpha:0},100,null,true,1000,0,false);
+                            var wrongTween = game.add.tween(wrong).to({alpha:0},500,null,true,1000,0,false);
+                            var reduceTween = game.add.tween(reduceTime).to({alpha:0},500,null,true,1000,0,false);
                             reduceTween.onComplete.add(completed, this);
                             //删除生成的符号
                             function completed() {
@@ -836,11 +838,15 @@ define(function() {
                     // this.insertPuzzle();
                     // this.startTime();
                     this.gameHint();
-                    game.time.events.add(7000,this.insertPuzzle,this);
-                    game.time.events.add(7000,this.startTime,this);
+                    game.time.events.add(3000,this.insertPuzzle,this);
+                    game.time.events.add(3000,this.startTime,this);
                 }
                 //晋级函数
                 this.nextLevel = function() {
+                    puzzleOne.destroy();
+                    puzzleTwo.destroy();
+                    centerBg.destroy();//把之前的图片都删掉
+                    this.right.destroy();
                     this.insertPuzzle();
                     this.emptyStar();
                     this.startTime();
@@ -851,19 +857,21 @@ define(function() {
                     timer.pause();
                     timeText.text = 99 + " "; 
                     timeText.fill = '#506F82';
-                    var testSprite = game.add.sprite(game.world.centerX,-200,'success');//通关动画
+                    game.input.onTap.remove(this.play,this);
+                    /*var testSprite = game.add.sprite(game.world.centerX,-200,'success');//通关动画
                     testSprite.anchor.set(0.5);
                     game.add.tween(testSprite).to({y:game.world.centerY},2000,Phaser.Easing.Bounce.Out,true);
                     game.time.events.add(2000,function() {
                         testSprite.destroy();
-                    },this);
+                    },this);*/
                     level++;
-                    puzzleOne.destroy();
-                    puzzleTwo.destroy();
-                    centerBg.destroy();//把之前的图片都删掉
-                    this.right.destroy();
-                    game.time.events.add(2000,this.gameHint,this);//播放游戏关卡提示和开始动画
-                    game.time.events.add(7000,this.nextLevel,this);
+                    // puzzleOne.destroy();
+                    // puzzleTwo.destroy();
+                    // centerBg.destroy();//把之前的图片都删掉
+                    // this.right.destroy();
+                    //game.time.events.add(2000,this.gameHint,this);//播放游戏关卡提示和开始动画
+                    this.gameHint();
+                    game.time.events.add(3000,this.nextLevel,this);
                 }
                 //完美通关函数
                 this.perfectFinish = function() {
@@ -873,13 +881,19 @@ define(function() {
                     puzzleTwo.destroy();
                     this.right.destroy();
                     centerBg.destroy();
-                    var perfectFinish = game.add.sprite(game.world.centerX,-200,'perfectFinish');//通关动画
+                    var testSprite = game.add.sprite(game.world.centerX,-200,'success');//通关动画
+                    testSprite.anchor.set(0.5);
+                    game.add.tween(testSprite).to({y:game.world.centerY},2000,Phaser.Easing.Bounce.Out,true);
+                    game.time.events.add(2000,function() {
+                        testSprite.destroy();
+                    },this);
+                    /*var perfectFinish = game.add.sprite(game.world.centerX,-200,'perfectFinish');//通关动画
                     perfectFinish.anchor.set(0.5);
                     game.add.tween(perfectFinish).to({y:game.world.centerY},2000,Phaser.Easing.Bounce.Out,true);
                     game.time.events.add(2000,function() {
                         perfectFinish.destroy();
                         //添加一个重新开始游戏按钮
-                        /*var restart = game.add.image(game.world.centerX,game.world.centerY,'restart');
+                        var restart = game.add.image(game.world.centerX,game.world.centerY,'restart');
                         restart.width *= 2;
                         restart.height *= 2;
                         game.input.onTap.add(function(e) {
@@ -888,9 +902,9 @@ define(function() {
                                 game.state.start('play');
                                 // this.startGame();
                             }
-                        }); */
+                        }); 
                         alert('游戏结束');
-                    },this);
+                    },this);*/
                 }
                 //创建六个空心星星
                 this.emptyStar = function() {
@@ -911,23 +925,23 @@ define(function() {
                     this.trabecule.height = 300;
                     this.trabecule.anchor.setTo(0.5,0.5);
                     this.trabecule.alpha = 1;
-                    this.levelText = game.add.text(game.world.centerX,game.world.centerY," " + level + '/' + allLevel + " ");//关卡提示字体
+                    this.levelText = game.add.text(game.world.centerX,game.world.centerY," " + "level" + level + " ");//关卡提示字体
                     this.levelText.font = 'timeFont';
                     this.levelText.fontSize = 120; 
                     this.levelText.anchor.setTo(0.5,0.5);
                     this.levelText.alpha = 1;
-                    this.startText = game.add.text(game.world.centerX,game.world.centerY," " + 'GO' + " ");//游戏开始提示
-                    this.startText.font = 'timeFont';
-                    this.startText.fontSize = 180; 
-                    this.startText.anchor.setTo(0.5,0.5);
-                    this.startText.alpha = 0;
+                    // this.startText = game.add.text(game.world.centerX,game.world.centerY," " + 'GO' + " ");//游戏开始提示
+                    // this.startText.font = 'timeFont';
+                    // this.startText.fontSize = 180; 
+                    // this.startText.anchor.setTo(0.5,0.5);
+                    // this.startText.alpha = 0;
 
                     var tween = game.add.tween(this.trabecule).to({alpha:0},1000,null,true,1000,0,false);
                     var tween1 = game.add.tween(this.levelText).to({alpha:0},1000,null,true,1000,0,false);
-                    tween = game.add.tween(this.trabecule).to({alpha:1},1000,null,true,3000,0,false);
-                    tween1 = game.add.tween(this.startText).to({alpha:1},1000,null,true,3000,0,false);
-                    tween = game.add.tween(this.trabecule).to({alpha:0},1000,null,true,5000,0,false);
-                    tween1 = game.add.tween(this.startText).to({alpha:0},1,null,true,5000,0,false);
+                    // tween = game.add.tween(this.trabecule).to({alpha:1},1000,null,true,3000,0,false);
+                    // tween1 = game.add.tween(this.startText).to({alpha:1},1000,null,true,3000,0,false);
+                    // tween = game.add.tween(this.trabecule).to({alpha:0},1000,null,true,5000,0,false);
+                    // tween1 = game.add.tween(this.startText).to({alpha:0},1,null,true,5000,0,false);
                 }
                 //开启计时器
                 this.startTime = function() {
@@ -952,7 +966,13 @@ define(function() {
                         timer.pause();
                         timeText.text = 0 + " ";
                         countDown = 99;
-                        alert("时间到");
+                        // alert("时间到");
+                        var timeOver = game.add.sprite(game.world.centerX,-200,'timeOver');//通关动画
+                        timeOver.anchor.set(0.5);
+                        game.add.tween(timeOver).to({y:game.world.centerY},2000,Phaser.Easing.Bounce.Out,true);
+                        game.time.events.add(2000,function() {
+                            timeOver.destroy();
+                        },this);
                     }
                     //0~10级则调用通关函数
                     if(level != 10 && score == 6) {
