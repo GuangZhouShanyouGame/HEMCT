@@ -79,11 +79,9 @@ define(function() {
             // 游戏界面
             game.States.play = function() {
                 this.create = function() {
-
-                    // this.addScore = false;  //代表不可以加分
                     this.getBomb = false;  //代表没有碰到炸弹
                     this.addScore = false;
-                    // this.isJump = false;
+                    
                     game.physics.startSystem(Phaser.Physics.ARCADE);
                     var bg = game.add.sprite(0,0,'bg');
                     bg.width = game.world.width;
@@ -139,24 +137,19 @@ define(function() {
                     // this.isJump = true;
                     //在地面上时进行跳跃，位置有一些偏差
                     if(player.body.y + player.body.height > ground.y - 3 && player.body.y + player.body.height < ground.y + 3){
-                        var jumpAin = player.animations.add('jump',[1,2],5);
+                        var jumpAni = player.animations.add('jump',[2],1);
                         player.animations.play('jump');
-                        jumpAin.onComplete.add(function(){
+                        jumpAni.onComplete.add(function(){
                             player.animations.play('stand');
+                            // this.isJump = false;
                         })
-                        player.body.velocity.y = -600;
-                    }
-                    // if(this.addScore){
-                    //     self.score = self.score + 1;
-                    //     scoreText.text = self.score + " ";
-                    //     createSoccerTimer.delay--;     // 球弹出的速度越来越快
-                    // }
+                        player.body.velocity.y = -600;                       
+                    }  
                 };
                 this.choseBallOrBomb = function(){
                     this.addScore = false;  //生成的时候碰撞星星不加分，只有在被头顶到弹飞的时候才加分
-                    // this.addScore = true;  //代表可以加分
                     this.isBall = false;
-                    // this.isBomb = false;
+                    this.isBomb = false;
                     ballOrBomb = soccerGroup.getFirstExists(false);
                     //随机方向
                     var randomDir = game.rnd.between(0,1);
@@ -193,7 +186,6 @@ define(function() {
                                 this.isBall = true;
                                 ballOrBomb.frameName = 'soccer.png';
                                 generateBallOrBomb(ballOrBomb,randomX,randomY,-400,-300);
-
                             }   
                         }
                     }
@@ -224,19 +216,24 @@ define(function() {
                     obj.body.velocity.y = 600;
                     obj.body.bounce.y = 0.9;    
                 }
-                this.playSoccer = function(player,soccer){
-                    //在运动员向上跳的那一帧才加分
-                    if(player.animations.frame == 2){
-                        if(ballOrBomb.frameName == 'soccer.png'){
-                            soccer.body.velocity.y = -700;
-                            this.addScore = true;
+                var hitBall = false;
+                this.playBall = function(player,soccer){                                              
+                    if(ballOrBomb.frameName == 'soccer.png'){
+                        soccer.body.velocity.y = -700;
+                        if(!hitBall){
+                            hitBall = true;
+                            self.score++;
+                            scoreText.text = self.score;
                         }
-                        if(ballOrBomb.frameName == 'bomb.png'){
-                            this.getBomb = true;
-                            // this.gameEnd();
-                        }
-                        soccer.body.collideWorldBounds = false;        
-                    }    
+                        setTimeout(function(){
+                            hitBall = false;
+                        },100); 
+                        this.addScore = true;
+                    }
+                    if(ballOrBomb.frameName == 'bomb.png'){
+                        this.getBomb = true;
+                    }
+                    soccer.body.collideWorldBounds = false;    
                 };
                 this.getStar = function(ball,star){
                     if(this.addScore){
@@ -246,9 +243,9 @@ define(function() {
                     } 
                 };
                 this.render = function(){
-                    game.debug.spriteBounds(ground2);
+                    // game.debug.spriteBounds(ground2);
                     // game.debug.spriteBounds(player);
-                    game.debug.body(player);
+                    // game.debug.body(player);
                     // game.debug.body(this.soccer);
                 };
                 this.hitBomb = function(player,bomb){
@@ -257,11 +254,18 @@ define(function() {
                 }
                 this.update = function() {
                     // 每一帧更新都会触发
+                    if(player.animations.frame == 2){
+                        this.isJump = true;                                
+                    }else{
+                        this.isJump = false;
+                    }
                     game.physics.arcade.collide(player,ground);
                     if(!this.isBomb){
                         game.physics.arcade.collide(soccerGroup, ground2,this.gameEnd);  //边界效果
                     }
-                    game.physics.arcade.overlap(player, soccerGroup, this.playSoccer, null, this);  //人打到球
+                    if(this.isJump){
+                        game.physics.arcade.overlap(player, soccerGroup, this.playBall, null, this);  //人打到球
+                    } 
                     game.physics.arcade.overlap(soccerGroup, starGroup, this.getStar, null, this);  //球打到星星
                     if(this.getBomb){
                         game.physics.arcade.overlap(player, soccerGroup, this.hitBomb, null, this);  //人打到炸弹
