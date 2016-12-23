@@ -28,17 +28,16 @@ define(function() {
 			var brickHeight = 0;
 
 			function Brick() {
-				scaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
+				scaleRate = (game.world.width / 4) / game.cache.getImage("brick").width * 1.5; //放大倍数
 				brickHeight = game.cache.getImage("brick").height * scaleRate;
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
 					this.bricks.createMultiple(1070, "brick");
-					this.speed = 150; //移动速度
+					this.speed = 120; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
-					//this.bricks.setAll('checkWorldBounds', true);
-					this.bricks.setAll('body.immovable', true);
+					//this.bricks.setAll('checkWorldBounds', true);					
 					//console.log(this.loopTime);
 					this.timerForBarriers = game.time.events.loop(this.loopTime, this.generateBricks, this); //每过一定时间生成一次砖块
 				}
@@ -65,7 +64,7 @@ define(function() {
 						if (i != this.nullPosition) {
 							var b = this.bricks.getFirstExists(false);
 							if (b) {
-								b.reset(i * game.world.width / 4, -brickHeight);
+								b.reset(i * game.world.width / 4, -brickHeight * 2);
 								b.width = game.world.width / 4;
 								b.height = brickHeight;
 								b.body.velocity.y = this.speed;
@@ -79,7 +78,7 @@ define(function() {
 
 				this.replaceBrick = function(myBrick, brick) { //把发射的砖块替换成上方滚动的砖块
 					myBrick.kill();
-					console.log(brick);
+					console.log('kill');
 					var b = this.bricks.getFirstExists(false);
 					if (b) {
 						b.reset(brick.x, brick.y + brickHeight);
@@ -154,11 +153,11 @@ define(function() {
 					game.load.image('white', 'assets/images/white.png');
 					game.load.image('gold', 'assets/images/gold.png');
 					//加载音效
-					game.load.audio('bg', "assets/audio/bg.mp3");
+					//game.load.audio('bg', "assets/audio/bg.mp3");
 					// 安卓只能同时播放一个音乐
-					if (self.gameManager.device.platform != 'android') {
-						game.load.audio('input', "assets/audio/tap.mp3");
-					}
+					//if (self.gameManager.device.platform != 'android') {
+					//	game.load.audio('input', "assets/audio/tap.mp3");
+					//}
 				};
 			};
 
@@ -167,11 +166,13 @@ define(function() {
 			game.States.create = function() {
 				this.create = function() {
 					// 初始化音乐
+					/*
 					if (self.gameManager.device.platform != 'android') {
 						self.musicManager.init(['bg', 'input']);
 					} else {
 						self.musicManager.init(['bg']);
 					}
+					*/
 					game.state.start('play');
 				}
 			};
@@ -183,15 +184,15 @@ define(function() {
 					// 此处写游戏逻辑
 
 					// 示例-创建背景音乐
-					self.musicManager.play("bg");
-					game.input.onDown.add(function() {
-						self.musicManager.play("input");
-					});
+					//self.musicManager.play("bg");
+					//game.input.onDown.add(function() {
+					//	self.musicManager.play("input");
+					//});
 
 					// 示例-创建游戏背景
-					var bg = game.add.image(0, 0, "bg");
-					bg.width = game.world.width;
-					bg.height = game.world.height;
+					//var bg = game.add.image(0, 0, "bg");
+					//bg.width = game.world.width;
+					//bg.height = game.world.height;
 
 					this.Brick = new Brick(); //初始化上方砖块
 					this.Brick.init();
@@ -199,6 +200,8 @@ define(function() {
 					this.myBricks = game.add.group(); //发射的砖块组
 					this.myBricks.enableBody = true;
 					this.myBricks.createMultiple(10, 'brick');
+					this.myBricks.setAll('checkWorldBounds', true);
+					this.myBricks.setAll('outOfBoundsKill', true);
 
 					this.scoreBoard = game.add.group();
 					this.white = this.scoreBoard.create(10, 30, 'white'); //白色底
@@ -207,6 +210,7 @@ define(function() {
 						font: "45px sText",
 						fill: "#FE9400"
 					};
+					self.score = 0;
 					this.scoreText = this.add.text(this.white.x + this.white.width / 2 + 23, this.white.y + 5 + 30, self.score + ' ', this.style, this.scoreBoard);
 					this.scoreText.anchor.setTo(0.5, 0.5);
 					//this.myBricks.setAll('outOfBoundsKill', true);
@@ -232,9 +236,9 @@ define(function() {
 							myBrick.body.velocity.y = -5000;
 							//console.log(i);
 						}
-					}				
-					
-				}				
+					}
+					//console.log('Living: ' + this.myBricks.countLiving() + '   Dead: ' + this.myBricks.countDead());
+				}
 
 				this.shootBrick = function() { //点击后发射砖块
 					if (arguments[0].x <= game.width / 8) { //4个位置
@@ -248,22 +252,21 @@ define(function() {
 					}
 				}
 
-				this.multiple = 1;
-				this.combo = 0;
+				this.multiple = 1;	//存储倍数
+				this.combo = 0;		//存储连击的变量
+				this.timeToMutiple = 10;	//加倍所需的连击次数
 
-				
 				this.killBrick = function(brick) { //消除砖块函数
 					var posX = brick.posX;
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
-
-					if (this.Brick.countBricks(currentBrick) == 4) {
+					var count = this.Brick.countBricks(currentBrick)
+					if (count == 4) {
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).destroy();
-							//如果换成 this.Brick.getBrick(i, posY).kill(); 时不时会出现错误
-							//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
+							//this.Brick.getBrick(i, posY).kill(); 							
 						}
-
+						//console.log('Living: ' + this.Brick.bricks.countLiving() + '   Dead: ' + this.Brick.bricks.countDead());
 						this.moveBrickBehind(posY);
 						//this.createEmitter(brick.y+brickHeight * 1.5);
 						this.combo++;
@@ -272,27 +275,30 @@ define(function() {
 						self.score = self.score + this.multiple;
 						this.scoreText.text = self.score + ' ';
 
-					} else if (this.Brick.countBricks(currentBrick) == 1) { //增加了一层
+					} else if (count == 1) { //增加了一层
 						minY--;
 						this.combo = 0;
+						this.multiple = 1;
 					} else {
 						this.combo = 0;
+						this.multiple = 1;
 					}
-					console.log('minY: ' + minY);
+					//console.log('minY: ' + minY);
 				}
-			
+
 				this.moveBrickBehind = function(posY) { //移动后方的砖块，并重置他们的posY与ID
-					for (var j = posY - 1; j >= minY - 1; j--) {
+					for (var j = posY - 1; j >= minY; j--) {
 						for (var i = 0; i < 4; i++) {
-							if (this.Brick.getBrick(i, j)) {
-								this.Brick.getBrick(i, j).y -= brickHeight; //向上移
-								this.Brick.setBrickPos(this.Brick.getBrick(i, j), i, j + 1); //重置后面的posY和id									
-							}														
+							var a = this.Brick.getBrick(i, j)
+							if (a) {
+								a.y -= brickHeight; //向上移
+								this.Brick.setBrickPos(a, i, j + 1); //重置后面的posY和id									
+							}
 						}
 					}
 				}
 
-				this.createEmitter = function(y) {	//撞击后粒子效果函数、暂不启动
+				this.createEmitter = function(y) { //撞击后粒子效果函数、暂不启动
 					// 粒子器坐标点在(game.world.centerX, y)，最大粒子数150
 					this.emitter = game.add.emitter(game.world.centerX, y, 100);
 					// 发射器宽度
@@ -311,26 +317,55 @@ define(function() {
 					this.emitter.bounce.setTo(0.5, 0.5);
 					// true代表粒子一次性全部发射
 					// 500代表生命时长，每个粒子最多存在500ms					
-					this.emitter.start(true, 500, null, 100);					
+					this.emitter.start(true, 500, null, 100);
 				}
 
-				this.showCombo = function(x, y) {	//显示连击效果的函数
+				this.showCombo = function(x, y) { //显示连击效果的函数
 					this.comboText = this.add.text(x + game.world.width / 8, y, 'x' + this.combo, this.style);
 					this.comboText.anchor.setTo(0.5, 0);
 					this.comboTween = game.add.tween(this.comboText).to({
 						alpha: 0
-					}, 380, Phaser.Easing.Linear.None, false, 0, 0, false); //150ms内变大的动画
+					}, 380, Phaser.Easing.Linear.None, false, 0, 0, false); //150ms内变透明的动画
 					this.comboTween.start();
 					this.comboTween.onComplete.add(function() {
 						this.comboText.destroy();
 					}, this);
+
+					if (this.combo === this.timeToMutiple) {
+						this.multiple = 2;
+						this.showMultiple();
+					} else if (this.combo === this.timeToMutiple * 2) {
+						this.multiple = 3;
+						this.showMultiple();
+					} else if (this.combo === this.timeToMutiple * 3) {
+						this.multiple = 4;
+						this.showMultiple();
+					}
+
+				}
+
+				this.showMultiple = function() {
+					this.Brick.bricks.setAll('body.velocity.y',0);
+					game.time.events.pause(true);  
+					var doubleText = this.add.text(game.world.centerX, game.world.centerY, 'X' + this.multiple, this.style);
+					doubleText.anchor.setTo(0.5, 0.5);
+					var doubleTween = game.add.tween(doubleText).to({
+						fontSize: 250
+					}, 500, Phaser.Easing.Linear.None, false, 0, 0, false);
+					doubleTween.start();
+					doubleTween.onComplete.add(function() {
+						doubleText.destroy();
+						this.Brick.bricks.setAll('body.velocity.y',this.Brick.speed);
+						game.time.events.resume();
+					}, this);
+
 				}
 
 				var hit = false;
-				this.hitBrick = function(mybrick, brick) {	//砖块撞击时的函数
+				this.hitBrick = function(mybrick, brick) { //砖块撞击时的函数
 					if (!hit) {
 						this.Brick.replaceBrick(mybrick, brick);
-						console.log('hitBrick');
+						//console.log('hitBrick');
 						hit = true;
 						setTimeout(function() {
 							hit = false;
@@ -342,13 +377,13 @@ define(function() {
 
 				this.update = function() {
 					// 每一帧更新都会触发
-					game.physics.arcade.collide(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
+					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
 					game.physics.arcade.overlap(this.line, this.Brick.bricks, this.gameEnd, null, this);
 					//game.physics.arcade.collide(this.myBricks);
-					this.bar.width = (game.world.width - this.bar.x - 20) * this.combo / 100;
+					this.bar.width = (game.world.width - this.bar.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
 
 				};
-				
+
 				// 游戏结束
 				this.gameEnd = function() {
 					//this.Brick.bricks.setAll('body.speed',0);
@@ -361,7 +396,8 @@ define(function() {
 			game.States.end = function() {
 				this.create = function() {
 					// 游戏结束
-					game.paused = true;
+
+					game.state.start('play');
 					console.log("得分是: " + self.score);
 					alert("得分是: " + self.score);
 				}
