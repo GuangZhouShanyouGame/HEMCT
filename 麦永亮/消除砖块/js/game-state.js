@@ -251,31 +251,28 @@ define(function() {
 				this.multiple = 1;
 				this.combo = 0;
 
-				var kill;
+				
 				this.killBrick = function(brick) { //消除砖块函数
 					var posX = brick.posX;
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
 
 					if (this.Brick.countBricks(currentBrick) == 4) {
-						if (!kill) {
-							kill = true;
-							for (var i = 0; i < 4; i++) {								
-								this.Brick.getBrick(i, posY).destroy();
-								//如果换成 this.Brick.getBrick(i, posY).kill(); 时不时出出现错误
-								//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
-							}
-							setTimeout(function() {
-								kill = false;
-							}, 10);
-							this.moveBrickBehind(posY);
-							//this.createEmitter(brick.y+brickHeight * 1.5);
-							this.combo++;
-							this.showCombo(brick.x, brick.y + brickHeight);
-							minY++;
-							self.score = self.score + this.multiple;
-							this.scoreText.text = self.score + ' ';
+
+						for (var i = 0; i < 4; i++) {
+							this.Brick.getBrick(i, posY).destroy();
+							//如果换成 this.Brick.getBrick(i, posY).kill(); 时不时出出现错误
+							//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 						}
+
+						this.moveBrickBehind(posY);
+						//this.createEmitter(brick.y+brickHeight * 1.5);
+						this.combo++;
+						this.showCombo(brick.x, brick.y + brickHeight);
+						minY++;
+						self.score = self.score + this.multiple;
+						this.scoreText.text = self.score + ' ';
+
 					} else if (this.Brick.countBricks(currentBrick) == 1) { //增加了一层
 						minY--;
 						this.combo = 0;
