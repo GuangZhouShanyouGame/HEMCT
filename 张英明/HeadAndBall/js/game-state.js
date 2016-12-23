@@ -52,6 +52,7 @@ define(function() {
                     game.load.image("scoreBg","assets/images/score_bg.png");
                     game.load.image("bg","assets/images/bg.png");
                     game.load.image('ground',"assets/images/ground.png");
+                    game.load.image('ground2',"assets/images/ground2.png");
                     game.load.image('star',"assets/images/star.png");
                     game.load.image('soccer',"assets/images/soccer.png");
                     game.load.image('bomb',"assets/images/bomb.png");
@@ -78,13 +79,19 @@ define(function() {
             // 游戏界面
             game.States.play = function() {
                 this.create = function() {
-                    this.addScore = 1;  //代表可以加分
-                    this.getScore = false;
-                    // this.isJump = false;
+                    this.getBomb = false;  //代表没有碰到炸弹
+                    this.addScore = false;
+                    
                     game.physics.startSystem(Phaser.Physics.ARCADE);
                     var bg = game.add.sprite(0,0,'bg');
                     bg.width = game.world.width;
                     bg.height = game.world.height;
+
+                    ground2 = game.add.sprite(0,game.world.height - game.cache.getImage('ground').height / 2 ,'ground2');
+                    ground2.width = game.world.width;
+                    game.physics.enable(ground2, Phaser.Physics.ARCADE);
+                    ground2.body.immovable = true;
+
                     //game.cache.getImage('ground').height      game.world.centerY * 1.7
                     ground = game.add.sprite(0,game.world.height - game.cache.getImage('ground').height ,'ground');
                     ground.width = game.world.width;
@@ -120,25 +127,33 @@ define(function() {
                     var scoreIcon = game.add.sprite(50,50,"score");
                     scoreText = game.add.text(scoreIcon.x + 70,60,"0 ",{ font:"38px score", fill: "#FE9400",align: "center"});
                     scoreBg.width = scoreText.right < 220 ? 220 : scoreText.right;
+
+                    // this.soccer = game.add.sprite(game.world.centerX, game.world.centerY,'star');
+                    // this.soccer.anchor.set(0.5);
+                    // game.physics.enable(this.soccer,Phaser.Physics.ARCADE);
+
                 };
                 this.jump = function(){
                     // this.isJump = true;
                     //在地面上时进行跳跃，位置有一些偏差
                     if(player.body.y + player.body.height > ground.y - 3 && player.body.y + player.body.height < ground.y + 3){
-                        var jumpAin = player.animations.add('jump',[1,2],5);
+                        var jumpAni = player.animations.add('jump',[2],1);
                         player.animations.play('jump');
-                        jumpAin.onComplete.add(function(){
+                        jumpAni.onComplete.add(function(){
                             player.animations.play('stand');
+                            // this.isJump = false;
                         })
-                        player.body.velocity.y = -600;
-                    }
+                        player.body.velocity.y = -600;                       
+                    }  
                 };
                 this.choseBallOrBomb = function(){
+                    this.addScore = false;  //生成的时候碰撞星星不加分，只有在被头顶到弹飞的时候才加分
+                    this.isBall = false;
+                    this.isBomb = false;
                     ballOrBomb = soccerGroup.getFirstExists(false);
                     //随机方向
                     var randomDir = game.rnd.between(0,1);
-                    this.isBall = false;
-
+                    
                     if(ballOrBomb){
                         game.physics.enable(ballOrBomb,Phaser.Physics.ARCADE);
                         var randomY = game.rnd.integerInRange(96, game.world.height / 5);  //96足球的高度
@@ -147,9 +162,12 @@ define(function() {
                             var randomSOB = game.rnd.between(0,4);    //随机球和炸弹，比例5:1
                             var randomX = -10;
                             // 随机选择足球或者炸弹
-                            if(randomSOB == 0){  
+                            if(randomSOB == 0){
+                                this.isBomb = true;
                                 ballOrBomb.frameName = 'bomb.png';  
                                 generateBallOrBomb(ballOrBomb,randomX,randomY,300,500);
+                                ballOrBomb.body.collideWorldBounds = false;  
+
                             } else{
                                 this.isBall = true;
                                 ballOrBomb.frameName = 'soccer.png';
@@ -159,13 +177,15 @@ define(function() {
                             var randomSOB = game.rnd.between(0,4);
                             var randomX = game.world.width - 96;
                             if(randomSOB == 0){
+                                this.isBomb = true;
                                 ballOrBomb.frameName = 'bomb.png';  
-                                generateBallOrBomb(ballOrBomb,randomX,randomY,-400,-300); 
+                                generateBallOrBomb(ballOrBomb,randomX,randomY,-400,-300);
+                                ballOrBomb.body.collideWorldBounds = false;   
+
                             } else{
                                 this.isBall = true;
                                 ballOrBomb.frameName = 'soccer.png';
                                 generateBallOrBomb(ballOrBomb,randomX,randomY,-400,-300);
-
                             }   
                         }
                     }
@@ -196,60 +216,68 @@ define(function() {
                     obj.body.velocity.y = 600;
                     obj.body.bounce.y = 0.9;    
                 }
-                this.playSoccer = function(player,soccer){
-                    //在运动员向上跳的那一帧才加分
-                    if(player.animations.frame == 2){
-                        if(ballOrBomb.frameName == 'soccer.png'){
-                            soccer.body.velocity.y = -700;
-                            createSoccerTimer.delay--;     // 球弹出的速度越来越快
-                            this.getScore = true;
+                var hitBall = false;
+                this.playBall = function(player,soccer){                                              
+                    if(ballOrBomb.frameName == 'soccer.png'){
+                        soccer.body.velocity.y = -700;
+                        if(!hitBall){
+                            hitBall = true;
+                            self.score++;
+                            scoreText.text = self.score;
                         }
-                        if(ballOrBomb.frameName == 'bomb.png'){
-                            // ballOrBomb.alive = false;
-                            this.gameEnd();
-                        }
-                        soccer.body.collideWorldBounds = false; 
-                    }else {
-                        this.getScore = false;
+                        setTimeout(function(){
+                            hitBall = false;
+                        },100); 
+                        this.addScore = true;
                     }
-                    
+                    if(ballOrBomb.frameName == 'bomb.png'){
+                        this.getBomb = true;
+                    }
+                    soccer.body.collideWorldBounds = false;    
                 };
                 this.getStar = function(ball,star){
-                    var getStarTwe = game.add.tween(star).to({
-                        y:'-10',x:'10'
-                    },300,"Linear",true,0,0,true);
-                    getStarTwe.onComplete.add(function(){
+                    if(this.addScore){
                         star.kill();
-                        // self.score = self.score + 3;
-                        // scoreText.text = self.score + " ";
-                    })
-                    /*if(this.addScore == 1){  
                         self.score = self.score + 3;
                         scoreText.text = self.score + " ";
-                        this.addScore = 0;
-                    }*/
+                    } 
                 };
                 this.render = function(){
-                    game.debug.spriteBounds(ground);
+                    // game.debug.spriteBounds(ground2);
                     // game.debug.spriteBounds(player);
-                    game.debug.body(player);
+                    // game.debug.body(player);
+                    // game.debug.body(this.soccer);
                 };
+                this.hitBomb = function(player,bomb){
+                    bomb.destroy();
+                    this.gameEnd();
+                }
                 this.update = function() {
                     // 每一帧更新都会触发
+                    if(player.animations.frame == 2){
+                        this.isJump = true;                                
+                    }else{
+                        this.isJump = false;
+                    }
                     game.physics.arcade.collide(player,ground);
-                    game.physics.arcade.collide(soccerGroup, ground,this.gameEnd);
-                    game.physics.arcade.overlap(player, soccerGroup, this.playSoccer, null, this);
-                    if(this.getScore){
-                        game.physics.arcade.overlap(soccerGroup, starGroup, this.getStar, null, this);
+                    if(!this.isBomb){
+                        game.physics.arcade.collide(soccerGroup, ground2,this.gameEnd);  //边界效果
+                    }
+                    if(this.isJump){
+                        game.physics.arcade.overlap(player, soccerGroup, this.playBall, null, this);  //人打到球
+                    } 
+                    game.physics.arcade.overlap(soccerGroup, starGroup, this.getStar, null, this);  //球打到星星
+                    if(this.getBomb){
+                        game.physics.arcade.overlap(player, soccerGroup, this.hitBomb, null, this);  //人打到炸弹
                     }
                 };
+
                 // 游戏结束
                 this.gameEnd = function() {
                     game.time.events.remove(createSoccerTimer);
                     setTimeout(function(){
                         game.state.start('end');
                     },1000)
-                    // game.state.start('end');
                 };
             };
 
