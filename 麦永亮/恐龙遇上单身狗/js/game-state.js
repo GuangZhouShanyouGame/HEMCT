@@ -88,8 +88,10 @@ define(function() {
 			// State - play
 			// 游戏界面
 			game.States.play = function() {
+
 				this.create = function() {
 					// 此处写游戏逻辑					
+					self.musicManager.stop("bgm");
 					self.musicManager.play("bgm", true); //play(key, volume, loop)
 
 					game.physics.startSystem(Phaser.Physics.ARCADE);								
@@ -116,6 +118,7 @@ define(function() {
 						font: "45px sText",
 						fill: "#FE9400"
 					};
+					self.score = 0;
 					this.scoreText = this.add.text(this.white.x + this.white.width / 2 + 23, this.white.y + 5 + 30, self.score + ' ', this.style, this.scoreBoard);
 					this.scoreText.anchor.setTo(0.5, 0.5);
 
@@ -332,7 +335,8 @@ define(function() {
 			game.States.end = function() {
 				this.create = function() {
 					// 游戏结束
-					game.paused = true;
+					//game.paused = true;
+					game.state.start('play');
 					console.log("得分是: " + self.score);
 					alert("得分是: " + self.score);
 				}
