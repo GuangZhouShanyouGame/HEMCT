@@ -33,8 +33,8 @@ define(function() {
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
-					this.bricks.createMultiple(1070, "brick");
-					this.speed = 120; //移动速度
+					this.bricks.createMultiple(20, "brick");
+					this.speed = 280; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
 					//this.bricks.setAll('checkWorldBounds', true);					
@@ -62,7 +62,7 @@ define(function() {
 
 					for (var i = 0; i < 4; i++) {
 						if (i != this.nullPosition) {
-							var b = this.bricks.getFirstExists(false);
+							var b = this.bricks.getFirstDead(true,i * game.world.width / 4,-brickHeight * 2,'brick');
 							if (b) {
 								b.reset(i * game.world.width / 4, -brickHeight * 2);
 								b.width = game.world.width / 4;
@@ -79,7 +79,7 @@ define(function() {
 				this.replaceBrick = function(myBrick, brick) { //把发射的砖块替换成上方滚动的砖块
 					myBrick.kill();
 					console.log('kill');
-					var b = this.bricks.getFirstExists(false);
+					var b = this.bricks.getFirstDead(true,brick.x, brick.y + brickHeight,'brick');
 					if (b) {
 						b.reset(brick.x, brick.y + brickHeight);
 						b.width = game.world.width / 4;
@@ -180,6 +180,7 @@ define(function() {
 			// State - play
 			// 游戏界面
 			game.States.play = function() {
+
 				this.create = function() {
 					// 此处写游戏逻辑
 
@@ -226,6 +227,13 @@ define(function() {
 					game.input.onDown.add(this.shootBrick, this);
 				};
 
+
+				this.multiple = 1;	//存储倍数
+				this.combo = 0;		//存储连击的变量
+				this.timeToMutiple = 10;	//加倍所需的连击次数
+				this.myBrickSpeed = -5000;	//发射砖块的速度
+
+
 				this.resetShootBrick = function(i) { //重置发射的砖块,发射速度在这里改
 					if (i <= 3) {
 						var myBrick = this.myBricks.getFirstExists(false);
@@ -233,7 +241,7 @@ define(function() {
 							myBrick.reset((game.width / 4) * i, game.height);
 							myBrick.width = game.world.width / 4;
 							myBrick.height = brickHeight;
-							myBrick.body.velocity.y = -5000;
+							myBrick.body.velocity.y = this.myBrickSpeed;
 							//console.log(i);
 						}
 					}
@@ -252,9 +260,7 @@ define(function() {
 					}
 				}
 
-				this.multiple = 1;	//存储倍数
-				this.combo = 0;		//存储连击的变量
-				this.timeToMutiple = 10;	//加倍所需的连击次数
+				
 
 				this.killBrick = function(brick) { //消除砖块函数
 					var posX = brick.posX;
@@ -344,21 +350,38 @@ define(function() {
 
 				}
 
-				this.showMultiple = function() {
+				this.pauseGame = function(){
 					this.Brick.bricks.setAll('body.velocity.y',0);
 					game.time.events.pause(true);  
+					this.myBricks.forEachExists(function(x){
+						x.body.velocity.y = 0;
+					},this);
+					game.input.onDown.remove(this.shootBrick,this); 
+				}
+
+				this.resumeGame = function() {
+					this.Brick.bricks.setAll('body.velocity.y', this.Brick.speed);
+					this.myBricks.forEachExists(function(x) {
+						x.body.velocity.y = this.myBrickSpeed;
+					}, this);
+					game.input.onDown.add(this.shootBrick, this);
+					game.time.events.resume();
+				}
+
+				this.showMultiple = function() {					
+					this.pauseGame();
+
 					var doubleText = this.add.text(game.world.centerX, game.world.centerY, 'X' + this.multiple, this.style);
 					doubleText.anchor.setTo(0.5, 0.5);
 					var doubleTween = game.add.tween(doubleText).to({
 						fontSize: 250
-					}, 500, Phaser.Easing.Linear.None, false, 0, 0, false);
+					}, 1000, Phaser.Easing.Linear.None, false, 0, 0, false);
 					doubleTween.start();
+
 					doubleTween.onComplete.add(function() {
 						doubleText.destroy();
-						this.Brick.bricks.setAll('body.velocity.y',this.Brick.speed);
-						game.time.events.resume();
+						this.resumeGame();
 					}, this);
-
 				}
 
 				var hit = false;
