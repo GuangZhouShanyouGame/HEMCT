@@ -224,7 +224,7 @@ define(function() {
 
 				this.resetShootBrick = function(i) { //重置发射的砖块,发射速度在这里改
 					if (i <= 3) {
-						var myBrick = this.myBricks.getFirstExists(false);
+						var myBrick = this.myBricks.getFirstDead(true);
 						if (myBrick) {
 							myBrick.reset((game.width / 4) * i, game.height);
 							myBrick.width = game.world.width / 4;
@@ -258,13 +258,11 @@ define(function() {
 					var currentBrick = this.Brick.getBrick(posX, posY);
 
 					if (this.Brick.countBricks(currentBrick) == 4) {
-
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).destroy();
-							//如果换成 this.Brick.getBrick(i, posY).kill(); 时不时出出现错误
+							//如果换成 this.Brick.getBrick(i, posY).kill(); 时不时会出现错误
 							//console.log('brick.aive: ' + this.Brick.getBrick(i, posY).alive);
 						}
-
 						this.moveBrickBehind(posY);
 						//this.createEmitter(brick.y+brickHeight * 1.5);
 						this.combo++;
