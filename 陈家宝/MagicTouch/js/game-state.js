@@ -61,7 +61,10 @@ define(function() {
                         explosion.animations.add('balloonExplode');
                     }, this);
 
-                    this.gesturesPicArray = [];
+                    //缓存池
+                    this.gesturesPicArray = []; //手势图缓存池
+                    this.scorePlusPicArray = []; //加分缓存池
+
 
                     //获取下降的礼物
                     this.fallGifts = [];
@@ -186,7 +189,16 @@ define(function() {
                                 //console.log(balloon.gift.balloons.indexOf(balloon));
                                 balloon.kill();
                                 this.explosion(balloon);
-                                balloon.gesture.kill();
+
+                                // balloon.gesture.destroy();
+                                balloon.gesture.x = -1000;
+                                balloon.gesture.y = -1000;
+
+                                this.gesturesPicArray.push(balloon.gesture);
+                                if(this.gesturesPicArray.length > 20){
+                                    this.gesturesPicArray.shift().destroy();
+                                }
+
                                 gift.balloons[index] = gift.balloons[gift.balloonNum - 1];
                                 gift.balloonNum--;
 
@@ -229,24 +241,50 @@ define(function() {
 
                 this.showScorePlus = function(gift){
                     
-                    var scorePlus = game.add.sprite(gift.x + gift.width / 2 + 29, gift.y + gift.height / 2, gift.balloonTotalNum.toString());
+                    var hasPic = false;
+                    var scorePlus;
+                    var scorePlusPicArray = this.scorePlusPicArray;
+                    console.log(scorePlusPicArray);
+                    for(var j = 0; j < scorePlusPicArray.length; j++){
+                        if(scorePlusPicArray[j].key == gift.balloonTotalNum.toString()){
+                            hasPic = true;
+
+                            scorePlus = scorePlusPicArray[j];
+                            scorePlus.x = gift.x + gift.width / 2 + 29;
+                            scorePlus.y = gift.y + gift.height / 2;
+                            scorePlusPicArray.splice(scorePlusPicArray.indexOf(this.scorePlusPicArray[j]),1);
+                            break;
+                        }
+                    }
+
+                    if(hasPic == false){
+                        scorePlus = game.add.sprite(gift.x + gift.width / 2 + 29, gift.y + gift.height / 2, gift.balloonTotalNum.toString());
+                        scorePlus.width *= 0.1;
+                        scorePlus.height *= 0.1;
+                    }
+                    
                     scorePlus.anchor.set(0.5);
-                    scorePlus.width *= 0.1;
-                    scorePlus.height *= 0.1;
                     var y1 = scorePlus.y - 60;
                     var tween = game.add.tween(scorePlus).to({
                         y: y1
                     }, 500, Phaser.Easing.Linear.None, true, 0);
 
                     tween.onComplete.add(function(){
-                        scorePlus.destroy();
+                        // scorePlus.destroy();
+                        scorePlus.x = -2000;
+                        scorePlus.y = -2000;
+
+                        scorePlusPicArray.push(scorePlus);
+                        if(scorePlusPicArray.length > 20){
+                            scorePlusPicArray.shift().destroy();
+                        }
                     })
                 }
 
                 //礼物生成
                 this.generateGift = function() {
                     //生成礼物并设置向上的速度
-                    console.log("generateGift");
+                    // console.log("generateGift");
                     var gift = this.gifts.getFirstExists(false);
 
                     if (gift) {
@@ -287,7 +325,7 @@ define(function() {
                         // gift.body.setCircle(gift.height / 2);
                         gift.balloons = [];
 
-                        console.log("礼物绑定的气球数: " + gift.balloonNum);
+                        // console.log("礼物绑定的气球数: " + gift.balloonNum);
                         //生成气球
                         var resNameArray = ["triangle", "circle", "rope", "caret", "thunder", "scarve", "z"];
                         var integerRandomArr = [];
@@ -321,14 +359,33 @@ define(function() {
                                 balloon.line = new Phaser.Line(gift.x, gift.y, balloon.x, balloon.y);
 
                                 //气球手势图案
-                                balloon.gesture = game.add.image(balloon.gift.x, balloon.gift.y - balloon.height / 2, balloon.resName);
+                                var hasPic = false;
+                                for(var j = 0; j < this.gesturesPicArray.length; j++){
+                                    // console.log(this.gesturesPicArray[j].key);
+                                    if(this.gesturesPicArray[j].key == balloon.resName){
+                                        hasPic = true;
+                                        // console.log(balloon.resName);
+                                        balloon.gesture = this.gesturesPicArray[j];
+                                        balloon.gesture.x = balloon.gift.x;
+                                        balloon.gesture.y = balloon.gift.y - balloon.height / 2;
+                                        this.gesturesPicArray.splice(this.gesturesPicArray.indexOf(this.gesturesPicArray[j]),1);
+                                        // console.log("已经有啦");
+                                        break;
+                                    }
+                                }
+
+                                
+                                if(hasPic == false){
+                                     balloon.gesture = game.add.image(balloon.gift.x, balloon.gift.y - balloon.height / 2, balloon.resName);
+                                }  
+                               
                                 balloon.gesture.anchor.set(0.5, 0.55);
-                                balloon.gesture.width *= 0.4;
-                                balloon.gesture.height *= 0.4;
+                                balloon.gesture.width = 90 * 0.4;
+                                balloon.gesture.height = 90 * 0.4;
 
                                 //将气球与礼物关联
                                 gift.balloons.push(balloon);
-                                console.log(balloon.resName + " " + gift.balloons.indexOf(balloon));
+                                // console.log(balloon.resName + " " + gift.balloons.indexOf(balloon));
 
                                 balloon.body.onCollide = new Phaser.Signal();
                                 balloon.body.onCollide.add(function() {
@@ -484,7 +541,7 @@ define(function() {
                         activeColor: 'rgba(0, 0, 0, .05)',
                         eventType: "touch",
                         onSwipe: function(list) {
-                            console.log(list);
+                            // console.log(list);
 
                         },
                         onGesture: function(res, points) {
@@ -721,7 +778,7 @@ define(function() {
 
                     tween.onComplete.add(function(){
                         role.loadTexture('roleFront', 0, false);
-                        console.log("我停");
+                        // console.log("我停");
                     })
 
                 }
@@ -736,7 +793,7 @@ define(function() {
                         } else {
                             this.gifts[1].generateGift();
                         }
-                        console.log(this.randomBallonNum + "   " + self.score);
+                        // console.log(this.randomBallonNum + "   " + self.score);
                     } else if (self.score >= 21 && self.score <= 30) { //21~30分：1个 60% 2个30% 3个10%
                         this.randomBallonNum = game.rnd.integerInRange(0, 9);
                         if (this.randomBallonNum <= 5) { //生成一个气球
