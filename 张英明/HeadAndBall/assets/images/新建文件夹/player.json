@@ -1,0 +1,39 @@
+{"frames": [
+
+{
+	"filename": "1.png",
+	"frame": {"x":0,"y":0,"w":180,"h":380},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":180,"h":380},
+	"sourceSize": {"w":180,"h":380},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "2.png",
+	"frame": {"x":0,"y":380,"w":180,"h":380},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":180,"h":380},
+	"sourceSize": {"w":180,"h":380},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "3.png",
+	"frame": {"x":0,"y":760,"w":180,"h":380},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":180,"h":380},
+	"sourceSize": {"w":180,"h":380},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "player.png",
+	"format": "RGBA8888",
+	"size": {"w":180,"h":1140},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:17215d3bc0f54bb3d7ed2daf75cd9d76:16fbaae6e58c8f15d6b03e176f687048:86d5339b780aedd87b35e2b7c0a7e11b$"
+}
+}

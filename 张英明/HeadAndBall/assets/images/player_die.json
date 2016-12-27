@@ -1,0 +1,30 @@
+{"frames": [
+
+{
+	"filename": "player_die1.png",
+	"frame": {"x":0,"y":0,"w":249,"h":249},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
+	"sourceSize": {"w":249,"h":249},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "player_die2.jpg",
+	"frame": {"x":249,"y":0,"w":249,"h":249},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
+	"sourceSize": {"w":249,"h":249},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "player_die.png",
+	"format": "RGBA8888",
+	"size": {"w":498,"h":249},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:2455fd6ed30b98c1f72e9c87ccf7e32f:af94c6e4196d64742824147d2166070b:3d34f3701ff3b68dc47777807eb07e35$"
+}
+}
