@@ -55,11 +55,20 @@ define(function() {
                     game.load.image('ground2',"assets/images/ground2.png");
                     game.load.image('star',"assets/images/star.png");
                     game.load.image('soccer',"assets/images/soccer.png");
+                    game.load.image('shadow',"assets/images/shadow.png");
                     game.load.image('bomb',"assets/images/bomb.png");
                     game.load.image('player_die',"assets/images/player_die.png");
                     game.load.atlasJSONArray('star_die',"assets/images/star_die.png","assets/images/player_die.json");
                     game.load.atlasJSONArray('player',"assets/images/player.png","assets/images/player.json");
                     game.load.atlasJSONArray('ballOrBomb',"assets/images/soccerOrBomb.png","assets/images/soccerOrBomb.json");
+
+                    game.load.audio('bgm',"assets/audio/bgm.mp3");
+                    if (self.gameManager.device.platform != 'android') {
+                        game.load.audio('headBall',"assets/audio/headball.mp3");
+                        game.load.audio('star',"assets/audio/star.mp3");
+                        game.load.audio('bomb', "assets/audio/bomb.mp3");
+                        game.load.audio('gameover',"assets/audio/gameover.mp3");
+                    }
                 };
             };
 
@@ -68,20 +77,20 @@ define(function() {
             game.States.create = function() {
                 this.create = function() {
                     // 初始化音乐
-                    /*if(self.gameManager.device.platform != 'android'){
-                        self.musicManager.init(['bg','input']);
+                    if(self.gameManager.device.platform != 'android'){
+                        self.musicManager.init(['bg','headBall','star','bomb','gameover']);
                     }else{
                         self.musicManager.init(['bg']);
-                    }*/
+                    }
                     game.state.start('play');
                 }
             };
 
-            var ground2,ground,player,soccerGroup,starGroup,delayNum = 0,scoreText,soccerOrBomb,createSoccerTimer,speed,shadow;
-            // var offset = new Phaser.Point(10,8);
+            var ground2,ground,player,soccerGroup,starGroup,delayNum = 0,scoreText,soccerOrBomb,speed,shadow;
             // 游戏界面
             game.States.play = function() {
                 this.create = function() {
+                    // self.musicManager.play('bgm',true);
                     this.getBomb = false;  //代表没有碰到炸弹
                     this.addScore = false;
                     this.isJump = false;
@@ -101,6 +110,10 @@ define(function() {
                     ground.width = game.world.width;
                     game.physics.enable(ground, Phaser.Physics.ARCADE);
                     ground.body.immovable = true;
+                    //阴影
+                    shadow = game.add.sprite(game.world.centerX,game.world.height - game.cache.getImage('ground').height / 1.7 ,'shadow');
+                    shadow.anchor.set(0.5);
+                    shadow.width = game.cache.getImage('player').width;
                     // 人
                     player = game.add.sprite(game.world.centerX, game.world.height - game.cache.getImage('ground').height - 235, 'player');
                     player.anchor.setTo(0.5,0);
@@ -108,31 +121,29 @@ define(function() {
                     player.body.setSize(140,230,20,5);
                     player.body.checkWorldBounds = true;
                     // player.body.immovable = true;
-                    player.body.gravity.y = 3700;
+                    player.body.gravity.y = game.world.height / 0.33;
                     player.animations.add('stand',[0,1],2,true);
                     player.animations.play('stand');
-                    //阴影
-                    // shadow = game.add.sprite(player.x + offset.x,player.y + offset.y,'player');
-                    // shadow.anchor.set(0.5);
-                    // shadow.tint = 0x000000;
-                    // shadow.alpha = 0.6;
-
+                    
                     game.input.onDown.add(this.jump,this);
-
+                    //阴影动画
+                    this.shadowTween = game.add.tween(shadow.scale).to({
+                        x:0.5,y:0.5
+                    },270,Phaser.Easing.Linear.None,false,0,0,true);
                     soccerGroup = game.add.group();
-                    soccerGroup.createMultiple(5,'ballOrBomb');
+                    soccerGroup.createMultiple(2,'ballOrBomb');
                     soccerGroup.enableBody = true;
                     soccerGroup.physicsBodyType = Phaser.Physics.ARCADE;
                     soccerGroup.setAll('checkWorldBounds',true);
                     soccerGroup.setAll('outOfBoundsKill',true);
                     
                     starGroup = game.add.group();
-                    starGroup.createMultiple(2,'star');
+                    starGroup.createMultiple(1,'star');
                     starGroup.enableBody = true;
                     starGroup.physicsBodyType = Phaser.Physics.ARCADE;
 
                     // 生成足球或者炸弹的timer
-                    createSoccerTimer = game.time.events.loop(1000,this.choseBallOrBomb,this);
+                    this.createSoccerTimer = game.time.events.loop(1000,this.choseBallOrBomb,this);
                     // 分数背景随内容的增加而变宽
                     var scoreBg = game.add.sprite(50,50,"scoreBg");
                     var scoreIcon = game.add.sprite(50,50,"score");
@@ -152,12 +163,14 @@ define(function() {
                 };
                 
                 this.jump = function(){
-                    this.isJump = true;
+                    // this.isJump = true;
                     //在地面上时进行跳跃，位置有一些偏差
                     if(player.body.y + player.body.height > ground.y - 3 && player.body.y + player.body.height < ground.y + 3){
                         var jumpAni = player.animations.add('jump',[2],60);
                         player.animations.play('jump');
-                        player.body.velocity.y = -1000; 
+                        this.shadowTween.start();
+                        this.isJump = true;
+                        player.body.velocity.y = -game.world.height / 1.21; 
                         jumpAni.onComplete.add(function(){
                             // this.jumpTween.stop();
                             player.animations.play('stand');
@@ -229,9 +242,12 @@ define(function() {
                         star.reset(randomStarX,randomStarY);  
                     }
                     // 足球/炸弹绑定出界事件kill star
-                    ballOrBomb.events.onOutOfBounds.add(function(){
-                        star.kill();
-                    },this)   
+                    try {
+                        ballOrBomb.events.onOutOfBounds.add(function(){
+                            star.kill();
+                        },this) 
+                    } catch(e) {}
+                      
                 };
                 function generateBallOrBomb(obj,randomX,randomY){
                     obj.reset(randomX,randomY);
@@ -244,48 +260,47 @@ define(function() {
                 
                 }
                 var hitBall = false;
-                this.playBall = function(player,soccer){                                              
-                    if(ballOrBomb.frameName == 'soccer.png'){
-                        // soccer.body.velocity.y = -800; 
-                        if(!hitBall){
-                            // 根据撞击的位置改变速度方向
-                            if(soccer.body.velocity.x > 0 && soccer.x + soccer.width / 2 < game.world.width / 2){
-                                soccer.body.velocity.x = -soccer.body.velocity.x;
-                                soccer.body.velocity.y = -game.world.height / 1.2;
-                            } else if(soccer.body.velocity.x < 0 && Math.abs(soccer.x - game.world.width) < game.world.width / 2 ){
-                                soccer.body.velocity.x = -soccer.body.velocity.x;
-                                soccer.body.velocity.y = -game.world.height / 1.2;
-                            } else {
-                                soccer.body.velocity.y = -game.world.height / 1.2;
+                this.playBall = function(player,soccer){
+                    if(this.isJump){
+                        try{
+                            if(ballOrBomb.frameName == 'soccer.png'){
+                            // soccer.body.velocity.y = -800; 
+                                if(!hitBall){
+                                    // 根据撞击的位置改变速度方向
+                                    if(soccer.body.velocity.x > 0 && soccer.x + soccer.width / 2 < game.world.width / 2){
+                                        soccer.body.velocity.x = -soccer.body.velocity.x;
+                                        soccer.body.velocity.y = -game.world.height / 1.15;
+                                    } else if(soccer.body.velocity.x < 0 && Math.abs(soccer.x - game.world.width) < game.world.width / 2 ){
+                                        soccer.body.velocity.x = -soccer.body.velocity.x;
+                                        soccer.body.velocity.y = -game.world.height / 1.15;
+                                    } else {
+                                        soccer.body.velocity.y = -game.world.height / 1.15;
+                                    }
+                                    //更新分数
+                                    hitBall = true;
+                                    self.score++;
+                                    scoreText.text = self.score + " ";
+                                    if (self.gameManager.device.platform != 'android'){
+                                        self.musicManager.stop('headBall');
+                                        self.musicManager.play('headBall',false);
+                                    } 
+                                    
+                                    // createSoccerTimer.delay--;
+                                }
+                                setTimeout(function(){
+                                    hitBall = false;
+                                },100);
+                                // 此时球可以吃星星 
+                                this.addScore = true;
                             }
-                            //更新分数
-                            hitBall = true;
-                            self.score++;
-                            scoreText.text = self.score + " ";
-                            // createSoccerTimer.delay--;
-                        }
-                        setTimeout(function(){
-                            hitBall = false;
-                        },100);
-                        // 此时球可以吃星星 
-                        this.addScore = true;
-                    }
-                    if(ballOrBomb.frameName == 'bomb.png'){
-                        this.getBomb = true;
-                    }
-                    soccer.body.collideWorldBounds = false;  
+                            if(ballOrBomb.frameName == 'bomb.png'){
+                                this.getBomb = true;
+                            }
+                            soccer.body.collideWorldBounds = false;
+                        } catch(e){}
+                    }                                                     
                 };
-                // function boomAnimat(pos,pic){
-                //     var Enemyexplode = game.add.sprite(pos.x,pos.y, 'player_die');
-                //         Enemyexplode.width = pos.width;
-                //         Enemyexplode.height = pos.height;
-                //         var anim = Enemyexplode.animations.add('Enemyexplode',20);
-                //         Enemyexplode.animations.play('Enemyexplode');
-                //         anim.onComplete.add(function(e){
-                //             e.destroy();
-                //         },this);
-                // }
-                this.getStar = function(ball,star){
+                this.hitStar = function(ball,star){
                     if(this.addScore){
                         star.kill();
                         this.emitter.x = star.x;
@@ -295,8 +310,19 @@ define(function() {
                             var starScale = game.add.tween(e.scale).to({
                                 x:0.01,y:0.01
                             },1000,Phaser.Easing.Linear.In,true,0,0,true);
+                        });
+                        var addScoreText = game.add.text(star.x,star.y,"+3",{ font:"46px score", fill: "#FE9400",align: "center"});
+                        var addScoreTextTween = game.add.tween(addScoreText).to({
+                            alpha:0,y:addScoreText.y - 20
+                        },1000,Phaser.Easing.Linear.In,true);
+                        addScoreTextTween.onComplete.add(function(e){
+                            e.destroy();
                         })
                         // boomAnimat(star,'star_die');
+                        if (self.gameManager.device.platform != 'android'){
+                            self.musicManager.stop('star');
+                            self.musicManager.play('star',false);
+                        }
                         self.score = self.score + 3;
                         scoreText.text = self.score + " ";
                     } 
@@ -318,33 +344,38 @@ define(function() {
                     //     e.destroy();
                     //     // game.state.start('end');
                     // },this)
+                    if (self.gameManager.device.platform != 'android'){
+                        self.musicManager.play('bomb');
+                    }
                     bomb.destroy();
-                    game.state.start('end');
+                    this.gameEnd();
                 };
                 
                 this.update = function() {
+
                     // 每一帧更新都会触发
                     game.physics.arcade.collide(player,ground);
                     if(!this.isBomb){
-                        game.physics.arcade.collide(soccerGroup, ground2,this.gameEnd);  //边界效果
+                        game.physics.arcade.collide(soccerGroup, ground2,this.gameEnd,null,this);  //边界效果    
                     }
-                    if(this.isJump){
-                        game.physics.arcade.overlap(player, soccerGroup, this.playBall, null, this);  //人打到球
-                    } 
-                    game.physics.arcade.overlap(soccerGroup, starGroup, this.getStar, null, this);  //球打到星星
+                    game.physics.arcade.overlap(player, soccerGroup, this.playBall, null, this);  //人打到球
+                    game.physics.arcade.overlap(soccerGroup, starGroup, this.hitStar, null, this);  //球打到星星
                     if(this.getBomb){
                         game.physics.arcade.overlap(player, soccerGroup, this.hitBomb, null, this);  //人打到炸弹
-                    }
+                    }  
                 };
 
                 // 游戏结束
                 this.gameEnd = function() {
-                    game.time.events.remove(createSoccerTimer);
-                    arguments[0].angularVelocity = 0;
+                    if (self.gameManager.device.platform != 'android'){
+                        self.musicManager.play('gameover');
+                    }
+                    game.time.events.remove(this.createSoccerTimer);
                     // game.state.start('end');
                     setTimeout(function(){
+                        self.musicManager.stop('gameover');
                         game.state.start('end');
-                    },300)
+                    },1000)
                 };
             };
 
