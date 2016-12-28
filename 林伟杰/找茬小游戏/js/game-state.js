@@ -82,13 +82,14 @@ define(function() {
                     game.load.image('puzzle20','assets/images/拼图20.png');
                     game.load.image('figureBottom','assets/images/数字底.png');//数字底
                     game.load.image('clock','assets/images/时间.png');//时间
-                    game.load.image('trabecule','assets/images/背景横条.png');
                     game.load.image('success','assets/images/通关.png');//通关图片
                     game.load.image('wrong','assets/images/错.png');//错
                     game.load.image('background','assets/images/bg.png');//背景图
                     game.load.image('star1','assets/images/star1.png');//空心星星
                     game.load.image('star2','assets/images/star2.png');//实心星星
-                    game.load.image('timeOver','assets/images/时间到.png');//重新开始按钮
+                    game.load.image('timeOver','assets/images/时间到.png');//时间到
+                    game.load.image('shade','assets/images/遮罩.png');//遮罩
+                    game.load.image('yep','//24haowan-cdn.shanyougame.com/puzzle/assets/images/yep.png');//打钩图片
 
                     //加载字体
                     game.load.atlasJSONArray('level','http://24haowan-cdn.shanyougame.com/findSquare/assets/mobile/level.png','assets/fonts/level.json')
@@ -185,8 +186,11 @@ define(function() {
                     puzzleTwo = game.add.image(centerBg.centerX - this.puzzle.width / 2,centerBg.centerY + 10,secondPuzzle);
                     puzzleTwo.width = puzzleTwo.width * Scale;
                     puzzleTwo.height = puzzleTwo.height * Scale;
-                    this.play();
+                    // this.play();
+                    game.time.events.add(4000,this.play,this);
                 }
+
+                //开始玩函数
                 var rightX = new Array();
                 var rightY = new Array();
                 var rightWidth = new Array();
@@ -695,9 +699,12 @@ define(function() {
                         rightWidth[12] = 24 * Scale;
                         rightHeight[12] = 74 * Scale;
                     }
+
                     //添加一个点击事件来判断是否找出正确答案
                     game.input.onTap.add(function (e) {
-                        if(score == 6 || countDown == 0) {
+                        console.log(countDown);
+                        console.log(score);
+                        if(score == 6) {
                             //game.input.onTap.active = false;
                             this.gameFinish();
                         } 
@@ -777,7 +784,6 @@ define(function() {
                             var right6 = game.add.image(rightX[6],rightY[6],'right','',this.right);
                             right6.width = rightWidth[6];
                             right6.height = rightHeight[6];
-                            console.log(6);
                             var right12 = game.add.image(rightX[12],rightY[12],'right','',this.right);
                             right12.width = rightWidth[12];
                             right12.height = rightHeight[12];
@@ -791,7 +797,9 @@ define(function() {
                         //上面那张图点击错误
                         else if(e.x * 2 > puzzleOne.x && e.x * 2<puzzleOne.x + puzzleOne.width 
                             &&e.y * 2 > puzzleOne.y && e.y * 2<puzzleOne.y+puzzleOne.height) {
+                            console.log(countDown);
                             countDown -= 5;
+                            console.log(countDown);
                             var wrong = game.add.image(e.x * 2 - 48,e.y*2-48,'wrong');
                             wrong.width *= 0.7;
                             wrong.height *= 0.7;
@@ -815,6 +823,7 @@ define(function() {
                         else if(e.x * 2 > puzzleTwo.x && e.x * 2<puzzleTwo.x+puzzleTwo.width 
                             &&e.y * 2 > puzzleTwo.y && e.y * 2<puzzleTwo.y+puzzleTwo.height) {
                             countDown -= 5;
+                            console.log(countDown);
                             var wrong = game.add.image(e.x * 2 - 48,e.y*2-48,'wrong');
                             wrong.width *= 0.7;
                             wrong.height *= 0.7;
@@ -838,24 +847,30 @@ define(function() {
                 }
                 //开始游戏入口
                 this.startGame = function() {
-                    // level = 1；
-                    // this.insertPuzzle();
-                    // this.startTime();
+                    this.insertPuzzle();
                     this.gameHint();
-                    game.time.events.add(3000,this.insertPuzzle,this);
-                    game.time.events.add(3000,this.startTime,this);
+                    game.time.events.add(4000,function() {
+                        game.input.onTap.active = true;//开启鼠标点击事件
+                    },this);
+                    // game.time.events.add(4000,this.play,this);
+                    game.time.events.add(4000,this.startTime,this);
                 }
                 //晋级函数
                 this.nextLevel = function() {
                     puzzleOne.destroy();
                     puzzleTwo.destroy();
-                    centerBg.destroy();//把之前的图片都删掉
-                    this.right.destroy();
+                    centerBg.destroy();
+                    this.right.destroy();//把之前的图片，背景，都删掉
                     this.insertPuzzle();
+                    this.gameHint();
                     this.emptyStar();
-                    this.startTime();
+                    // this.startTime();
+                    // game.time.events.add(4000,this.play,this);
+                    game.time.events.add(4000,this.startTime,this);
+                    game.time.events.add(4000,function() {
+                        game.input.onTap.active = true;//开启鼠标点击事件
+                    },this);
                     timeText.fill = '#506F82';
-                    game.input.onTap.active = true;
                 }
                 //通关函数
                 this.gameFinish = function() {    
@@ -865,24 +880,38 @@ define(function() {
                     score = 0;
                     game.input.onTap.active = false;
                     level++;
-                    this.gameHint();
-                    game.time.events.add(3000,this.nextLevel,this);
+                    // this.gameHint();
+                    //添加打钩动画
+                    var yep = game.add.image(game.world.centerX, game.world.centerY + 20, "yep");
+                    var yepsc = this.bg.width / yep.width * 0.6;
+                    yep.scale.setTo(0, 0);
+                    yep.anchor.setTo(0.5, 0.5);
+
+                    game.add.tween(yep.scale).to({
+                        x: yepsc,
+                        y: yepsc
+                    }, 500, Phaser.Easing.Quadratic.Out, true, 0, 0, false);
+                    setTimeout(function() {
+                        game.add.tween(yep.scale).to({
+                            x: 1,
+                            y: 1
+                        }, 800, Phaser.Easing.Quadratic.In, true, 0, 0, false);
+                    }, 500);
+
+                    game.time.events.add(2500,this.nextLevel,this);
                 }
                 //完美通关函数
                 this.perfectFinish = function() {
                     timer.pause();
                     score = 0;
-                    game.input.onTap.active = false;
+                    game.input.onTap.active = false;//关闭鼠标点击事件
                     timeText.text = 99 + " "; 
                     timeText.fill = '#506F82';
-                    // puzzleOne.destroy();
-                    // puzzleTwo.destroy();
-                    // this.right.destroy();
-                    // centerBg.destroy();
                     var testSprite = game.add.sprite(game.world.centerX,-200,'success');//通关动画
                     testSprite.anchor.set(0.5);
                     game.add.tween(testSprite).to({y:game.world.centerY},2000,Phaser.Easing.Bounce.Out,true);
-                    game.time.events.add(2000,function() {
+                    //播放动画2秒，停留一秒后再消失
+                    game.time.events.add(3000,function() {
                         testSprite.destroy();
                     },this);
                 }
@@ -893,10 +922,10 @@ define(function() {
                     game.input.onTap.active = false;
                     countDown = 99;
                     // alert("时间到");
-                    var timeOver = game.add.sprite(game.world.centerX,-200,'timeOver');//通关动画
+                    var timeOver = game.add.sprite(game.world.centerX,-200,'timeOver');//时间到动画
                     timeOver.anchor.set(0.5);
                     game.add.tween(timeOver).to({y:game.world.centerY},2000,Phaser.Easing.Bounce.Out,true);
-                    game.time.events.add(2000,function() {
+                    game.time.events.add(3000,function() {
                         timeOver.destroy();
                     },this);
                 }
@@ -911,21 +940,24 @@ define(function() {
                 this.solidStar = function() {
                         this.stars.create((23 + (score-1) * 64), (this.head.height - 64) / 2, 'star2');
                 }
-                //关卡提示动画和开始动画（总共需要六秒时间）
+                //关卡提示动画和开始动画（总共需要4秒时间）
                 this.gameHint = function() {
-                    //关卡提示和开始动画
-                    // this.trabecule = game.add.sprite(game.world.centerX,game.world.centerY,'trabecule');//添加背景横条
-                    // this.trabecule.width = 600;
-                    // this.trabecule.height = 300;
-                    // this.trabecule.anchor.setTo(0.5,0.5);
-                    // this.trabecule.alpha = 1;
+                    //添加遮罩背景图
+                    var shade = game.add.image(0,0,'shade');
+                    shade.width = game.world.width;
+                    shade.height = game.world.height;
+                    shade.alpha = 1;
+                    var tween1 = game.add.tween(shade).to({alpha:0},3000,null,true,1000,0,false);
+                    game.time.events.add(4000,function() {
+                        shade.destroy();
+                    },this);
+
                     this.levelText = game.add.sprite(game.world.centerX,game.world.centerY,'level',level-1);
-                    this.levelText.tint = "#272822";
                     this.levelText.width = this.levelText.width * 2 * this.puzzleScale;
                     this.levelText.height = this.levelText.height * 2 * this.puzzleScale;
                     this.levelText.anchor.setTo(0.5,0.5);
                     this.levelText.alpha = 1;
-                    var tween1 = game.add.tween(this.levelText).to({alpha:0},2000,null,true,1000,0,false);
+                    var tween2 = game.add.tween(this.levelText).to({alpha:0},3000,null,true,1000,0,false);
                 }
                 //开启计时器
                 this.startTime = function() {
@@ -944,6 +976,9 @@ define(function() {
                     //如果时间小于30秒则让字体变红
                     if(countDown <= 30) {
                         timeText.fill = 'red';
+                    }
+                    if(countDown > 30) {
+                        timeText.fill = '#506F82'
                     }
                     //时间到，暂时没有减时间动画效果
                     if(countDown <= 0) {
