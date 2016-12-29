@@ -61,7 +61,6 @@ define(function() {
                     game.load.atlasJSONArray('player_die',"assets/images/player_die.png","assets/images/player_die.json");
                     game.load.atlasJSONArray('player',"assets/images/player.png","assets/images/player.json");
                     game.load.atlasJSONArray('ballOrBomb',"assets/images/soccerOrBomb.png","assets/images/soccerOrBomb.json");
-
                     game.load.audio('bgm',"assets/audio/bgm.mp3");
                     if (self.gameManager.device.platform != 'android') {
                         game.load.audio('headBall',"assets/audio/headball.mp3");
