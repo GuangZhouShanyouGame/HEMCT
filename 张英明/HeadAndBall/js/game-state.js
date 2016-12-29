@@ -57,7 +57,6 @@ define(function() {
                     game.load.image('soccer',"assets/images/soccer.png");
                     game.load.image('shadow',"assets/images/shadow.png");
                     game.load.image('bomb',"assets/images/bomb.png");
-                    // game.load.image('player_die',"assets/images/player_die.png");
                     game.load.atlasJSONArray('player_die',"assets/images/player_die.png","assets/images/player_die.json");
                     game.load.atlasJSONArray('player',"assets/images/player.png","assets/images/player.json");
                     game.load.atlasJSONArray('ballOrBomb',"assets/images/soccerOrBomb.png","assets/images/soccerOrBomb.json");
