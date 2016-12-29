@@ -331,9 +331,13 @@ define(function() {
                     } 
                 };
                 this.render = function(){
+<<<<<<< HEAD
                     // game.debug.spriteBounds(ground);
+=======
+                    game.debug.spriteBounds(ground);
+>>>>>>> e422b4ad59453d7243289363521cea061e9a7cfa
                     // game.debug.spriteBounds(player);
-                    // game.debug.body(player);
+                    game.debug.body(player);
                     // game.debug.body(this.soccer);
                 };
                 this.hitBomb = function(player,bomb){
