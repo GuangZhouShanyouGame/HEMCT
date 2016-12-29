@@ -27,6 +27,10 @@ define(function() {
         restart: false,
         //用于预加载彩带动画
         tieArray: null,
+        //用于控制篮框的移动
+        gameSpeed: 0,
+
+        tween: null,
 
         // 初始化
         init: function() {
@@ -39,6 +43,8 @@ define(function() {
             var bestScore = this.bestScore;
             var score = this.score;
             var tieArray = this.tieArray;
+            var gameSpeed = this.gameSpeed;
+            var tween = this.tween;
             game.States = {};
 
             // State - boot
@@ -87,9 +93,10 @@ define(function() {
                     game.load.image('star', "assets/images/star.png");
                     game.load.image('end', "assets/images/end.png");
                     game.load.image('restart', "assets/images/restart.png");
+                    game.load.image('score',"assets/images/score.png");
+                    game.load.image('score_bg',"assets/images/score_bg.png");
 
                     game.load.bitmapFont('font', 'assets/fonts/flappyfont.png', 'assets/fonts/flappyfont.fnt');
-
                 };
             };
 
@@ -121,8 +128,11 @@ define(function() {
                     this.bg.width = game.world.width;
                     this.bg.height = game.world.height;
 
+                    this.group = game.add.group();
+                    this.group.enableBody = true;
+
                     //创建篮板
-                    this.board = game.add.image(game.world.centerX, game.world.centerY / 2 - 50, 'board');
+                    this.board = game.add.sprite(game.world.centerX, game.world.centerY / 2 - 50, 'board', 0, this.group);
                     this.board.anchor.set(0.5, 0.5);
 
                     //创建两个得分提示，固定其大小为100 * 100， 并且将其设置为不可见
@@ -138,7 +148,7 @@ define(function() {
                     this.twoScore.visible = false;
 
                     //创建篮框
-                    this.basket = game.add.image(game.world.centerX, game.world.centerY * 2 / 3, 'basket');
+                    this.basket = game.add.sprite(game.world.centerX, game.world.centerY * 2 / 3, 'basket');
                     this.basket.anchor.set(0.5, 0.5);
 
                     //用于存放彩带
@@ -158,23 +168,26 @@ define(function() {
                     //创建影子
                     this.bottom = game.add.sprite(game.world.centerX, game.world.height - 50, 'bottom');
                     this.bottom.anchor.set(0.5, 0.5);
-                    this.bottom.height *= 2;
-                    this.bottom.width *= 2;
+                    this.bottom.height *= (3 / 2);
+                    this.bottom.width *= (3 / 2);
                     //保存影子的原始尺寸
                     this.bottomHeight = this.bottom.height;
                     this.bottomWidth = this.bottom.width;
 
-                    //创建用于检测的左右端点
+                    //创建用于检测的左右端点，并将其设置为不可见
                     this.left = game.add.sprite(this.basket.x - this.basket.width / 2, this.basket.y - this.basket.height / 2, 'left', 0, this.group);
                     this.left.anchor.set(1, 0);
                     game.physics.enable(this.left, Phaser.Physics.ARCADE);
                     this.left.body.immovable = true;
+                    this.left.visible = false;
                     this.right = game.add.sprite(this.basket.x + this.basket.width / 2, this.basket.y - this.basket.height / 2, 'right', 0, this.group);
                     this.right.anchor.set(0, 0);
                     game.physics.enable(this.right, Phaser.Physics.ARCADE);
                     this.right.body.immovable = true;
+                    this.right.visible = false;
+                    console.log(this.left.height, this.left.width);
+                    console.log(this.right.height, this.right.width);
                     
-
                     // 创建球
                     this.ballSprite = game.add.sprite(game.world.centerX, game.world.height * 2 / 3, "ball");
                     this.ballSprite.anchor.setTo(0.5, 0.5);
@@ -191,9 +204,8 @@ define(function() {
                     var ballSprite = this.ballSprite;
 
                     //画出一个圆
-                    //this.graphics = game.add.graphics(this.ball.x, this.ball.y);
                     this.ball = game.add.graphics(this.ballSprite.x, this.ballSprite.y);
-                    //this.ball.beginFill(0XFFFFFF);
+                    this.ball.beginFill(0XFFFFFF);
                     this.ball.anchor.set(0.5, 0.5);
                     // this.graphics.beginFill(0XFFFFFF);
                     this.ball.drawCircle(0, 0, this.ballSprite.height);
@@ -231,15 +243,25 @@ define(function() {
                     }
 
 
-                    //添加分数条，位置为屏幕之外（先不让分数条出现）
-                    this.scoreText = game.add.bitmapText(game.world.width*2, -game.world.height, 'font', ""+score, 36);
-                    this.scoreText.anchor.set(0.5, 0.5);
-                    var scoreText = this.scoreText;
-                    //如果是重新开始，直接显示即可
+
+                    //添加分数条（先不让分数条出现）
+                    this.titleGroup = game.add.group();
+                    this.scoreBg = game.add.sprite(0,16,"score_bg");
+                    this.score = game.add.sprite(-10,16,"score");
+                    this.scoreText = game.add.text(this.score.width + 27,54,"0 ",{ font: " 36px score",fill: "#FE9400"});
+                    this.scoreText.anchor.setTo(0.3,0.5);
+
+                    this.titleGroup.add(this.scoreBg);
+                    this.titleGroup.add(this.score);
+                    this.titleGroup.add(this.scoreText);
+                    this.titleGroup.x = 50 ;
+                    this.titleGroup.y = 50 ;
+                    this.titleGroup.setAll('visible', false);
+                    var titleGroup = this.titleGroup;
+
                     if(restart)
                     {
-                        scoreText.x = 50;
-                        scoreText.y = 50;
+                        this.titleGroup.setAll('visible', true);
                     }
 
                     //添加手指滑动事件
@@ -253,8 +275,7 @@ define(function() {
                         }
 
                         //游戏开始时让分数条进入屏幕
-                        scoreText.x = 50;
-                        scoreText.y = 50;
+                        titleGroup.setAll('visible', true);
 
                         var isUp = false;
                         var pointer = game.input.activePointer;
@@ -265,19 +286,25 @@ define(function() {
                         {
                             game.input.onUp.add(function()
                             {
-
-                                if(!isUp && !isBounced)
+                                //有时候点击球会出现球只旋转不抛出去的情况
+                                if( ((currentX - ballSprite.x / 2)*(currentX - ballSprite.x / 2) + (currentY - ballSprite.y / 2)*(currentY - ballSprite.y / 2))
+                                     < (ballSprite.width * ballSprite.width / 4) && 
+                                     ((pointer.clientX - ballSprite.x / 2)*(pointer.clientX - ballSprite.x / 2) + (pointer.clientY - ballSprite.y / 2)*(pointer.clientY - ballSprite.y / 2))
+                                     > (ballSprite.width * ballSprite.width / 4))
                                 {
-                                    //向下不能够滑动
-                                    if(pointer.clientY < currentY)
-                                    {
-                                        bounce(currentX, currentY, pointer.clientX, pointer.clientY, ball, ballSprite);
-                                        isUp = true;
-                                        isBounced = true;
-                                    }
-                                    //球抛出之后就立即删除掉所有事件，用户无法再进行任何操作;
-        //为什么这里删除掉所有事件之后，重新开始游戏，无法正常运行？？？
-                                    // game.input.destroy();
+                                    if(!isUp && !isBounced)
+                                        {
+                                            //向下不能够滑动
+                                            if(pointer.clientY < currentY)
+                                            {
+                                                bounce(currentX, currentY, pointer.clientX, pointer.clientY, ball, ballSprite);
+                                                isUp = true;
+                                                isBounced = true;
+                                            }
+                                            //球抛出之后就立即删除掉所有事件，用户无法再进行任何操作;
+                //为什么这里删除掉所有事件之后，重新开始游戏，无法正常运行？？？
+                                            // game.input.destroy();
+                                        }
                                 }
                             });
                         }); 
@@ -286,6 +313,15 @@ define(function() {
                 };
 
                 this.update = function() {
+                    // if(score >= 10)
+                    // {
+                    //     this.group.setAll('body.velocity.x', -gameSpeed);
+                    //     if (this.left.x < this.left.width / 2 || this.right.x > game.world.width - this.right.width / 2) 
+                    //     {
+                    //         gameSpeed = -gameSpeed;
+                    //     }
+                    // }
+
                     //抛出去的时候开始球大小开始变化
                     if(isBounced)
                     {
@@ -298,7 +334,8 @@ define(function() {
                         
                         
                         //当球在上升时，影子的y坐标不断减小，其大小不断变小（球上升到最高点时消失）
-                        if (this.ball.body.velocity.y < 0) 
+                        //若球碰撞，也会上升，此时不应该让影子出现
+                        if (this.ball.body.velocity.y < 0 && !this.hit) 
                         {
                             //scale变化率先大后小，使用（1-scale）使得影子变化慢一点
                             this.bottom.y -= 1.2;
@@ -309,6 +346,7 @@ define(function() {
                         }
                         this.bottom.x = this.ball.x;
                     }
+
                     //需要时刻把球和自定义圆绑定在一起，不应该把这段语句放到上面的if语句里面，
                     //因为当isBounced被置为false的时候，ballSprite和ball的坐标停止绑定
                     this.ballSprite.x = this.ball.x;
@@ -346,8 +384,6 @@ define(function() {
                 //手指滑动结束之后调用的函数
                 this.bounce = function(x1, y1, x2, y2, ball, ballSprite)
                 {
-                    game.add.tween(ballSprite).to({angle: ballSprite.angle - 360}, 1000, null, true, 0, 0, false);
-
                     //滑动手指结束之后再给球添加重力和速度
                     ball.body.gravity.y = 1000;
                     var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -355,6 +391,9 @@ define(function() {
                     var rateY = (y2 - y1) / length;
                     ball.body.velocity.x = velocity * rateX;
                     ball.body.velocity.y = velocity * rateY;
+
+                    tween = game.add.tween(ballSprite);
+                    tween.to({angle: ballSprite.angle - 360}, 1000, null, true, 0, -1, false);
                 }
 
                 //球下落时调用的函数
@@ -367,6 +406,7 @@ define(function() {
                     
                     if(this.ball.x < 0 || this.ball.x > game.world.width || this.ball.y > game.world.height)
                     {
+                        tween.stop();
                         //如果得分就重置
                         if(this.isScored)
                             this.reset();
@@ -393,19 +433,19 @@ define(function() {
                      for(var i = 0; i < 6; i++)
                     {
                         tieArray[i].visible = true;
-                        tieArray[i].body.gravity.y = 200;
-                        tieArray[i].body.velocity.y = - Math.random() * 200 - 150;
+                        tieArray[i].body.gravity.y = 1000;
+                        tieArray[i].body.velocity.y = - Math.random() * 500 - 300;
                         if(i % 2 == 0)
                         {
-                            tieArray[i].body.velocity.x = Math.random() * 200 + 100;
+                            tieArray[i].body.velocity.x = Math.random() * 300 + 50;
                         }
                         else
                         {
-                            tieArray[i].body.velocity.x = -Math.random() * 200 - 100;
+                            tieArray[i].body.velocity.x = -Math.random() * 300 - 50;
                         }
                     }    
                     //设置定时器，三秒后所有彩带消失
-                    game.time.events.add(3000, function()
+                    game.time.events.add(4000, function()
                     {
                         for(var i = 0; i < 6; i++)
                         {
@@ -434,6 +474,7 @@ define(function() {
                                 score += 2;
                                 this.scoreText.text = score;
                                 this.twoScore.visible = true;
+                                //让得分提示向上运动
                                 game.add.tween(this.twoScore).to({y: this.twoScore.y - 100}, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
                                 //无碰撞从篮框落下
                                 this.shot();
@@ -444,7 +485,7 @@ define(function() {
                                 score ++;
                                 this.scoreText.text = score;
                                 this.oneScore.visible = true;
-
+                                //让得分提示向上运动
                                 game.add.tween(this.oneScore).to({y: this.oneScore.y - 100}, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
                             }
                             this.isScored = true;
@@ -454,41 +495,44 @@ define(function() {
 
                 // 篮球成功入篮，一次投篮结束
                 this.reset = function() {
-                    isBounced = false;
-                    //把得分提示设置为不可见
-                    this.twoScore.visible = false;
-                    this.oneScore.visible = false;
-                    //恢复得分提示的坐标
-                    this.twoScore.y = this.board.y - this.board.height / 2;
-                    this.oneScore.y = this.board.y - this.board.height / 2;
-                    
-                    //复原影子的状态
-                    this.bottom.x = game.world.centerX;
-                    this.bottom.y = game.world.height - 50;
-                    this.bottom.height *= 2;
-                    this.bottom.width *= 2;
-                    
-                    //复原球的图片
-                    this.ballSprite.x = game.world.centerX;
-                    this.ballSprite.y = game.world.height - this.ballHeight;
-                    this.ballSprite.width = this.ballWidth;
-                    this.ballSprite.height = this.ballHeight;
+                    //设置定时器，在一秒后执行所有重置操作                    
+                    game.time.events.add(1000, function(){
+                        isBounced = false;
+                        //把得分提示设置为不可见
+                        this.twoScore.visible = false;
+                        this.oneScore.visible = false;
+                        //恢复得分提示的坐标
+                        this.twoScore.y = this.board.y - this.board.height / 2;
+                        this.oneScore.y = this.board.y - this.board.height / 2;
+                        console.log(this.oneScore.y, this.twoScore.y);
+                        
+                        //复原影子的状态
+                        this.bottom.x = game.world.centerX;
+                        this.bottom.y = game.world.height - 50;
+                        this.bottom.height = this.bottomHeight;
+                        this.bottom.width = this.bottomWidth;
+                        
+                        //复原球的图片
+                        this.ballSprite.x = game.world.centerX;
+                        this.ballSprite.y = game.world.height - this.ballHeight;
+                        this.ballSprite.width = this.ballWidth;
+                        this.ballSprite.height = this.ballHeight;
 
-                    //复原球的状态
-                    this.ball.body.gravity.y = 0;
-                    this.ball.body.velocity.x = 0;
-                    this.ball.body.velocity.y = 0;
-                    this.ball.width = this.ballWidth;
-                    this.ball.height = this.ballHeight;
-                    this.ball.x = this.ballSprite.x;
-                    this.ball.y = this.ballSprite.y;
-                    this.ballSprite.bringToTop();
+                        //复原球的状态
+                        this.ball.body.gravity.y = 0;
+                        this.ball.body.velocity.x = 0;
+                        this.ball.body.velocity.y = 0;
+                        this.ball.width = this.ballWidth;
+                        this.ball.height = this.ballHeight;
+                        this.ball.x = this.ballSprite.x;
+                        this.ball.y = this.ballSprite.y;
+                        this.ballSprite.bringToTop();
 
-                    //复原各类状态
-                    this.oneScore.visible = false;
-                    this.twoScore.visible = false;
-                    this.isScored = false;
-                    this.hit = false;
+                        //复原各类状态
+                        this.isScored = false;
+                        this.hit = false;
+                    }, this);
+                    game.time.events.start();
                 };
             };
 
