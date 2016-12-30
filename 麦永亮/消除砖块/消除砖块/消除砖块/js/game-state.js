@@ -28,13 +28,13 @@ define(function() {
 			var brickHeight = 0;
 
 			function Brick() {
-				scaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
+				scaleRate = (game.world.width / 4) / game.cache.getImage("brick").width * 1.5; //放大倍数
 				brickHeight = game.cache.getImage("brick").height * scaleRate;
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
 					this.bricks.createMultiple(20, "brick");
-					this.speed = 240; //移动速度
+					this.speed = 280; //移动速度
 					this.loopTime = game.cache.getImage('brick').height * scaleRate / this.speed * 1000; //砖块高度/移动速度
 					//this.bricks.setAll('outOfBoundsKill', true);
 					//this.bricks.setAll('checkWorldBounds', true);					
@@ -147,26 +147,17 @@ define(function() {
 					game.load.image('brick', "assets/images/brick.png");
 					game.load.image('line', "assets/images/line.png");
 					game.load.image('emitter', "assets/images/emitter.png");
-					game.load.image('bar0', "assets/images/bar0.png");
-					game.load.image('bar1', "assets/images/bar1.png");
-					game.load.image('bar2', "assets/images/bar2.png");
-					game.load.image('bar3', "assets/images/bar3.png");
-					game.load.image('operate_area',"assets/images/operate_area.png");
-					game.load.image('guideText',"assets/images/guide.png");
-					game.load.image('crash',"assets/images/crash.png");
+					game.load.image('bar', "assets/images/bar.png");
 
 					//加载得分榜图片
 					game.load.image('white', 'assets/images/white.png');
 					game.load.image('gold', 'assets/images/gold.png');
 					//加载音效
-					game.load.audio('bgm', "assets/audio/bgm.mp3");
+					//game.load.audio('bg', "assets/audio/bg.mp3");
 					// 安卓只能同时播放一个音乐
-					if (self.gameManager.device.platform != 'android') {
-						game.load.audio('dead', "assets/audio/dead.mp3");
-						game.load.audio('remove', "assets/audio/remove.mp3");
-						game.load.audio('tap', "assets/audio/tap.mp3");
-						game.load.audio('up_level', "assets/audio/up_level.mp3");
-					}
+					//if (self.gameManager.device.platform != 'android') {
+					//	game.load.audio('input', "assets/audio/tap.mp3");
+					//}
 				};
 			};
 
@@ -174,13 +165,14 @@ define(function() {
 			// 开始界面
 			game.States.create = function() {
 				this.create = function() {
-					// 初始化音乐					
+					// 初始化音乐
+					/*
 					if (self.gameManager.device.platform != 'android') {
-						self.musicManager.init(['bgm', 'tap','dead','remove','up_level']);
+						self.musicManager.init(['bg', 'input']);
 					} else {
-						self.musicManager.init(['bgm']);
+						self.musicManager.init(['bg']);
 					}
-					
+					*/
 					game.state.start('play');
 				}
 			};
@@ -192,19 +184,16 @@ define(function() {
 				this.create = function() {
 					// 此处写游戏逻辑
 
-					//示例-创建背景音乐
-					self.musicManager.stop("bgm");
-					self.musicManager.play("bgm", true);
-					if (self.gameManager.device.platform != 'android') {
-						game.input.onDown.add(function() {
-							self.musicManager.play("tap");
-						});
-					}
+					// 示例-创建背景音乐
+					//self.musicManager.play("bg");
+					//game.input.onDown.add(function() {
+					//	self.musicManager.play("input");
+					//});
 
 					// 示例-创建游戏背景
-					var bg = game.add.image(0, 0, "bg");
-					bg.width = game.world.width;
-					bg.height = game.world.height;
+					//var bg = game.add.image(0, 0, "bg");
+					//bg.width = game.world.width;
+					//bg.height = game.world.height;
 
 					this.Brick = new Brick(); //初始化上方砖块
 					this.Brick.init();
@@ -233,33 +222,17 @@ define(function() {
 					game.physics.enable(this.line, Phaser.Physics.ARCADE);
 					this.line.body.immovable = true;
 
-					this.operate_area = this.add.image(0,this.line.y+this.line.height,'operate_area');
-					this.operate_area.width = game.world.width;
-					this.operate_area.height = game.world.height - (this.line.y+this.line.height);
-
-					this.guideText = this.add.image(game.world.width/2,this.line.y - 30,'guideText');
-					this.guideText.anchor.setTo(0.5,0);
-
-					this.bar0 = this.add.sprite(10 + this.white.width + 15, 45, 'bar0');
-					this.bar1 = this.add.sprite(10 + this.white.width + 15, 45, 'bar1');
-					this.bar2 = this.add.sprite(10 + this.white.width + 15, 45, 'bar2');
-					this.bar3 = this.add.sprite(10 + this.white.width + 15, 45, 'bar3');
-
-					this.explosions = game.add.group();
-                    this.explosions.createMultiple(20, 'crash');
-                    this.explosions.forEach(function(explosion) {
-                        explosion.animations.add('crash');
-                    }, this);					
+					this.bar = this.add.sprite(10 + this.white.width + 15, 45, 'bar');
 
 					game.input.onDown.add(this.shootBrick, this);
-
 				};
 
 
 				this.multiple = 1;	//存储倍数
 				this.combo = 0;		//存储连击的变量
-				this.timeToMutiple = 10;	//加倍所需的连击次数
+				this.timeToMutiple = 100;	//加倍所需的连击次数
 				this.myBrickSpeed = -5000;	//发射砖块的速度
+
 
 				this.resetShootBrick = function(i) { //重置发射的砖块,发射速度在这里改
 					if (i <= 3) {
@@ -292,25 +265,19 @@ define(function() {
 					var posY = brick.posY - 1;
 					var currentBrick = this.Brick.getBrick(posX, posY);
 					var count = this.Brick.countBricks(currentBrick)
-					if (count == 4) {						
-						if (self.gameManager.device.platform != 'android') {
-							self.musicManager.stop('remove');	//为什么会把背景音乐也停了？
-							self.musicManager.play('bgm');
-						}
-
+					if (count == 4) {
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).destroy();
 							//this.Brick.getBrick(i, posY).kill(); 							
-						}						
-						this.moveBrickBehind(posY);						
+						}
+						//console.log('Living: ' + this.Brick.bricks.countLiving() + '   Dead: ' + this.Brick.bricks.countDead());
+						this.moveBrickBehind(posY);
+						//this.createEmitter(brick.y+brickHeight * 1.5);
 						this.combo++;
 						this.showCombo(brick.x, brick.y + brickHeight);
 						minY++;
 						self.score = self.score + this.multiple;
 						this.scoreText.text = self.score + ' ';
-						if (self.gameManager.device.platform != 'android') {
-							self.musicManager.play('remove');
-						}
 
 					} else if (count == 1) { //增加了一层
 						minY--;
@@ -321,12 +288,6 @@ define(function() {
 						this.multiple = 1;
 					}
 					//console.log('minY: ' + minY);
-					var explosion = this.explosions.getFirstExists(false);
-					if (explosion) {
-						explosion.reset(brick.x, brick.y);
-						explosion.play('crash', 30, false, true);
-					}
-					
 				}
 
 				this.moveBrickBehind = function(posY) { //移动后方的砖块，并重置他们的posY与ID
@@ -341,6 +302,28 @@ define(function() {
 					}
 				}
 
+				this.createEmitter = function(y) { //撞击后粒子效果函数、暂不启动
+					// 粒子器坐标点在(game.world.centerX, y)，最大粒子数150
+					this.emitter = game.add.emitter(game.world.centerX, y, 100);
+					// 发射器宽度
+					this.emitter.width = game.world.width;
+					// 发射粒子
+					this.emitter.makeParticles('emitter', 0, 100, 1, true);
+					// 最小速度和最大速度
+					this.emitter.minParticleSpeed.set(0, 0);
+					this.emitter.maxParticleSpeed.set(0, 120);
+					// 旋转、透明度、尺寸范围
+					//this.emitter.setRotation(0, 0);
+					this.emitter.setAlpha(0.8, 0.2);
+					this.emitter.setScale(0.2, 0.2, 0.1, 0.1);
+					// 重力
+					this.emitter.gravity = -200;
+					this.emitter.bounce.setTo(0.5, 0.5);
+					// true代表粒子一次性全部发射
+					// 500代表生命时长，每个粒子最多存在500ms					
+					this.emitter.start(true, 500, null, 100);
+				}
+
 				this.showCombo = function(x, y) { //显示连击效果的函数
 					this.comboText = this.add.text(x + game.world.width / 8, y, 'x' + this.combo, this.style);
 					this.comboText.anchor.setTo(0.5, 0);
@@ -352,7 +335,7 @@ define(function() {
 						this.comboText.destroy();
 					}, this);
 
-					if (this.combo === this.timeToMutiple) {						
+					if (this.combo === this.timeToMutiple) {
 						this.multiple = 2;
 						this.showMultiple();
 					} else if (this.combo === this.timeToMutiple * 2) {
@@ -384,9 +367,6 @@ define(function() {
 
 				this.showMultiple = function() {					
 					this.pauseGame();
-					if (self.gameManager.device.platform != 'android') {
-						self.musicManager.play('up_level');
-					}
 
 					var doubleText = this.add.text(game.world.centerX, game.world.centerY, 'X' + this.multiple, this.style);
 					doubleText.anchor.setTo(0.5, 0.5);
@@ -399,29 +379,6 @@ define(function() {
 						doubleText.destroy();
 						this.resumeGame();
 					}, this);
-				}
-
-				this.updateBar = function() {
-					if (this.combo >= 0 && this.combo < this.timeToMutiple) {
-						this.bar1.width = (game.world.width - this.bar0.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
-						this.bar2.width = 0;
-						this.bar3.width = 0;
-						
-					} else if (this.combo >= this.timeToMutiple && this.combo <= this.timeToMutiple * 2) {
-						this.bar1.width = game.world.width - this.bar0.x - 20;
-						this.bar2.width = (game.world.width - this.bar0.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
-						this.bar3.width = 0;
-						
-					} else if (this.combo >= this.timeToMutiple * 2 && this.combo < this.timeToMutiple * 3) {
-						this.bar1.width = game.world.width - this.bar0.x - 20;
-						this.bar2.width = game.world.width - this.bar0.x - 20;
-						this.bar3.width = (game.world.width - this.bar0.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
-						
-					} else {
-						this.bar1.width = game.world.width - this.bar0.x - 20;
-						this.bar2.width = game.world.width - this.bar0.x - 20;
-						this.bar3.width = game.world.width - this.bar0.x - 20;
-					}
 				}
 
 				var hit = false;
@@ -442,17 +399,13 @@ define(function() {
 					game.physics.arcade.overlap(this.myBricks, this.Brick.bricks, this.hitBrick, null, this);
 					game.physics.arcade.overlap(this.line, this.Brick.bricks, this.gameEnd, null, this);
 					//game.physics.arcade.collide(this.myBricks);
-					this.updateBar();
-					
+					this.bar.width = (game.world.width - this.bar.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
 				};
 
 				// 游戏结束
 				this.gameEnd = function() {
 					//this.Brick.bricks.setAll('body.speed',0);
 					game.state.start('end');
-					if (self.gameManager.device.platform != 'android') {
-						self.musicManager.play('dead');
-					}
 				};
 			};
 
