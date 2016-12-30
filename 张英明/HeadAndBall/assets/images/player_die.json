@@ -1,0 +1,63 @@
+<<<<<<< HEAD
+{"frames": [
+
+{
+	"filename": "player_die1.png",
+	"frame": {"x":0,"y":0,"w":249,"h":249},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
+	"sourceSize": {"w":249,"h":249},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "player_die2.png",
+	"frame": {"x":249,"y":0,"w":249,"h":249},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
+	"sourceSize": {"w":249,"h":249},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "player_die.png",
+	"format": "RGBA8888",
+	"size": {"w":498,"h":249},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:9ff9b38b243ab64a83184ea4361d608e:61054e90a92f27a8e6119cc44dfbc1d8:3d34f3701ff3b68dc47777807eb07e35$"
+}
+}
+=======
+{"frames": [
+
+{
+	"filename": "player_die1.png",
+	"frame": {"x":0,"y":0,"w":249,"h":249},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
+	"sourceSize": {"w":249,"h":249},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "player_die2.png",
+	"frame": {"x":249,"y":0,"w":249,"h":249},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":249,"h":249},
+	"sourceSize": {"w":249,"h":249},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "player_die.png",
+	"format": "RGBA8888",
+	"size": {"w":498,"h":249},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:9ff9b38b243ab64a83184ea4361d608e:61054e90a92f27a8e6119cc44dfbc1d8:3d34f3701ff3b68dc47777807eb07e35$"
+}
+}
+>>>>>>> e422b4ad59453d7243289363521cea061e9a7cfa

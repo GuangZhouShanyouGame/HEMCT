@@ -65,6 +65,9 @@ define(function() {
                     this.gesturesPicArray = []; //手势图缓存池
                     this.scorePlusPicArray = []; //加分缓存池
 
+                    //礼物生成的x坐标
+                    this.giftX = 0;
+
 
                     //获取下降的礼物
                     this.fallGifts = [];
@@ -110,17 +113,21 @@ define(function() {
                         balloonArray[i].gesture.y = balloonArray[i].y - balloonArray[i].height / 2;
 
                         var gift = balloonArray[i].gift;
-
-                        if (Math.abs(balloonArray[i].x - gift.x) <= 5 && balloonArray[i].body.velocity.x != 0) { //当气球的x坐标与礼物相等时且速度不为0，则停止
-                            balloonArray[i].body.velocity.x = 0;
-                            console.log("该停止啦");
+                        if (gift.balloonTotalNum != 5) {
+                            if (Math.abs(balloonArray[i].x - gift.x) <= 2 && balloonArray[i].body.velocity.x != 0) { //当气球的x坐标与礼物相等时且速度不为0，则停止
+                                balloonArray[i].body.velocity.x = 0;
+                                console.log("该停止啦");
+                            }
+                            // console.log(balloonArray[i].body.onCollide);
+                            game.physics.arcade.collide(balloonArray[i], balloonArray, function() {
+                                balloonArray[i].body.velocity.x = 0;
+                                //gift.balloons[j + 1].body.velocity.x = 0;
+                                console.log("碰撞");
+                                // console.log(arguments[0]);
+                                // console.log(arguments[1]);
+                            }, null, this);
                         }
-                        // console.log(balloonArray[i].body.onCollide);
-                        game.physics.arcade.collide(balloonArray[i], balloonArray, function() {
-                            balloonArray[i].body.velocity.x = 0;
-                            //gift.balloons[j + 1].body.velocity.x = 0;
-                            console.log("碰撞");
-                        }, null, this);
+
 
                         // for(var j = 0; j < gift.balloons.length; j++){
                         //     if(gift.balloons[j + 1] != null){
@@ -146,7 +153,7 @@ define(function() {
 
                 }
 
-               
+
 
                 //礼物与台阶碰撞
                 this.giftHitStair = function(stair, effectFunction) {
@@ -169,40 +176,45 @@ define(function() {
                                 console.log("kill balloon!!!index：" + index);
                                 var gift = balloon.gift; //气球所绑的礼物
 
-                                for (var i = 0; i < gift.balloonNum; i++) {
-
-                                    if (i == index) continue;
-                                    var ball = gift.balloons[i];
-                                    //气球向中间靠拢
-                                    if (Math.abs(ball.x - gift.x) > 10) {
-
-                                        var sign = (ball.x < gift.x) ? 1 : -1; //气球在礼物的左边的向右移动，反之向左移动
-                                        gift.balloons[i].body.velocity.x = 50 * sign;
-                                    }
-
-                                    //gift.balloons[i].body.angularVelocity  = -50 * sign;
-                                    // game.add.tween(gift.balloons[i]).to({
-                                    //     //y: gift.balloons[i].gift.y
-                                    //     x: gift.x
-                                    // }, 500, Phaser.Easing.Linear.None, true, 0, 0, false);
-                                }
-                                //console.log(balloon.gift.balloons.indexOf(balloon));
                                 balloon.kill();
                                 this.explosion(balloon);
+                                gift.balloons[index] = gift.balloons[gift.balloonNum - 1];
+                                gift.balloonNum--;
+                                if (gift.balloonTotalNum != 5) {
+                                    for (var i = 0; i < gift.balloonNum; i++) {
+
+                                        // if (i == index) continue;
+                                        var ball = gift.balloons[i];
+                                        //气球向中间靠拢
+                                        if (Math.abs(ball.x - gift.x) > 10) {
+
+                                            var sign = (ball.x < gift.x) ? 1 : -1; //气球在礼物的左边的向右移动，反之向左移动
+                                            gift.balloons[i].body.velocity.x = 50 * sign;
+
+                                            // console.log(gift.balloons[i].resName);
+                                        }
+
+                                        //gift.balloons[i].body.angularVelocity  = -50 * sign;
+                                        // game.add.tween(gift.balloons[i]).to({
+                                        //     //y: gift.balloons[i].gift.y
+                                        //     x: gift.x
+                                        // }, 500, Phaser.Easing.Linear.None, true, 0, 0, false);
+                                    }
+                                }
+
+                                //console.log(balloon.gift.balloons.indexOf(balloon));
+
 
                                 // balloon.gesture.destroy();
                                 balloon.gesture.x = -1000;
                                 balloon.gesture.y = -1000;
 
                                 this.gesturesPicArray.push(balloon.gesture);
-                                if(this.gesturesPicArray.length > 20){
+                                if (this.gesturesPicArray.length > 20) {
                                     this.gesturesPicArray.shift().destroy();
                                 }
 
-                                gift.balloons[index] = gift.balloons[gift.balloonNum - 1];
-                                gift.balloonNum--;
 
-                                
 
                                 if (balloon.gift.balloonNum <= 0) { //礼物所绑的气球没了，礼物下降，这里要设置得分
                                     // balloon.gift.body.velocity.y = 0;
@@ -224,14 +236,14 @@ define(function() {
                     }, this);
                 }
 
-                //气球爆破
+                //气球爆破动画
                 this.explosion = function(balloon) {
                     var explosion = this.explosions.getFirstExists(false);
                     if (explosion) {
                         explosion.width = (107 / 2);
                         explosion.height = (107 / 2);
                         explosion.reset(balloon.body.x, balloon.body.y);
-                        explosion.play('balloonExplode', 30, false, true);
+                        explosion.play('balloonExplode', 100, false, true);
                         var expanim = explosion.animations.getAnimation('balloonExplode');
                         expanim.onComplete.add(function() {
                             explosion.kill();
@@ -239,43 +251,43 @@ define(function() {
                     }
                 }
 
-                this.showScorePlus = function(gift){
-                    
+                this.showScorePlus = function(gift) {
+
                     var hasPic = false;
                     var scorePlus;
                     var scorePlusPicArray = this.scorePlusPicArray;
-                    console.log(scorePlusPicArray);
-                    for(var j = 0; j < scorePlusPicArray.length; j++){
-                        if(scorePlusPicArray[j].key == gift.balloonTotalNum.toString()){
+                    // console.log(scorePlusPicArray);
+                    for (var j = 0; j < scorePlusPicArray.length; j++) {
+                        if (scorePlusPicArray[j].key == gift.balloonTotalNum.toString()) {
                             hasPic = true;
 
                             scorePlus = scorePlusPicArray[j];
                             scorePlus.x = gift.x + gift.width / 2 + 29;
                             scorePlus.y = gift.y + gift.height / 2;
-                            scorePlusPicArray.splice(scorePlusPicArray.indexOf(this.scorePlusPicArray[j]),1);
+                            scorePlusPicArray.splice(scorePlusPicArray.indexOf(this.scorePlusPicArray[j]), 1);
                             break;
                         }
                     }
 
-                    if(hasPic == false){
+                    if (hasPic == false) {
                         scorePlus = game.add.sprite(gift.x + gift.width / 2 + 29, gift.y + gift.height / 2, gift.balloonTotalNum.toString());
                         scorePlus.width *= 0.1;
                         scorePlus.height *= 0.1;
                     }
-                    
+
                     scorePlus.anchor.set(0.5);
                     var y1 = scorePlus.y - 60;
                     var tween = game.add.tween(scorePlus).to({
                         y: y1
                     }, 500, Phaser.Easing.Linear.None, true, 0);
 
-                    tween.onComplete.add(function(){
+                    tween.onComplete.add(function() {
                         // scorePlus.destroy();
                         scorePlus.x = -2000;
                         scorePlus.y = -2000;
 
                         scorePlusPicArray.push(scorePlus);
-                        if(scorePlusPicArray.length > 20){
+                        if (scorePlusPicArray.length > 20) {
                             scorePlusPicArray.shift().destroy();
                         }
                     })
@@ -298,7 +310,7 @@ define(function() {
                         //     gift.width = 89 * 1.5 * 0.3;
                         // }else if(gift)
                         // gift.width = 89 * (gift.balloonNum == 1 ? 1.5 : gift.balloonNum ) * 0.3;
-                        gift.width = 89 * (1.5 + (gift.balloonNum - 1) * 0.2) * 0.3;
+                        gift.width = 89 * (1.5 + (gift.balloonNum - 1) * 0.2) * 0.3 * config.enlarge;
                         gift.height = gift.width * 119 / 89;
                         gift.body.height = gift.height;
                         gift.body.width = gift.width;
@@ -306,7 +318,13 @@ define(function() {
                         gift.hasScore = false; //未设置得分
                         gift.hasHitStair = false;
                         gift.rotation = 0;
-                        gift.reset(game.rnd.integerInRange(0 + gift.width * gift.balloonNum, game.width - gift.width * gift.balloonNum), game.height + 100);
+                        var offset = gift.width * (gift.balloonNum <= 4 ? gift.balloonNum : 3);
+                        do {
+                            var random = game.rnd.integerInRange(0 + offset, game.width - offset);
+
+                        } while (Math.abs(random - this.giftX) <= offset);
+                        this.giftX = random;
+                        gift.reset(this.giftX, game.height + 100);
                         // if(gift.id == null){
                         //     gift.id = game.rnd.integerInRange(0,100);
                         // }
@@ -334,24 +352,35 @@ define(function() {
                             if (balloon) {
                                 balloon.gift = gift; //气球绑定的礼物
 
-                                balloon.height = 107 / 2;
-                                balloon.width = 107 / 2;
+                                balloon.height = 107 / 2 * config.enlarge;
+                                balloon.width = 107 / 2 * config.enlarge;
                                 balloon.body.height = balloon.height;
                                 balloon.body.width = balloon.width;
 
-                                do{
+                                do {
                                     var integerRandom = game.rnd.integerInRange(0, resNameArray.length - 1)
-                                }while(integerRandomArr.indexOf(integerRandom) != -1);
+                                } while (integerRandomArr.indexOf(integerRandom) != -1);
                                 integerRandomArr.push(integerRandom);
-                                
+
                                 balloon.resName = resNameArray[integerRandom]; //气球的名称
 
                                 balloon.anchor.setTo(0.5, 1);
                                 var sign = (i % 2 == 0) ? 1 : -1; //奇数气球在左边，偶数气球在右边
-                                if (i <= 1)
-                                    balloon.reset(gift.x + i * balloon.width * sign + i * 2 * sign, gift.y - balloon.height - gift.height * 0.22);
-                                else
-                                    balloon.reset(gift.x + Math.ceil(i / 2.0) * balloon.width * sign + i * 2 * sign, gift.y - balloon.height - gift.height *0.22);
+
+                                if (gift.balloonNum < 5) { //气球数小于5的气球排版
+                                    if (i <= 1)
+                                        balloon.reset(gift.x + i * balloon.width * sign + i * 2 * sign, gift.y - balloon.height - gift.height * 0.22);
+                                    else
+                                        balloon.reset(gift.x + Math.ceil(i / 2.0) * balloon.width * sign + i * 2 * sign, gift.y - balloon.height - gift.height * 0.22);
+
+                                } else { //气球数为5的气球排版
+                                    if (i <= 2) {
+                                        balloon.reset(gift.x + Math.ceil((i == 1 ? 2 : i) / 2.0) * balloon.width * sign, gift.y - balloon.height);
+                                    } else
+                                        balloon.reset(gift.x + balloon.width / 2 * sign, gift.y - balloon.height * 1.85);
+
+                                }
+
 
                                 balloon.body.velocity.y = gift.body.velocity.y;
 
@@ -360,28 +389,28 @@ define(function() {
 
                                 //气球手势图案
                                 var hasPic = false;
-                                for(var j = 0; j < this.gesturesPicArray.length; j++){
+                                for (var j = 0; j < this.gesturesPicArray.length; j++) {
                                     // console.log(this.gesturesPicArray[j].key);
-                                    if(this.gesturesPicArray[j].key == balloon.resName){
+                                    if (this.gesturesPicArray[j].key == balloon.resName) {
                                         hasPic = true;
                                         // console.log(balloon.resName);
                                         balloon.gesture = this.gesturesPicArray[j];
                                         balloon.gesture.x = balloon.gift.x;
                                         balloon.gesture.y = balloon.gift.y - balloon.height / 2;
-                                        this.gesturesPicArray.splice(this.gesturesPicArray.indexOf(this.gesturesPicArray[j]),1);
+                                        this.gesturesPicArray.splice(this.gesturesPicArray.indexOf(this.gesturesPicArray[j]), 1);
                                         // console.log("已经有啦");
                                         break;
                                     }
                                 }
 
-                                
-                                if(hasPic == false){
-                                     balloon.gesture = game.add.image(balloon.gift.x, balloon.gift.y - balloon.height / 2, balloon.resName);
-                                }  
-                               
+
+                                if (hasPic == false) {
+                                    balloon.gesture = game.add.image(balloon.gift.x, balloon.gift.y - balloon.height / 2, balloon.resName);
+                                }
+
                                 balloon.gesture.anchor.set(0.5, 0.55);
-                                balloon.gesture.width = 90 * 0.4;
-                                balloon.gesture.height = 90 * 0.4;
+                                balloon.gesture.width = 90 * 0.4 * config.enlarge;
+                                balloon.gesture.height = 90 * 0.4 * config.enlarge;
 
                                 //将气球与礼物关联
                                 gift.balloons.push(balloon);
@@ -444,6 +473,10 @@ define(function() {
                     game.load.image('gift', "assets/礼物.png");
                     game.load.image('balloon', "assets/气球.png");
 
+                    game.load.image('giftFly', "assets/礼物飞走啦.png");
+                    game.load.image('redCover', "assets/红色遮罩.png");
+                    
+
                     game.load.image('v', "assets/gestures/v.png");
                     game.load.image('caret', "assets/gestures/caret.png");
                     game.load.image('circle', "assets/gestures/circle.png");
@@ -502,6 +535,12 @@ define(function() {
                     this.bg.width = game.world.width;
                     this.bg.height = game.world.height;
 
+                    //红色遮罩
+                    this.redCover = game.add.image(0, 0, "redCover");
+                    this.redCover.width = game.world.width;
+                    this.redCover.height = game.world.height;
+                    this.redCover.alpha = 0;
+
                     //台阶
                     this.stair = game.add.sprite(0, 0, 'stair');
                     this.stair.width *= 2;
@@ -516,25 +555,22 @@ define(function() {
                     this.role = game.add.sprite(0, 0, 'roleFront');
                     this.role.anchor.set(0);
                     // this.role.y = this.stair.y - this.role.height;
+                    this.role.height *= 0.85;
+                    this.role.width = this.role.height * 101 / 141;
                     this.role.y = game.height - this.role.height;
                     this.role.x = game.width / 2;
 
+
                     //this.role.loadTexture('roleRight', 0, false);
 
-                    //分数
-                    this.style = {
-                        font: "60px sText",
-                        fill: "#FE9400",
-                        align: "center"
-                    };
-                    this.scoreText = this.add.text(game.width / 2, game.height / 2, self.score + ' ', this.style);
+
                     //创建手势
                     var lastPoints = [];
                     var options = {
                         //el: document.getElementsByTagName('canvas')[0],
                         el: document.body,
                         enablePath: true,
-                        timeDelay: -200,
+                        timeDelay: 0,
                         lineColor: '#ff8cc1', //'#666'
                         lineWidth: '4',
                         triggerMouseKey: 'left',
@@ -554,6 +590,15 @@ define(function() {
 
                     this.canvas = new smartGesture(options);
 
+                    //分数
+                    this.style = {
+                        font: "120px sText",
+                        fill: "#FE9400",
+                        align: "center"
+                    };
+                    this.scoreText = this.add.text(game.width / 2, game.height / 2, self.score + ' ', this.style);
+                    this.scoreText.anchor.set(0.5);
+
                     //礼物
                     var giftTeam = {
                         gift1: {
@@ -563,6 +608,7 @@ define(function() {
                             balloonNum: 1,
                             giftVelocity: 100,
                             balloonsPool: 15,
+                            enlarge: 1.15
                         },
 
                         gift2: {
@@ -571,7 +617,8 @@ define(function() {
                             balloonPic: 'balloon',
                             balloonNum: 2,
                             giftVelocity: 100,
-                            balloonsPool: 20
+                            balloonsPool: 20,
+                            enlarge: 1.15
                         },
 
                         gift3: {
@@ -580,7 +627,8 @@ define(function() {
                             balloonPic: 'balloon',
                             balloonNum: 3,
                             giftVelocity: 100,
-                            balloonsPool: 30
+                            balloonsPool: 30,
+                            enlarge: 1.15
                         },
 
                         gift4: {
@@ -589,7 +637,8 @@ define(function() {
                             balloonPic: 'balloon',
                             balloonNum: 4,
                             giftVelocity: 100,
-                            balloonsPool: 40
+                            balloonsPool: 40,
+                            enlarge: 1.15
                         },
 
                         gift5: {
@@ -598,7 +647,8 @@ define(function() {
                             balloonPic: 'balloon',
                             balloonNum: 5,
                             giftVelocity: 100,
-                            balloonsPool: 50
+                            balloonsPool: 50,
+                            enlarge: 1.15
                         }
                     };
 
@@ -624,7 +674,7 @@ define(function() {
                     this.balloonArray;
                     this.giftArray;
 
-                    
+
 
                     this.randomBallonNum = 0; //生成随机数（0~9）
                     this.randomRoleX = 0; //角色移动随机
@@ -636,7 +686,7 @@ define(function() {
                         self.musicManager.play("input");
                     });
 
-
+                    this.isGameOver = false;
                     // 示例-创建游戏元素
                     // this.star = game.add.sprite(game.world.centerX, game.world.centerY, "star");
                     // this.star.anchor.setTo(0.5, 0.5);
@@ -646,10 +696,20 @@ define(function() {
                     //     y: this.star.y - 100
                     // }, 1000, Phaser.Easing.Linear.None, true, 0, -1, true);
 
+
                     this.generateGiftLoop = game.time.events.loop(Phaser.Timer.SECOND * 2, this.generateGift, this);
 
                     this.roleMove();
                     this.roleMoveLoop = game.time.events.loop(this.roleMoveTime * 2, this.roleMove, this);
+
+                    //人物
+                    this.giftFly = game.add.sprite(0, 0, 'giftFly');
+                    this.giftFly.anchor.set(0.5);
+                    
+                    // this.giftFly.height *= 0.85;
+                    // this.role.width = this.role.height * 101 / 141;
+                    this.giftFly.y = 0 - this.giftFly.height;
+                    this.giftFly.x = game.width / 2;
                 };
 
                 this.render = function() {
@@ -657,10 +717,10 @@ define(function() {
                         // game.context.fillStyle = 'rgb(20, 10, 22)';
                         // game.context.fillRect(p1.x, p1.y, 4, 4);
                         //if(this.balloonArray[i].y < this.stair.y)
-                            game.debug.geom(this.balloonArray[i].line, '#fff09e', false);
+                        game.debug.geom(this.balloonArray[i].line, '#fff09e', false);
 
                         //  game.debug.body(this.balloonArray[i]);
-                         // game.debug.body(this.balloonArray[i].gift);
+                        // game.debug.body(this.balloonArray[i].gift);
                         // game.debug.body(this.stair);
                     }
 
@@ -712,18 +772,18 @@ define(function() {
                         this.gifts[i].balloonsCollide(balloonArr);
                         this.balloonArray = this.balloonArray.concat(balloonArr);
 
-                        this.giftArray =  this.giftArray.concat(this.gifts[i].getGiftsExists());
+                        this.giftArray = this.giftArray.concat(this.gifts[i].getGiftsExists());
 
-                        this.gifts[i].giftHitStair(this.stair, this.hitStair);//检测礼物与台阶的碰撞
+                        this.gifts[i].giftHitStair(this.stair, this.hitStair); //检测礼物与台阶的碰撞
                         //game.physics.arcade.collide(this.gifts[i], this.stair, this.shake(), null, this); //检测与台阶的碰撞
                     }
 
-                    for(var i = 0; i < this.giftArray.length; i++){
-                        if(this.giftArray[i].y <= -100 || this.giftArray[i].x <= -50 || this.giftArray[i].x >= game.width + 50){
+                    for (var i = 0; i < this.giftArray.length; i++) {
+                        if (this.giftArray[i].y <= -100 || this.giftArray[i].x <= -50 || this.giftArray[i].x >= game.width + 50) {
                             this.giftArray[i].kill();
                         }
 
-                        if(this.giftArray[i].balloonNum != 0){
+                        if (this.giftArray[i].balloonNum != 0) {
                             this.giftArray[i].body.velocity.x = 0;
                             this.giftArray[i].body.angularVelocity = 0;
                             // this.giftArray[i].body.x = this.giftArray[i].x ;
@@ -738,11 +798,20 @@ define(function() {
                         //  this.giftArray[i].x >= game.width - this.giftArray[i].width / 2){
                         //     this.giftArray[i].body.velocity.x = -this.giftArray[i].body.velocity.x;
                         // }
+                        if(this.giftArray[i].y - this.giftArray[i].height / 2 <= 0){
+                            this.giftToTop(this.giftArray[i]);
+
+                        }
                     }
 
-                    for(var i = 0; i < this.balloonArray.length; i++){
+                    for (var i = 0; i < this.balloonArray.length; i++) {
+                        if(this.balloonArray[i].y <= 200 && !this.balloonArray[i].isWarn){
+                            this.balloonArray[i].isWarn = true;
+                            this.balloonToTop();
+                            console.log("fuck");
+                        }
 
-                        if(this.balloonArray[i].y <= -100){
+                        if (this.balloonArray[i].y <= -100) {
                             this.balloonArray[i].kill();
                             //this.bg.visible = false;
 
@@ -750,10 +819,69 @@ define(function() {
                             // this.bg.tint = 0xff0000;//礼物即将到达边界时，背景需要变红,  16777215为原色
 
                         }
+
+                        if(this.isGameOver == true){
+                            this.balloonArray[i].body.velocity.y = 0;
+                        }
                     }
 
 
                 };
+
+
+
+                /*
+                to(properties, duration, ease, autoStart, delay, repeat, yoyo)
+                properties :  一个js对象，里面包含着需要进行动画的属性，如上面代码中的 {y:120}
+                duration : 补间动画持续的时间，单位为毫秒
+                ease : 缓动函数，默认为匀速动画
+                autoStart : 是否自动开始
+                delay : 动画开始前的延迟时间，单位为毫秒
+                repeat : 动画重复的次数，如果需要动画永远循环，则把该值设为 Number.MAX_VALUE
+                yoyo : 如果该值为true,则动画会自动反转
+                */
+
+
+                //礼物飞走啦
+                this.giftToTop = function(gift){
+                    for(var i = 0; i < this.giftArray.length; i++){//除要飞走的礼物外，其他礼物停止
+                        if(this.giftArray[i] != gift){
+                            this.giftArray[i].body.velocity.y = 0;
+                        }
+                    }
+
+                    var giftFly = this.giftFly;
+
+                    var tween = game.add.tween(giftFly).to({
+                        y: game.height / 2
+                    }, 500, null, true, 0);
+                    
+                    this.gameOver();
+                }
+
+                this.gameOver = function(){
+                    this.isGameOver = true;
+
+                    game.time.events.remove(this.generateGiftLoop);
+                    game.time.events.remove(this.roleMoveLoop);
+                    this.canvas.destroy();//取消手势
+                }
+
+
+                //气球即将到达顶部，警告
+                this.balloonToTop = function() {
+                    var redCover = this.redCover;
+                    var tween = game.add.tween(redCover).to({
+                        alpha: 1
+                    }, 400, null, true, 0, 3);
+
+                    tween.onComplete.add(function() {
+                        redCover.alpha = 0;
+                    })
+
+
+                    
+                }
 
                 this.roleMove = function() {
 
@@ -761,7 +889,7 @@ define(function() {
                     var role = this.role;
                     var roleX = role.x;
                     while (Math.abs(shift) <= 50) {
-                        this.randomRoleX = game.rnd.integerInRange(0 + this.role.width, game.width - this.role.width);                    
+                        this.randomRoleX = game.rnd.integerInRange(0 + this.role.width, game.width - this.role.width);
                         shift = this.randomRoleX - roleX; //位移量,大于0向右移动
                     }
 
@@ -776,7 +904,7 @@ define(function() {
                         x: this.randomRoleX
                     }, this.roleMoveTime, Phaser.Easing.Linear.None, true, 0);
 
-                    tween.onComplete.add(function(){
+                    tween.onComplete.add(function() {
                         role.loadTexture('roleFront', 0, false);
                         // console.log("我停");
                     })
@@ -786,6 +914,13 @@ define(function() {
                 this.generateGift = function() {
                     if (self.score <= 10) { //0~10分：1个 100%
                         this.gifts[0].generateGift();
+                        // if (this.randomBallonNum <= 4) {
+                        //     this.gifts[1].generateGift();
+                        // } else if (this.randomBallonNum > 6) {
+                        //     this.gifts[2].generateGift();
+                        // } else {
+                        //     this.gifts[3].generateGift();
+                        // }
                     } else if (self.score >= 11 && self.score <= 20) { //11~20分：1个 80% 2个20%
                         this.randomBallonNum = game.rnd.integerInRange(0, 9);
                         if (this.randomBallonNum != 2 || this.randomBallonNum != 6) { //生成一个气球
@@ -870,7 +1005,7 @@ define(function() {
                     // console.log("gift.x: " + gift.x + " gift.body.x:" + gift.body.x);
                     // console.log("gift.y: " + gift.y + " gift.body.y:" + gift.body.y);
                     if (gift.body.velocity.y <= -50 && gift.hasScore == true && gift.hasHitStair == false) {
-                        self.shake();
+                        // self.shake();
                         gift.hasHitStair = true;
 
                     } else if (gift.body.velocity.y >= -6.89 && gift.hasScore == true) {
