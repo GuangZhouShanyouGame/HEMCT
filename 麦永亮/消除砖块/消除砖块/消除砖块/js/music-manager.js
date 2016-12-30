@@ -79,14 +79,25 @@ define(function() {
 			}
 			this.isPlaying = false;
 		},
-		stop : function() {
-			for (var item in this.playingList) {
-				var name = this.playingList[item];
-				this.musicObject[name].stop();
+		stop: function(assetName) {
+			if (assetName != undefined) {
+				this.musicObject[assetName].stop();
+				this.musicObject[assetName].isPlaying = false;
+				var i = 0
+				for (i; i < this.playingList.length; i++) {
+					if (this.playingList[i] == assetName)
+						break;
+				}
+				this.playingList.splice(i, 1);
+			} else {
+				for (var item in this.playingList) {
+					this.musicObject[name].stop();
+				}
+				this.isPlaying = false;
+				this.playingList = [];
 			}
-			this.isPlaying = false;
-			this.playingList = [];
 		},
+
 		ban : function() {
 			this.isBaned = true;
 			this.pause();
