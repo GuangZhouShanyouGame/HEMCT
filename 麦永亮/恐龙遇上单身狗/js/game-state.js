@@ -88,11 +88,9 @@ define(function() {
 			// State - play
 			// 游戏界面
 			game.States.play = function() {
-
 				this.create = function() {
 					// 此处写游戏逻辑					
-					self.musicManager.stop("bgm");
-					self.musicManager.play("bgm", true); //play(key, volume, loop)
+					self.musicManager.play('bgm',true); //play : function(assetName, loop)
 
 					game.physics.startSystem(Phaser.Physics.ARCADE);								
 
@@ -113,14 +111,19 @@ define(function() {
 
 					this.scoreBoard = game.add.group();
 					this.white = this.scoreBoard.create(10, 30, 'white'); //白色底
-					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌		
+					this.white.width = game.world.width*0.28;
+					this.white.height *= this.white.width/game.cache.getImage("white").width*1.1;
+					
+					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌	
+					this.gold.width = game.world.width*0.09;
+					this.gold.height *= this.gold.width/game.cache.getImage("gold").width;	
 					this.style = {
-						font: "45px sText",
+						font: "sText",
 						fill: "#FE9400"
 					};
-					self.score = 0;
-					this.scoreText = this.add.text(this.white.x + this.white.width / 2 + 23, this.white.y + 5 + 30, self.score + ' ', this.style, this.scoreBoard);
+					this.scoreText = this.add.text(this.white.x + this.white.width * 0.6, this.white.y + this.white.height*0.55, self.score + ' ', this.style, this.scoreBoard);
 					this.scoreText.anchor.setTo(0.5, 0.5);
+					this.scoreText.fontSize = game.world.width*0.062;
 
 					this.offset = new Phaser.Point(0, 9); //阴影偏移量
 
@@ -324,7 +327,7 @@ define(function() {
 					this.dog.body.destroy();
 					this.dinosaur.body.destroy();
 
-					game.time.events.add(Phaser.Timer.SECOND * 1.5, function() {
+					game.time.events.add(Phaser.Timer.SECOND * 2, function() {
 						game.state.start('end');
 					}, this); //延迟两秒后进入end界面
 				};
@@ -336,7 +339,6 @@ define(function() {
 				this.create = function() {
 					// 游戏结束
 					//game.paused = true;
-					game.state.start('play');
 					console.log("得分是: " + self.score);
 					alert("得分是: " + self.score);
 				}

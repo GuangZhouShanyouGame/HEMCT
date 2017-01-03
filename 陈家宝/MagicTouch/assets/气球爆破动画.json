@@ -1,0 +1,57 @@
+{"frames": [
+
+{
+	"filename": "气球帧1.png",
+	"frame": {"x":0,"y":0,"w":116,"h":116},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":116,"h":116},
+	"sourceSize": {"w":116,"h":116},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "气球帧2.png",
+	"frame": {"x":116,"y":0,"w":116,"h":116},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":116,"h":116},
+	"sourceSize": {"w":116,"h":116},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "气球帧3.png",
+	"frame": {"x":232,"y":0,"w":116,"h":116},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":116,"h":116},
+	"sourceSize": {"w":116,"h":116},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "气球帧4.png",
+	"frame": {"x":348,"y":0,"w":116,"h":116},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":116,"h":116},
+	"sourceSize": {"w":116,"h":116},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "气球帧5.png",
+	"frame": {"x":464,"y":0,"w":116,"h":116},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":116,"h":116},
+	"sourceSize": {"w":116,"h":116},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "气球爆破动画.png",
+	"format": "RGBA8888",
+	"size": {"w":580,"h":116},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:f28920ec3014d0b9e422594678829b36:802e6ecfe883f23453b0a80a62c1241e:36475b5ef8fd8280ac3043b98dbf66b3$"
+}
+}
