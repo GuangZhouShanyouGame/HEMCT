@@ -24,23 +24,20 @@ define(function() {
 
 			var minY = 0;
 			var maxY = 0;
-			var scaleRate = 0;
+			var brickScaleRate = 0;
 			var brickHeight = 0;
 
 			var Guide = new Array()
 
 			function Brick() {
-				scaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
-				brickHeight = game.cache.getImage("brick").height * scaleRate;
+				brickScaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
+				brickHeight = game.cache.getImage("brick").height * brickScaleRate;
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
 					this.bricks.createMultiple(20, "brick");
 					this.speed = game.world.height * 0.1; //移动速度
-					this.loopTime = brickHeight / this.speed * 1000; //砖块高度/移动速度
-					//this.bricks.setAll('outOfBoundsKill', true);
-					//this.bricks.setAll('checkWorldBounds', true);					
-					//console.log(this.loopTime);
+					this.loopTime = brickHeight / this.speed * 1000; //砖块高度/移动速度					
 					this.timerForBarriers = game.time.events.loop(this.loopTime, this.generateBricks, this); //每过一定时间生成一次砖块
 					this.addSpeed = game.time.events.loop(1000, this.accelerate, this);
 				}
@@ -79,9 +76,9 @@ define(function() {
 
 					for (var i = 0; i < 4; i++) {
 						if (i != this.nullPosition) {
-							var b = this.bricks.getFirstDead(true, i * game.world.width / 4, -brickHeight * 3, 'brick');
+							var b = this.bricks.getFirstDead(true, i * game.world.width / 4, -brickHeight * 4, 'brick');
 							if (b) {
-								b.reset(i * game.world.width / 4, -brickHeight * 3);
+								b.reset(i * game.world.width / 4, -brickHeight * 4);
 								b.width = game.world.width / 4;
 								b.height = brickHeight;
 								b.body.velocity.y = this.speed;
@@ -227,21 +224,21 @@ define(function() {
 
 					this.scoreBoard = game.add.group();
 					this.white = this.scoreBoard.create(10, 30, 'white'); //白色底
-					this.white.width = game.world.width*0.28;
-					this.white.height *= this.white.width/game.cache.getImage("white").width*1.1;
-					
+					this.white.width = game.world.width * 0.28;
+					this.white.height *= this.white.width / game.cache.getImage("white").width * 1.1;
+
 					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌	
-					this.gold.width = game.world.width*0.09;
-					this.gold.height *= this.gold.width/game.cache.getImage("gold").width;
-					
+					this.gold.width = game.world.width * 0.09;
+					this.gold.height *= this.gold.width / game.cache.getImage("gold").width;
+
 					this.style = {
 						font: "sText",
 						fill: "#FE9400"
 					};
 					self.score = 0;
-					this.scoreText = this.add.text(this.white.x + this.white.width * 0.6, this.white.y + this.white.height*0.55, self.score + ' ', this.style, this.scoreBoard);
+					this.scoreText = this.add.text(this.white.x + this.white.width * 0.6, this.white.y + this.white.height * 0.55, self.score + ' ', this.style, this.scoreBoard);
 					this.scoreText.anchor.setTo(0.5, 0.5);
-					this.scoreText.fontSize = game.world.width*0.062;
+					this.scoreText.fontSize = game.world.width * 0.062;
 
 					this.line = this.add.sprite(0, game.world.height * 0.8, 'line');
 					this.line.width = game.world.width;
@@ -257,7 +254,7 @@ define(function() {
 					this.bar0.width = game.world.width - this.bar0.x - 20;
 					this.bar0.height *= this.bar0.width / game.cache.getImage("bar0").width;
 
-					this.bar00 = this.add.sprite(10 + this.white.width + 15 + this.bar0.width * 0.5, 45 + this.bar0.height * 0.5, 'bar0');	//用于发光效果				
+					this.bar00 = this.add.sprite(10 + this.white.width + 15 + this.bar0.width * 0.5, 45 + this.bar0.height * 0.5, 'bar0'); //用于发光效果				
 					this.bar00.anchor.setTo(0.5, 0.5);
 					this.bar00.width = this.bar0.width;
 					this.bar00.height = this.bar0.height;
@@ -270,7 +267,7 @@ define(function() {
 					this.bar1.width = 0;
 					this.bar2.width = 0;
 					this.bar3.width = 0;
-					
+
 					this.bar1.height = this.bar0.height;
 					this.bar2.height = this.bar0.height;
 					this.bar3.height = this.bar0.height;
@@ -279,20 +276,19 @@ define(function() {
 						alpha: 0.4,
 						height: this.bar0.height * 1.7,
 						width: this.bar0.width * 1.07,
-					}, 1000, null, false, 0, Number.MAX_VALUE, true);					
+					}, 1000, null, false, 0, Number.MAX_VALUE, true);
 
 					this.explosions = game.add.group();
 					this.explosions.createMultiple(20, 'crash');
 					this.explosions.forEach(function(explosion) {
 						explosion.animations.add('crash');
 					}, this);
-					
 
 					this.multiple = 1; //存储倍数
 					this.combo = 0; //存储连击的变量
 					this.timeToMutiple = 100; //加倍所需的连击次数
-					this.myBrickSpeed = -game.world.height*4; //发射砖块的速度				
-					this.showOnce = false;	
+					this.myBrickSpeed = -game.world.height * 4; //发射砖块的速度				
+					this.showOnce = false;
 				};
 
 				this.generateGuide = function() {
@@ -326,7 +322,7 @@ define(function() {
 								isNext = true;
 								setTimeout(function() {
 									isNext = false;
-								}, 300);	//延迟一段时间才能发射下一个方块（因为要接触到上方方块，消除后才能生成下一个提示)
+								}, 300); //延迟一段时间才能发射下一个方块（因为要接触到上方方块，消除后才能生成下一个提示)
 							}
 						}
 
@@ -337,7 +333,7 @@ define(function() {
 
 				this.shootBrick = function(x) {
 					if (self.gameManager.device.platform != 'android') {
-						self.musicManager.stop("tap");	//让每一下点击都能播放音效
+						self.musicManager.stop("tap"); //让每一下点击都能播放音效
 						self.musicManager.play("tap");
 					}
 					if (x <= game.world.width / 8) { //4个位置
@@ -378,9 +374,9 @@ define(function() {
 							//this.Brick.getBrick(i, posY).kill(); 							
 						}
 						this.moveBrickBehind(posY); //把下面的砖块往上移
-						minY++;		//成功消除一行，最小行数往上移
+						minY++; //成功消除一行，最小行数往上移
 						this.combo++;
-						if (this.combo > 1) {	//连击大于1时，显示连击数目效果
+						if (this.combo > 1) { //连击大于1时，显示连击数目效果
 							this.showCombo(brick.x, brick.y + brickHeight);
 						}
 
@@ -398,7 +394,7 @@ define(function() {
 					} else {
 						this.barTween.pause();
 						this.bar00.width = this.bar0.width;
-						this.bar00.height = this.bar0.height;	//停止播放动画并然这条东西复位
+						this.bar00.height = this.bar0.height; //停止播放动画并然这条东西复位
 						this.combo = 0;
 						this.multiple = 1;
 						if (count == 1) { //增加了一层
@@ -440,22 +436,21 @@ define(function() {
 						this.comboText.destroy();
 					}, this);
 
-					if (this.combo === this.timeToMutiple) {						
-						if(this.barTween.isPaused){		//播放发光效果
+					if (this.combo === this.timeToMutiple) {
+						if (this.barTween.isPaused) { //播放发光效果
 							this.barTween.resume();
-						}
-						else{
+						} else {
 							this.barTween.start();
 						}
 						this.multiple = 2;
 						this.showMultiple();
-					} else if (this.combo === this.timeToMutiple * 2) {						
+					} else if (this.combo === this.timeToMutiple * 2) {
 						this.multiple = 3;
 						this.showMultiple();
-					} else if (this.combo === this.timeToMutiple * 3) {						
+					} else if (this.combo === this.timeToMutiple * 3) {
 						this.multiple = 4;
 						this.showMultiple();
-					} 
+					}
 				}
 
 				/*
@@ -542,12 +537,12 @@ define(function() {
 					}
 				}
 
-				this.startGuide = function() {		
+				this.startGuide = function() {		//开始教程
 					var br;
 					this.Brick.getBrick(0, 0) != undefined ? br = this.Brick.getBrick(0, 0) : br = this.Brick.getBrick(1, 0);
 
-					if (Guide[0] != undefined && this.showOnce === false && br.y > 0) {
-						console.log('first guide');
+					if (Guide[0] != undefined && this.showOnce === false && br.y > 0) { //当第一个位置已经生成，而且第一块砖块达到屏幕后开始，仅执行一次
+						//console.log('first guide');
 						this.guideIcon = game.add.sprite(Guide[0] * game.world.width / 4 + game.world.width * 0.032, game.world.height * 0.84, 'guideIcon');
 						this.guideIcon.width = game.world.width / 4 * 0.8;
 						this.guideIcon.height = game.world.height * 0.13;
@@ -596,7 +591,6 @@ define(function() {
 			game.States.end = function() {
 				this.create = function() {
 					// 游戏结束
-
 					console.log("得分是: " + self.score);
 					alert("得分是: " + self.score);
 					game.state.start('create');
