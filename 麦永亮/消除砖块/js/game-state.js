@@ -31,7 +31,7 @@ define(function() {
 
 			function Brick() {
 				brickScaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
-				brickHeight = game.cache.getImage("brick").height * brickScaleRate;
+				brickHeight = game.cache.getImage("brick").height * brickScaleRate * 1.1;
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
@@ -42,7 +42,7 @@ define(function() {
 					this.addSpeed = game.time.events.loop(1000, this.accelerate, this);
 				}
 
-				this.accelerate = function() {	//每秒加快速度
+				this.accelerate = function() { //每秒加快速度
 					if (this.speed <= game.world.height * 0.45) {
 						this.speed += game.world.height * 0.002;
 						this.loopTime = brickHeight / this.speed * 1000;
@@ -75,7 +75,7 @@ define(function() {
 					}
 					for (var i = 0; i < 4; i++) {
 						if (i != this.nullPosition) {
-							var b = this.bricks.getFirstDead(true, i * game.world.width / 4, -brickHeight * 4, 'brick');	//有的话就拿出来，没有的话就生成一个新的
+							var b = this.bricks.getFirstDead(true, i * game.world.width / 4, -brickHeight * 4, 'brick'); //有的话就拿出来，没有的话就生成一个新的
 							if (b) {
 								b.reset(i * game.world.width / 4, -brickHeight * 4);
 								b.width = game.world.width / 4;
@@ -145,7 +145,7 @@ define(function() {
 			game.States.preload = function() {
 				this.preload = function() {
 					// 加载完成回调
-					function callback() {
+					function callback() {						
 						game.state.start('create');
 					}
 					// 全部文件加载完成
@@ -213,8 +213,8 @@ define(function() {
 					bg.height = game.world.height;
 
 					this.Brick = new Brick(); //初始化上方砖块
-					this.Brick.init();
 
+					this.Brick.init();
 					this.myBricks = game.add.group(); //发射的砖块组
 					this.myBricks.enableBody = true;
 					this.myBricks.createMultiple(5, 'brick');
@@ -251,19 +251,19 @@ define(function() {
 
 					this.bar0 = this.add.sprite(10 + this.white.width + 15, 45, 'bar0');
 					this.bar0.width = game.world.width - this.bar0.x - 20;
-					this.bar0.height *= this.bar0.width / game.cache.getImage("bar0").width;	//进度条底框
+					this.bar0.height *= this.bar0.width / game.cache.getImage("bar0").width; //进度条底框
 
 					this.bar00 = this.add.sprite(10 + this.white.width + 15 + this.bar0.width * 0.5, 45 + this.bar0.height * 0.5, 'bar0'); //用于发光效果				
 					this.bar00.anchor.setTo(0.5, 0.5);
 					this.bar00.width = this.bar0.width;
-					this.bar00.height = this.bar0.height;	//发光效果的进度条
+					this.bar00.height = this.bar0.height; //发光效果的进度条
 
 					this.bar0.bringToTop();
-					this.bar1 = this.add.sprite(10 + this.white.width + 15, 45, 'bar1');	//三种颜色的进度条
+					this.bar1 = this.add.sprite(10 + this.white.width + 15, 45, 'bar1'); //三种颜色的进度条
 					this.bar2 = this.add.sprite(10 + this.white.width + 15, 45, 'bar2');
 					this.bar3 = this.add.sprite(10 + this.white.width + 15, 45, 'bar3');
 
-					this.bar1.width = 0;	
+					this.bar1.width = 0;
 					this.bar2.width = 0;
 					this.bar3.width = 0;
 
@@ -277,7 +277,7 @@ define(function() {
 						width: this.bar0.width * 1.07,
 					}, 1000, null, false, 0, Number.MAX_VALUE, true);
 
-					this.flash = this.add.image(this.bar0.x,this.bar0.y,'flash');	//流光效果
+					this.flash = this.add.image(this.bar0.x, this.bar0.y, 'flash'); //流光效果
 					this.flash.height = this.bar0.height;
 					this.flash.width *= this.flash.height / game.cache.getImage("flash").height;
 					this.flashTween = this.add.tween(this.flash).to({
@@ -285,17 +285,27 @@ define(function() {
 					}, 1000, null, false, 0, Number.MAX_VALUE, false);
 					this.flash.alpha = 0;
 
-					this.explosions = game.add.group();		//碰撞后爆炸的效果
+					this.explosions = game.add.group(); //碰撞后爆炸的效果
 					this.explosions.createMultiple(5, 'crash');
 					this.explosions.forEach(function(explosion) {
 						explosion.animations.add('crash');
 					}, this);
 
+					this.doubleText = this.add.text(game.world.centerX, game.world.centerY, 'X' + this.multiple, this.style);
+					this.doubleText.anchor.setTo(0.5, 0.5);
+					this.doubleText.fontSize = 150;
+					this.doubleText.alpha = 0;
+
+					this.doubleTween = game.add.tween(this.doubleText).to({
+						alpha: 0.2
+					}, 350, Phaser.Easing.Linear.None, false, 0, 1, true);
+
 					this.multiple = 1; //存储倍数
 					this.combo = 0; //存储连击的变量
-					this.timeToMutiple = 100; //加倍所需的连击次数
+					this.timeToMutiple = 10; //加倍所需的连击次数
 					this.myBrickSpeed = -game.world.height * 4; //发射砖块的速度				
 					this.hasStartGuide = false; //开始提示的标志
+
 				};
 
 				this.startGuide = function() { //开始教程
@@ -331,7 +341,7 @@ define(function() {
 								this.guideIcon.width = game.world.width / 4 * 0.8;
 								this.guideIcon.height = game.world.height * 0.13;
 							}
-							if (self.score === 9) {		//分数达到9时，清除提示
+							if (self.score === 9) { //分数达到9时，清除提示
 								if (this.guideIcon) {
 									this.guideIcon.destroy();
 								}
@@ -360,7 +370,7 @@ define(function() {
 				}
 
 				this.shootBrick = function(x) {
-					if (self.gameManager.device.platform != 'android') {	//可怜的安卓机
+					if (self.gameManager.device.platform != 'android') { //可怜的安卓机
 						self.musicManager.stop("tap"); //让每一下点击都能播放音效
 						self.musicManager.play("tap");
 					}
@@ -418,23 +428,23 @@ define(function() {
 						}
 						this.moveBrickBehind(posY); //把下面的砖块往上移
 						minY++; //成功消除一行，最小行数往上移
-						this.combo++;	//连击数增加
+						this.combo++; //连击数增加
 						if (this.combo > 1) { //连击大于1时，显示连击数目效果
 							this.showCombo(brick.x, brick.y + brickHeight);
 						}
-						self.score = self.score + this.multiple;	//加分
-						this.scoreText.text = self.score + ' ';		//更新分数文字						
+						self.score = self.score + this.multiple; //加分
+						this.scoreText.text = self.score + ' '; //更新分数文字						
 
-					} else {						
+					} else {
 						this.stopFlashBar();
 						this.combo = 0;
 						this.multiple = 1;
 						if (count == 1) { //增加了一层
 							minY--;
 						}
-					}					
+					}
 					//var explosion = this.explosions.getFirstExists(false);
-					var explosion = this.explosions.getFirstDead(true, brick.x, brick.y, 'crash');	//撞击图片
+					var explosion = this.explosions.getFirstDead(true, brick.x, brick.y, 'crash'); //撞击图片
 					if (explosion) {
 						explosion.reset(brick.x, brick.y);
 						explosion.play('crash', 10, false, true);
@@ -454,11 +464,8 @@ define(function() {
 				}
 
 				this.showCombo = function(x, y) { //显示连击效果的函数
-					this.comboText = this.add.text(x + game.world.width / 8, y, 'x' + this.combo, {
-						font: '53px',
-						fontWeight: 'bold',
-						fill: "#FE9400",
-					});
+					this.comboText = this.add.text(x + game.world.width / 8, y, 'x' + this.combo + ' ', this.style);
+					this.comboText.fontSize = 53;
 					this.comboText.anchor.setTo(0.5, 0);
 					this.comboTween = game.add.tween(this.comboText).to({
 						alpha: 0,
@@ -481,7 +488,7 @@ define(function() {
 					}
 				}
 
-				this.showFlashBar = function() {	//播放进度条发光效果
+				this.showFlashBar = function() { //播放进度条发光效果
 					this.flash.alpha = 0.4;
 					if (this.flashTween.isPaused) { //播放发光效果
 						this.flashTween.resume();
@@ -501,30 +508,22 @@ define(function() {
 					this.bar00.width = this.bar0.width;
 					this.bar00.height = this.bar0.height; //停止播放动画并然这条东西复位
 
-					this.flashTween.pause();	//停止流光动画，并隐藏流光、复位
+					this.flashTween.pause(); //停止流光动画，并隐藏流光、复位
 					this.flash.alpha = 0;
 					this.flash.x = this.bar0.x;
 				}
 
-				this.showMultiple = function() {	//连击到达一定数量，中间显示分数的倍数动画
+				this.showMultiple = function() { //连击到达一定数量，中间显示分数的倍数动画
 					//this.pauseGame();
 					if (self.gameManager.device.platform != 'android') {
 						self.musicManager.play('up_level');
-					}
+					}			
+					this.doubleText.text = 'X' + this.multiple + ' ';
+					this.doubleText.alpha = 1;
+					this.doubleTween.start();
 
-					var doubleText = this.add.text(game.world.centerX, game.world.centerY, 'X' + this.multiple, {
-						fill: "#FE9400"
-					});
-					doubleText.anchor.setTo(0.5, 0.5);
-					doubleText.fontSize = 150;
-
-					var doubleTween = game.add.tween(doubleText).to({
-						alpha: 0.2
-					}, 350, Phaser.Easing.Linear.None, false, 0, 1, true);
-					doubleTween.start();
-
-					doubleTween.onComplete.add(function() {
-						doubleText.destroy();
+					this.doubleTween.onComplete.add(function() {
+						this.doubleText.alpha = 0;
 						//this.resumeGame();
 					}, this);
 				}
