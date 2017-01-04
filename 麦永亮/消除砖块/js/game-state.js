@@ -35,7 +35,7 @@ define(function() {
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
-					this.bricks.createMultiple(20, "brick");
+					this.bricks.createMultiple(50, "brick");
 					this.speed = game.world.height * 0.1; //移动速度
 					this.loopTime = brickHeight / this.speed * 1000; //砖块高度/移动速度					
 					this.timerForBarriers = game.time.events.loop(this.loopTime, this.generateBricks, this); //每过一定时间生成一次砖块
@@ -64,8 +64,8 @@ define(function() {
 					return posX + posY * 10;
 				}
 
-				this.getBrick = function(posX, posY) {
-					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); //根据ID返回一个brick
+				this.getBrick = function(posX, posY) {	//根据ID返回一个brick
+					return this.bricks.iterate("id", this.setID(posX, posY), Phaser.Group.RETURN_CHILD); 
 				}
 
 				this.generateBricks = function() { //在屏幕上方生成一行砖块，其中随机一个不生成
@@ -218,7 +218,7 @@ define(function() {
 
 					this.myBricks = game.add.group(); //发射的砖块组
 					this.myBricks.enableBody = true;
-					this.myBricks.createMultiple(10, 'brick');
+					this.myBricks.createMultiple(5, 'brick');
 					//this.myBricks.setAll('checkWorldBounds', true);
 					//this.myBricks.setAll('outOfBoundsKill', false);
 
@@ -236,9 +236,9 @@ define(function() {
 						fill: "#FE9400"
 					};
 					self.score = 0;
-					this.scoreText = this.add.text(this.white.x + this.white.width * 0.6, this.white.y + this.white.height * 0.55, self.score + ' ', this.style, this.scoreBoard);
+					this.scoreText = this.add.text(this.white.x + this.white.width * 0.65, this.white.y + this.white.height * 0.55, self.score + ' ', this.style, this.scoreBoard);
 					this.scoreText.anchor.setTo(0.5, 0.5);
-					this.scoreText.fontSize = game.world.width * 0.062;
+					this.scoreText.fontSize = game.world.width * 0.055;
 
 					this.line = this.add.sprite(0, game.world.height * 0.8, 'line');
 					this.line.width = game.world.width;
@@ -279,7 +279,7 @@ define(function() {
 					}, 1000, null, false, 0, Number.MAX_VALUE, true);
 
 					this.explosions = game.add.group();
-					this.explosions.createMultiple(20, 'crash');
+					this.explosions.createMultiple(5, 'crash');
 					this.explosions.forEach(function(explosion) {
 						explosion.animations.add('crash');
 					}, this);
@@ -293,7 +293,7 @@ define(function() {
 
 				this.generateGuide = function() {
 					if (self.score <= 9) {
-						if (arguments[0].x >= Guide[self.score] * game.world.width / 8 && arguments[0].x < (Guide[self.score] + 1) * game.world.width / 8) {
+						if (arguments[0].x >= Guide[self.score] * game.world.width / 8 && arguments[0].x < (Guide[self.score] + 1) * game.world.width / 8) {	//点对了地方才有效果
 							if (this.guideIcon) {
 								this.guideIcon.destroy();
 							}
@@ -349,7 +349,8 @@ define(function() {
 
 				this.resetShootBrick = function(i) { //重置发射的砖块,发射速度在这里改
 					if (i <= 3) {
-						var myBrick = this.myBricks.getFirstExists(false);
+						//var myBrick = this.myBricks.getFirstExists(false);
+						var myBrick = this.myBricks.getFirstDead(true, (game.width / 4) * i, game.height, 'brick');
 						if (myBrick) {
 							myBrick.reset((game.width / 4) * i, game.height);
 							myBrick.width = game.world.width / 4;
@@ -402,7 +403,8 @@ define(function() {
 						}
 					}
 					//console.log('minY: ' + minY);
-					var explosion = this.explosions.getFirstExists(false);
+					//var explosion = this.explosions.getFirstExists(false);
+					var explosion = this.explosions.getFirstDead(true, brick.x, brick.y, 'crash');
 					if (explosion) {
 						explosion.reset(brick.x, brick.y);
 						explosion.play('crash', 10, false, true);
