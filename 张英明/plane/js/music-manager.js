@@ -1,11 +1,9 @@
 /* 音乐管理器 */
 define(function() {
-    var MusicManager = function(gameInstance, deviceInfo, assets) {
-        this.gameInstance = gameInstance;
-        this.deviceInfo = deviceInfo;
-        this.assets = assets;
-        this.init();
-    };
+	var MusicManager = function(gameInstance, deviceInfo) {
+		this.gameInstance = gameInstance;
+		this.deviceInfo = deviceInfo;
+	};
 	MusicManager.prototype = {
 		// 游戏实例
 		gameInstance : null,
@@ -55,7 +53,7 @@ define(function() {
 					if (loop) {
 						if (!this.musicObject[assetName].isPlaying){
 							this.musicObject[assetName].loopFull();
-							this.playingList.push(assetName);
+							// this.playingList.push(assetName);
 						}
 					} else {
 						if (!this.musicObject[assetName].isPlaying) {
@@ -81,13 +79,23 @@ define(function() {
 			}
 			this.isPlaying = false;
 		},
-		stop : function() {
-			for (var item in this.playingList) {
-				var name = this.playingList[item];
-				this.musicObject[name].stop();
+		stop : function(musicName) {
+			if(this.playingList.indexOf(musicName) && musicName != undefined){  //
+				this.musicObject[musicName].stop();
+			} else{
+				for (var item in this.playingList) {
+					var name = this.playingList[item];
+					this.musicObject[name].stop();
+				}
+				this.isPlaying = false;
+				this.playingList = [];
 			}
-			this.isPlaying = false;
-			this.playingList = [];
+			// for (var item in this.playingList) {
+			// 		var name = this.playingList[item];
+			// 		this.musicObject[name].stop();
+			// 	}
+			// 	this.isPlaying = false;
+			// 	this.playingList = [];			
 		},
 		ban : function() {
 			this.isBaned = true;
