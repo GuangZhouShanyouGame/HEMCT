@@ -31,7 +31,7 @@ define(function() {
 
 			function Brick() {
 				brickScaleRate = (game.world.width / 4) / game.cache.getImage("brick").width; //放大倍数
-				brickHeight = game.cache.getImage("brick").height * brickScaleRate * 1.1;
+				brickHeight = game.cache.getImage("brick").height * brickScaleRate;
 				this.init = function() {
 					this.bricks = game.add.group();
 					this.bricks.enableBody = true;
@@ -279,7 +279,7 @@ define(function() {
 
 					this.flash = this.add.image(this.bar0.x, this.bar0.y, 'flash'); //流光效果
 					this.flash.height = this.bar0.height;
-					this.flash.width *= this.flash.height / game.cache.getImage("flash").height;
+					this.flash.width *= this.flash.height / game.cache.getImage("flash").height * 0.5;
 					this.flashTween = this.add.tween(this.flash).to({
 						x: this.bar0.x + this.bar0.width - this.flash.width,
 					}, 1000, null, false, 0, Number.MAX_VALUE, false);
@@ -293,7 +293,7 @@ define(function() {
 
 					this.doubleText = this.add.text(game.world.centerX, game.world.centerY, 'X' + this.multiple, this.style);
 					this.doubleText.anchor.setTo(0.5, 0.5);
-					this.doubleText.fontSize = 150;
+					this.doubleText.fontSize = game.world.width * 0.3;
 					this.doubleText.alpha = 0;
 
 					this.doubleTween = game.add.tween(this.doubleText).to({
@@ -302,7 +302,7 @@ define(function() {
 
 					this.multiple = 1; //存储倍数
 					this.combo = 0; //存储连击的变量
-					this.timeToMutiple = 10; //加倍所需的连击次数
+					this.timeToMutiple = 100; //加倍所需的连击次数
 					this.myBrickSpeed = -game.world.height * 4; //发射砖块的速度				
 					this.hasStartGuide = false; //开始提示的标志
 
@@ -465,12 +465,12 @@ define(function() {
 
 				this.showCombo = function(x, y) { //显示连击效果的函数
 					this.comboText = this.add.text(x + game.world.width / 8, y, 'x' + this.combo + ' ', this.style);
-					this.comboText.fontSize = 53;
+					this.comboText.fontSize = game.world.width * 0.055;
 					this.comboText.anchor.setTo(0.5, 0);
 					this.comboTween = game.add.tween(this.comboText).to({
 						alpha: 0,
-					}, 380, Phaser.Easing.Linear.None, false, 0, 0, false); //380ms内变透明的动画
-					this.comboTween.start();
+					}, 380, Phaser.Easing.Linear.None, true, 0, 0, false); //380ms内变透明的动画
+					
 					this.comboTween.onComplete.add(function() {
 						this.comboText.destroy();
 					}, this);
@@ -518,7 +518,7 @@ define(function() {
 					if (self.gameManager.device.platform != 'android') {
 						self.musicManager.play('up_level');
 					}			
-					this.doubleText.text = 'X' + this.multiple + ' ';
+					this.doubleText.text = ' X' + this.multiple + ' ';
 					this.doubleText.alpha = 1;
 					this.doubleTween.start();
 
