@@ -43,7 +43,7 @@ define(function() {
 				}
 
 				this.accelerate = function() { //每秒加快速度
-					if (this.speed <= game.world.height * 0.45) {
+					if (this.speed <= game.world.height * 0.35) {
 						this.speed += game.world.height * 0.002;
 						this.loopTime = brickHeight / this.speed * 1000;
 						this.bricks.forEach(function(brick) {
