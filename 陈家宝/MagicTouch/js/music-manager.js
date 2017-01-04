@@ -6,26 +6,26 @@ define(function() {
 	};
 	MusicManager.prototype = {
 		// 游戏实例
-		gameInstance : null,
+		gameInstance: null,
 		// 设备信息
-		deviceInfo : null,
+		deviceInfo: null,
 		// 资源
-		assets : null,
+		assets: null,
 		// 音乐对象
-		musicObject : null,
+		musicObject: null,
 		// 静音标记
-		isBaned : false,
+		isBaned: false,
 		// 是否播放中
-		isPlaying : false,
+		isPlaying: false,
 		// 正在播放列表
-		playingList : [],
+		playingList: [],
 		// 初始化
-		init : function(assets) {
+		init: function(assets) {
 			var self = this;
 			this.assets = assets;
 			if (this.assets) {
 				this.musicObject = {};
-				for (var index=0,len = this.assets.length;index<len;index++) {
+				for (var index = 0, len = this.assets.length; index < len; index++) {
 					var audio = this.gameInstance.add.audio(this.assets[index]);
 					audio.name = this.assets[index];
 					audio.onPause.add(function() {
@@ -41,7 +41,7 @@ define(function() {
 			}
 		},
 		// 播放
-		play : function(assetName, loop) {
+		play: function(assetName, loop) {
 			if (!this.isBaned) {
 				var playTag = false;
 				if (this.deviceInfo.platform == "apple") {
@@ -51,7 +51,7 @@ define(function() {
 				}
 				if (playTag) {
 					if (loop) {
-						if (!this.musicObject[assetName].isPlaying){
+						if (!this.musicObject[assetName].isPlaying) {
 							this.musicObject[assetName].loopFull();
 							this.playingList.push(assetName);
 						}
@@ -65,33 +65,39 @@ define(function() {
 				}
 			}
 		},
-		resume : function() {
+		resume: function() {
 			for (var item in this.playingList) {
 				var name = this.playingList[item];
 				this.musicObject[name].resume();
 			}
 			this.isPlaying = true;
 		},
-		pause : function() {
+		pause: function() {
 			for (var item in this.playingList) {
 				var name = this.playingList[item];
 				this.musicObject[name].pause();
 			}
 			this.isPlaying = false;
 		},
-		stop : function() {
-			for (var item in this.playingList) {
-				var name = this.playingList[item];
-				this.musicObject[name].stop();
+		stop: function(musicName) {
+			if (arguments.length != 0) {
+				this.musicObject[musicName].stop();
+			} else {
+				for (var item in this.playingList) {
+					var name = this.playingList[item];
+					this.musicObject[name].stop();
+				}
 			}
+
 			this.isPlaying = false;
 			this.playingList = [];
 		},
-		ban : function() {
+
+		ban: function() {
 			this.isBaned = true;
 			this.pause();
 		},
-		disban : function() {
+		disban: function() {
 			this.isBaned = false;
 			this.resume();
 		}
