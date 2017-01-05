@@ -300,6 +300,17 @@ define(function() {
 						alpha: 0.2
 					}, 350, Phaser.Easing.Linear.None, false, 0, 1, true);
 
+					this.guideIcon = game.add.sprite(-200, -200, 'guideIcon');
+					this.guideIcon.width = game.world.width / 4 * 0.8;
+					this.guideIcon.height = game.world.height * 0.13;
+
+					this.guideText = this.add.image(game.world.width / 2, this.line.y - 30, 'guideText');
+					this.guideText.anchor.setTo(0.5, 0);
+					this.guideText.alpha = 0;
+					this.guideTextTween = this.add.tween(this.guideText).to({
+						alpha: 1,
+					}, 1000, null, false, 0, Number.MAX_VALUE, true);
+
 					this.multiple = 1; //存储倍数
 					this.combo = 0; //存储连击的变量
 					this.timeToMutiple = 100; //加倍所需的连击次数
@@ -312,18 +323,12 @@ define(function() {
 					var br;
 					this.Brick.getBrick(0, 0) != undefined ? br = this.Brick.getBrick(0, 0) : br = this.Brick.getBrick(1, 0);
 
-					if (this.hasStartGuide === false && Guide[0] != undefined && br.y > 0) { //当第一个位置已经生成，而且第一块砖块达到屏幕后开始，仅执行一次
-						//console.log('first guide');
-						this.guideIcon = game.add.sprite(Guide[0] * game.world.width / 4 + game.world.width * 0.032, game.world.height * 0.84, 'guideIcon');
-						this.guideIcon.width = game.world.width / 4 * 0.8;
-						this.guideIcon.height = game.world.height * 0.13;
+					if (this.hasStartGuide === false && Guide[0] != undefined && br.y > 0) { //当第一个位置已经生成，而且第一块砖块达到屏幕后开始，仅执行一次						
+						this.guideIcon.x = Guide[0] * game.world.width / 4 + game.world.width * 0.032;
+						this.guideIcon.y = game.world.height * 0.84;
 						game.input.onDown.add(this.isGuideShoot, this);
-						game.input.onDown.add(this.generateGuide, this);
-						this.guideText = this.add.image(game.world.width / 2, this.line.y - 30, 'guideText');
-						this.guideText.anchor.setTo(0.5, 0);
-						this.guideTextTween = this.add.tween(this.guideText).from({
-							alpha: 0.2,
-						}, 1000, null, true, 0, Number.MAX_VALUE, true);
+						game.input.onDown.add(this.generateGuide, this);					
+						this.guideText.alpha = 0.2;
 						this.guideTextTween.start();
 						this.hasStartGuide = true;
 					}
@@ -332,14 +337,9 @@ define(function() {
 				this.generateGuide = function() {
 					if (self.score <= 9) {
 						if (arguments[0].x >= Guide[self.score] * game.world.width / 8 && arguments[0].x < (Guide[self.score] + 1) * game.world.width / 8) { //点对了地方才有效果
-							if (this.guideIcon) {
-								this.guideIcon.destroy();
-							}
-							if (self.score <= 8) {
-								//console.log(Guide[(self.score)]);
-								this.guideIcon = game.add.sprite(Guide[(self.score + 1)] * game.world.width / 4 + game.world.width * 0.032, game.world.height * 0.84, 'guideIcon');
-								this.guideIcon.width = game.world.width / 4 * 0.8;
-								this.guideIcon.height = game.world.height * 0.13;
+							if (self.score <= 8) {								
+								this.guideIcon.x = Guide[(self.score + 1)] * game.world.width / 4 + game.world.width * 0.032;
+								this.guideIcon.y = game.world.height * 0.84;								
 							}
 							if (self.score === 9) { //分数达到9时，清除提示
 								if (this.guideIcon) {
