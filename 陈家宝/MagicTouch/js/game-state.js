@@ -189,7 +189,7 @@ define(function() {
 
                 //检测气球图案是否与手势相同
                 this.checkBallonsPattern = function(res) {
-                    if(!self.isGameOver){
+                    if(!self.isGameOver){                       
                     this.balloons.forEachExists(function(balloon) {
                         if (balloon.gift.y <= game.height - balloon.gift.height * 0.82) { //礼物越过台阶时才算入检测
 
@@ -787,6 +787,8 @@ define(function() {
                     game.world.setChildIndex(this.giftFly, 25);
                     this.giftFly.y = 0 - this.giftFly.height;
                     this.giftFly.x = game.width / 2;
+
+
                 };
 
                 this.render = function() {
