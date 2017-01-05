@@ -145,7 +145,7 @@ define(function() {
 			game.States.preload = function() {
 				this.preload = function() {
 					// 加载完成回调
-					function callback() {						
+					function callback() {
 						game.state.start('create');
 					}
 					// 全部文件加载完成
@@ -222,12 +222,12 @@ define(function() {
 					//this.myBricks.setAll('outOfBoundsKill', false);
 
 					this.scoreBoard = game.add.group();
-					this.white = this.scoreBoard.create(10, 30, 'white'); //白色底
-					this.white.width = game.world.width * 0.28;
-					this.white.height *= this.white.width / game.cache.getImage("white").width * 1.1;
+					this.white = this.scoreBoard.create(game.world.width * 0.01, game.world.width * 0.02, 'white'); //白色底
+					this.white.width = game.world.width * 0.35;
+					this.white.height *= this.white.width / game.cache.getImage("white").width;
 
 					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌	
-					this.gold.width = game.world.width * 0.09;
+					this.gold.width = game.world.width * 0.1;
 					this.gold.height *= this.gold.width / game.cache.getImage("gold").width;
 
 					this.style = {
@@ -235,7 +235,7 @@ define(function() {
 						fill: "#FE9400"
 					};
 					self.score = 0;
-					this.scoreText = this.add.text(this.white.x + this.white.width * 0.65, this.white.y + this.white.height * 0.55, self.score + ' ', this.style, this.scoreBoard);
+					this.scoreText = this.add.text(this.white.x + this.white.width * 0.64, this.white.y + this.white.height * 0.56, self.score + ' ', this.style, this.scoreBoard);
 					this.scoreText.anchor.setTo(0.5, 0.5);
 					this.scoreText.fontSize = game.world.width * 0.055;
 
@@ -249,19 +249,19 @@ define(function() {
 					this.operate_area.width = game.world.width;
 					this.operate_area.height = game.world.height - (this.line.y + this.line.height);
 
-					this.bar0 = this.add.sprite(10 + this.white.width + 15, 45, 'bar0');
-					this.bar0.width = game.world.width - this.bar0.x - 20;
-					this.bar0.height *= this.bar0.width / game.cache.getImage("bar0").width; //进度条底框
+					this.bar0 = this.add.sprite(game.world.width * 0.38, this.world.height * 0.026, 'bar0');
+					this.bar0.width = (game.world.width - this.bar0.x) * 0.96;
+					this.bar0.height *= this.bar0.width / game.cache.getImage("bar0").width * 1.4; //进度条底框
 
-					this.bar00 = this.add.sprite(10 + this.white.width + 15 + this.bar0.width * 0.5, 45 + this.bar0.height * 0.5, 'bar0'); //用于发光效果				
+					this.bar00 = this.add.sprite(this.bar0.x + this.bar0.width / 2, this.bar0.y + this.bar0.height / 2, 'bar0'); //用于发光效果				
 					this.bar00.anchor.setTo(0.5, 0.5);
 					this.bar00.width = this.bar0.width;
 					this.bar00.height = this.bar0.height; //发光效果的进度条
 
 					this.bar0.bringToTop();
-					this.bar1 = this.add.sprite(10 + this.white.width + 15, 45, 'bar1'); //三种颜色的进度条
-					this.bar2 = this.add.sprite(10 + this.white.width + 15, 45, 'bar2');
-					this.bar3 = this.add.sprite(10 + this.white.width + 15, 45, 'bar3');
+					this.bar1 = this.add.sprite(this.bar0.x, this.bar0.y, 'bar1'); //三种颜色的进度条
+					this.bar2 = this.add.sprite(this.bar0.x, this.bar0.y, 'bar2');
+					this.bar3 = this.add.sprite(this.bar0.x, this.bar0.y, 'bar3');
 
 					this.bar1.width = 0;
 					this.bar2.width = 0;
@@ -279,10 +279,11 @@ define(function() {
 
 					this.flash = this.add.image(this.bar0.x, this.bar0.y, 'flash'); //流光效果
 					this.flash.height = this.bar0.height;
-					this.flash.width *= this.flash.height / game.cache.getImage("flash").height * 0.5;
+					this.flash.width *= this.flash.height / game.cache.getImage("flash").height * 1.5;
 					this.flashTween = this.add.tween(this.flash).to({
-						x: this.bar0.x + this.bar0.width - this.flash.width,
-					}, 1000, null, false, 0, Number.MAX_VALUE, false);
+							x: this.bar0.x + this.bar0.width - this.flash.width,
+						},
+						1000, null, false, 0, Number.MAX_VALUE, false);
 					this.flash.alpha = 0;
 
 					this.explosions = game.add.group(); //碰撞后爆炸的效果
@@ -327,7 +328,7 @@ define(function() {
 						this.guideIcon.x = Guide[0] * game.world.width / 4 + game.world.width * 0.032;
 						this.guideIcon.y = game.world.height * 0.84;
 						game.input.onDown.add(this.isGuideShoot, this);
-						game.input.onDown.add(this.generateGuide, this);					
+						game.input.onDown.add(this.generateGuide, this);
 						this.guideText.alpha = 0.2;
 						this.guideTextTween.start();
 						this.hasStartGuide = true;
@@ -337,9 +338,9 @@ define(function() {
 				this.generateGuide = function() {
 					if (self.score <= 9) {
 						if (arguments[0].x >= Guide[self.score] * game.world.width / 8 && arguments[0].x < (Guide[self.score] + 1) * game.world.width / 8) { //点对了地方才有效果
-							if (self.score <= 8) {								
+							if (self.score <= 8) {
 								this.guideIcon.x = Guide[(self.score + 1)] * game.world.width / 4 + game.world.width * 0.032;
-								this.guideIcon.y = game.world.height * 0.84;								
+								this.guideIcon.y = game.world.height * 0.84;
 							}
 							if (self.score === 9) { //分数达到9时，清除提示
 								if (this.guideIcon) {
@@ -470,7 +471,7 @@ define(function() {
 					this.comboTween = game.add.tween(this.comboText).to({
 						alpha: 0,
 					}, 380, Phaser.Easing.Linear.None, true, 0, 0, false); //380ms内变透明的动画
-					
+
 					this.comboTween.onComplete.add(function() {
 						this.comboText.destroy();
 					}, this);
@@ -489,7 +490,7 @@ define(function() {
 				}
 
 				this.showFlashBar = function() { //播放进度条发光效果
-					this.flash.alpha = 0.4;
+					this.flash.alpha = 0.8;
 					if (this.flashTween.isPaused) { //播放发光效果
 						this.flashTween.resume();
 					} else {
@@ -517,7 +518,7 @@ define(function() {
 					//this.pauseGame();
 					if (self.gameManager.device.platform != 'android') {
 						self.musicManager.play('up_level');
-					}			
+					}
 					this.doubleText.text = ' X' + this.multiple + ' ';
 					this.doubleText.alpha = 1;
 					this.doubleTween.start();
@@ -530,24 +531,24 @@ define(function() {
 
 				this.updateBar = function() { //连击进度条
 					if (this.combo >= 0 && this.combo < this.timeToMutiple) {
-						this.bar1.width = (game.world.width - this.bar0.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
+						this.bar1.width = (this.bar0.width) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
 						this.bar2.width = 0;
 						this.bar3.width = 0;
 
 					} else if (this.combo >= this.timeToMutiple && this.combo < this.timeToMutiple * 2) {
-						this.bar1.width = game.world.width - this.bar0.x - 20;
-						this.bar2.width = (game.world.width - this.bar0.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
+						this.bar1.width = this.bar0.width;
+						this.bar2.width = (this.bar0.width) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
 						this.bar3.width = 0;
 
 					} else if (this.combo >= this.timeToMutiple * 2 && this.combo < this.timeToMutiple * 3) {
-						this.bar1.width = game.world.width - this.bar0.x - 20;
-						this.bar2.width = game.world.width - this.bar0.x - 20;
-						this.bar3.width = (game.world.width - this.bar0.x - 20) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
+						this.bar1.width = this.bar0.width;
+						this.bar2.width = this.bar0.width;
+						this.bar3.width = (this.bar0.width) * (this.combo % this.timeToMutiple) / this.timeToMutiple;
 
 					} else if (this.combo >= this.timeToMutiple * 3) {
-						this.bar1.width = game.world.width - this.bar0.x - 20;
-						this.bar2.width = game.world.width - this.bar0.x - 20;
-						this.bar3.width = game.world.width - this.bar0.x - 20;
+						this.bar1.width = this.bar0.width;
+						this.bar2.width = this.bar0.width;
+						this.bar3.width = this.bar0.width;
 
 					} else {
 						this.bar1.width = 0;
