@@ -249,7 +249,7 @@ define(function() {
 					this.operate_area.width = game.world.width;
 					this.operate_area.height = game.world.height - (this.line.y + this.line.height);
 
-					this.bar0 = this.add.sprite(game.world.width * 0.38, this.world.height * 0.026, 'bar0');
+					this.bar0 = this.add.sprite(game.world.width * 0.38, this.white.y + this.white.height * 0.17, 'bar0');
 					this.bar0.width = (game.world.width - this.bar0.x) * 0.96;
 					this.bar0.height *= this.bar0.width / game.cache.getImage("bar0").width * 1.4; //进度条底框
 
