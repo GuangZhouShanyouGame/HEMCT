@@ -425,6 +425,12 @@ define(function() {
 
 						for (var i = 0; i < 4; i++) {
 							this.Brick.getBrick(i, posY).destroy(); //清除4个砖块, 为什么kill会出问题？
+							//var explosion = this.explosions.getFirstExists(false);
+							var explosion = this.explosions.getFirstDead(true, brick.x, brick.y, 'crash'); //撞击图片
+							if (explosion) {
+								explosion.reset(brick.x, brick.y);
+								explosion.play('crash', 10, false, true);
+							}
 							//this.Brick.getBrick(i, posY).kill(); 							
 						}
 						this.moveBrickBehind(posY); //把下面的砖块往上移
@@ -443,12 +449,6 @@ define(function() {
 						if (count == 1) { //增加了一层
 							minY--;
 						}
-					}
-					//var explosion = this.explosions.getFirstExists(false);
-					var explosion = this.explosions.getFirstDead(true, brick.x, brick.y, 'crash'); //撞击图片
-					if (explosion) {
-						explosion.reset(brick.x, brick.y);
-						explosion.play('crash', 10, false, true);
 					}
 				}
 
