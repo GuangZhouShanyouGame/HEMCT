@@ -82,7 +82,6 @@ define(function() {
                     }, this);
 
 
-
                     //礼物生成的x坐标
                     this.giftX = 0;
 
@@ -129,7 +128,7 @@ define(function() {
                 //手势跟着气球移动
                 this.balloonMove = function(balloon) {
                     balloon.gesture.x = balloon.x;
-                    balloon.gesture.y = balloon.y - balloon.height / 2;
+                    balloon.gesture.y = balloon.y - balloon.height * 0.45;
                 }
 
                 this.balloonsCollide = function(balloonArray) {
@@ -430,7 +429,7 @@ define(function() {
                                 }
 
                                 console.log("生成的气球图案:" + balloon.resName);
-                                balloon.anchor.setTo(0.5, 1);
+                                balloon.anchor.setTo(0.5, 0.95);
                                 var sign = (i % 2 == 0) ? 1 : -1; //奇数气球在左边，偶数气球在右边
 
                                 if (gift.balloonNum < 5) { //气球数小于5的气球排版
@@ -463,7 +462,7 @@ define(function() {
                                         // console.log(balloon.resName);
                                         balloon.gesture = self.gesturesPicArray[j];
                                         balloon.gesture.x = balloon.gift.x;
-                                        balloon.gesture.y = balloon.gift.y - balloon.height / 2;
+                                        balloon.gesture.y = balloon.gift.y - balloon.height * 0.45;
                                         balloon.gesture.bringToTop();
                                         self.gesturesPicArray.splice(self.gesturesPicArray.indexOf(self.gesturesPicArray[j]), 1);
                                         // console.log("已经有啦");
@@ -473,7 +472,7 @@ define(function() {
 
 
                                 if (hasPic == false) {
-                                    balloon.gesture = game.add.image(balloon.gift.x, balloon.gift.y - balloon.height / 2, balloon.resName);
+                                    balloon.gesture = game.add.image(balloon.gift.x, balloon.gift.y- balloon.height * 0.45, balloon.resName);
                                 }
 
                                 balloon.gesture.anchor.set(0.5, 0.55);
@@ -819,7 +818,7 @@ define(function() {
                         // game.context.fillStyle = 'rgb(20, 10, 22)';
                         // game.context.fillRect(p1.x, p1.y, 4, 4);
                         //if(this.balloonArray[i].y < this.stair.y)
-                        game.debug.geom(this.balloonArray[i].line, '#fff09e', false);
+                        game.debug.geom(this.balloonArray[i].line, '#bf453f', false);
 
                         //  game.debug.body(this.balloonArray[i]);
                         // game.debug.body(this.balloonArray[i].gift);
@@ -1156,11 +1155,6 @@ define(function() {
                 this.generateGift = function() {
                     if (self.score <= 10) { //0~10分：1个 100%
                         this.gifts[0].generateGift();
-                        // this.gifts[1].generateGift();
-                        // this.gifts[2].generateGift();
-                        // console.log("3个气球的");
-                        // this.gifts[4].generateGift();
-                        // console.log("5个气球的");
                         this.gifts[0].setGiftVelocity(game.height / 10 + self.score);
                         this.generateGiftLoop.delay = 2000;
                     } else if (self.score >= 11 && self.score <= 20) { //11~20分：1个 80% 2个20%
