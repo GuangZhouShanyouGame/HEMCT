@@ -136,18 +136,24 @@ define(function() {
                         this.head.height = game.world.height/(750/123);
                         this.head.width = game.world.width;
                     }
+                    //获取元素缩放比例
+                    this.puzzleScale = game.world.height / 1208;
                     //把六个空心星星添加到头部    
                     this.stars = game.add.group();
                     for(var i = 0; i < 6; i++) {
                         this.stars.create((23 + i * 64), (this.head.height - 64) / 2, 'star1');
+                        // this.stars.scale.setTo(this.puzzleScale,this.puzzleScale);
                     }
                     //添加数字底
                     this.figureBottom = game.add.image((this.head.width - 220 - 13), (this.head.height - 64) / 2, 'figureBottom');//添加数字底
                     //添加时钟
                     this.clock = game.add.image((this.head.width - 220 - 13), (this.head.height - 64) / 2, 'clock');
-                    timeText = game.add.text(this.figureBottom.x + this.figureBottom.width/2, (this.head.height - this.figureBottom.height/2)/2,'99' + " ");
+                    // timeText = game.add.text(this.figureBottom.x + this.figureBottom.width/2, (this.head.height - this.figureBottom.height/2)/2,'99' + " ");
+                    timeText = game.add.text(this.figureBottom.centerX - 12, (this.head.height - 50) / 2, '99' + " ");
                     timeText.font = 'timeFont';
                     timeText.fill = '#506F82';
+                    timeText.fontSize = '0.2rem';
+                    // timeText.height = '0.28rem';
                     //获取不同型号设备图片的缩放比例
                     this.puzzle = game.cache.getImage('puzzle1');
                     this.puzzleScale = game.world.height / 1208;
