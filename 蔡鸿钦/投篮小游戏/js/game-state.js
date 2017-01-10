@@ -18,11 +18,11 @@ define(function() {
         //游戏当前得分
         score: 9,
         //球抛出的固定速度
-        velocity: 1100,
+        velocity: 1800,
         //球放大缩小的比例
         scale: 1,
         //设置球的重力
-        gravity: 600,
+        gravity: 2000,
         //防止多次抛出球
         isBounced: false,
         //用于检测是否重新开始
@@ -137,8 +137,8 @@ define(function() {
                     this.board = game.add.sprite(game.world.centerX, game.world.centerY / 2, 'board');
                     this.board.anchor.set(0.5, 0.5);
                     //固定篮板的尺寸
-                    this.board.width = 200;
-                    this.board.height = 150;
+                    this.board.width = 260;
+                    this.board.height = 195;
                     //开始篮板的物理系统
                     game.physics.enable(this.board, Phaser.Physics.ARCADE);
 
@@ -155,13 +155,15 @@ define(function() {
                     this.twoScore.width = 100;
                     this.twoScore.height = 100;
                     this.twoScore.visible = false;
+                     
+                    
 
                     //创建篮框
                     this.basket = game.add.sprite(game.world.centerX, game.world.centerY * 2 / 3, 'basket');
-                    this.basket.anchor.set(0.5, 0.5);
+                    this.basket.anchor.set(0.5, 0.3);
                     //固定篮框的大小
-                    this.basket.width = 150;
-                    this.basket.height = 100;
+                    this.basket.width = 195;
+                    this.basket.height = 130;
                     //开启篮框的物理系统
                     game.physics.enable(this.basket, Phaser.Physics.ARCADE);
 
@@ -194,10 +196,10 @@ define(function() {
                     //把this.basket放到this.group的上面
                     this.bg.bringToTop();
                     this.board.bringToTop();
-                    this.oneScore.bringToTop();
-                    this.twoScore.bringToTop();
                     this.basket.bringToTop();
                     this.bottom.bringToTop();
+                    this.oneScore.bringToTop();
+                    this.twoScore.bringToTop();
 
 
                     //用于存放彩带
@@ -269,11 +271,26 @@ define(function() {
                     }
 
 
+                    // //创建两个得分提示，固定其大小为100 * 100， 并且将其设置为不可见
+                    // this.oneScore = game.add.text(this.board.x, this.board.y - this.board.height / 2 , '+1', {font: "bold 60px score", fill: "#FE9400"});
+                    // this.oneScore.anchor.set(0.5, 1);
+                    // //固定分数标签的大小
+                    // this.oneScore.width = 100;
+                    // this.oneScore.height = 100;
+                    // this.oneScore.visible = false;
+
+                    // this.twoScore = game.add.text(this.board.x, this.board.y - this.board.height / 2, '+2', {font: "bold 60px score", fill: "#FE9400"});
+                    // this.twoScore.anchor.set(0.5, 1);
+                    // //固定分数标签的大小
+                    // this.twoScore.width = 100;
+                    // this.twoScore.height = 100;
+                    // this.twoScore.visible = false;
+
                     //添加分数条
                     this.titleGroup = game.add.group();
                     this.scoreBg = game.add.sprite(0,16,"score_bg");
                     this.score = game.add.sprite(-10,16,"score");
-                    this.scoreText = game.add.text(this.score.width + 45,50, ""+score, { font: "bold 40pt score", fill: "#FE9400"});
+                    this.scoreText = game.add.text(this.scoreBg.width / 2,50, score+" ", {font: "bold 50px score", fill: "#FE9400"});
                     this.scoreText.anchor.setTo(0.3,0.5);
                     //添加组的元素
                     this.titleGroup.add(this.scoreBg);
@@ -361,7 +378,6 @@ define(function() {
                         scale = velocityOfY / velocity;
                         this.ballSprite.height = this.ballHeight * scale;
                         this.ballSprite.width = this.ballWidth * scale;
-                        
                         
                         //当球在上升时，影子的y坐标不断减小，其大小不断变小（球上升到最高点时消失）
                         //若球碰撞，也会上升，此时不应该让影子出现
@@ -494,6 +510,18 @@ define(function() {
                     this.hasReseted = false;
                     this.getScore();
                     
+                    //空心进球，让+2出现并向上运动
+                    if(this.isScored && !this.hit)
+                    {
+                        this.twoScore.y -= 5 / 6;
+                    }
+                    //碰撞进球，让+1出现并向上运动
+                    if(this.isScored && this.hit)
+                    {
+                        this.oneScore.y -= 5 / 6;
+                    }
+
+                    //判断条件
                     if(this.ball.right < 0 || this.ball.left > game.world.width || this.ball.top > game.world.height)
                     {
                         tween.stop();
@@ -566,13 +594,11 @@ define(function() {
                             {
                                 //增加分数，并且改变分数标签
                                 score += 2;
-                                this.scoreText.text = score;
+                                this.scoreText.text = score+" ";
                                 //播放得分音效
                                 self.twoScore.play();
                                 //显示得分标签
                                 this.twoScore.visible = true;
-                                //让得分提示向上运动
-                                game.add.tween(this.twoScore).to({y: this.twoScore.y - 100}, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
                                 //无碰撞从篮框落下
                                 //播放彩带动画
                                 this.shot();
@@ -581,13 +607,11 @@ define(function() {
                             {
                                 //增加分数，并且改变分数标签
                                 score ++;
-                                this.scoreText.text = score;
+                                this.scoreText.text = score+" ";
                                 //播放得分音效
                                 self.oneScore.play();
                                 //显示得分标签
                                 this.oneScore.visible = true;
-                                //让得分提示向上运动
-                                game.add.tween(this.oneScore).to({y: this.oneScore.y - 100}, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
                             }
                             //设置得分状态为已得分
                             this.isScored = true;
@@ -638,8 +662,6 @@ define(function() {
                             isBounced = false;
                             this.isScored = false;
                             this.hit = false;
-                            this.change = false;
-                            this.hasChanged = false;
                         }
                     }, this);
                     //开启定时器
@@ -705,14 +727,14 @@ define(function() {
                     //创建篮板
                     this.board = game.add.sprite(game.world.centerX, game.world.centerY / 2, 'board');
                     this.board.anchor.set(0.5, 0.5);
-                    this.board.width = 200;
-                    this.board.height = 150;
+                    this.board.width = 260;
+                    this.board.height = 195;
 
                     //创建篮框
                     this.basket = game.add.sprite(game.world.centerX, game.world.centerY * 2 / 3, 'basket');
-                    this.basket.anchor.set(0.5, 0.5);
-                    this.basket.width = 150;
-                    this.basket.height = 100;
+                    this.basket.anchor.set(0.5, 0.3);
+                    this.basket.width = 195;
+                    this.basket.height = 130;
 
                     //创建影子
                     this.bottom = game.add.sprite(game.world.centerX, game.world.height - 50, 'bottom');
