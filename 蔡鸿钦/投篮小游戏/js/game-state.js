@@ -16,7 +16,7 @@ define(function() {
         // 游戏最高得分
         bestScore: 1,
         //游戏当前得分
-        score: 10,
+        score: 9,
         //球抛出的固定速度
         velocity: 1100,
         //球放大缩小的比例
@@ -99,14 +99,26 @@ define(function() {
                     game.load.image('score',"assets/images/score.png");
                     game.load.image('score_bg',"assets/images/score_bg.png");
 
-                    game.load.bitmapFont('font', 'assets/fonts/flappyfont.png', 'assets/fonts/flappyfont.fnt');
+                    game.load.audio('bgm', "assets/music/bgm.mp3");
+                    game.load.audio('breakRecord', "assets/music/breakRecord.mp3");
+                    game.load.audio('oneScore', "assets/music/oneScore.mp3");
+                    game.load.audio('twoScore', "assets/music/twoScore.mp3");
+                    game.load.audio('hit', "assets/music/hit.mp3");
+                    game.load.audio('shot', "assets/music/shot.mp3");
                 };
             };
 
             // State - create
             // 开始界面
             game.States.create = function() {
-                this.create = function() {      
+                this.create = function() { 
+                    self.bgm = game.add.audio('bgm', 1, true);
+                    self.breakRecord = game.add.audio('breakRecord');
+                    self.oneScore = game.add.audio('oneScore');
+                    self.twoScore = game.add.audio('twoScore');
+                    self.hit = game.add.audio('hit');
+                    self.shot = game.add.audio('shot');
+                    self.bgm.play();
                     game.state.start('play');
                 }
             };
@@ -115,10 +127,6 @@ define(function() {
             // 游戏界面
             game.States.play = function() {
                 this.create = function() {
-                    //为了在onUp里面能够正常使用this.bounce;
-                    var bounce = this.bounce;
-
-
                     // 创建游戏背景
                     this.bg = game.add.image(0, 0, "bg");
                     this.bg.width = game.world.width;
@@ -128,7 +136,7 @@ define(function() {
                     //创建篮板
                     this.board = game.add.sprite(game.world.centerX, game.world.centerY / 2, 'board');
                     this.board.anchor.set(0.5, 0.5);
-                    //完成篮板的进度
+                    //固定篮板的尺寸
                     this.board.width = 200;
                     this.board.height = 150;
                     //开始篮板的物理系统
@@ -265,9 +273,7 @@ define(function() {
                     this.titleGroup = game.add.group();
                     this.scoreBg = game.add.sprite(0,16,"score_bg");
                     this.score = game.add.sprite(-10,16,"score");
-                    this.scoreText = game.add.text(this.score.width + 40,50, ""+score, { font: "bold 40pt score", fill: "#FE9400"});
-                    this.scoreText.height = 50;
-                    this.scoreText.width = 100;
+                    this.scoreText = game.add.text(this.score.width + 45,50, ""+score, { font: "bold 40pt score", fill: "#FE9400"});
                     this.scoreText.anchor.setTo(0.3,0.5);
                     //添加组的元素
                     this.titleGroup.add(this.scoreBg);
@@ -338,11 +344,11 @@ define(function() {
                     //用来标记是否已经改变过方向了
                     this.hasChanged = false;
                     //用来标记是否已经碰撞过了
-                    this.hasHitted = false;
-                    //用于判断球下落的时候有没有碰撞过篮框
                     this.hit = false;
                     //用于防止下落时多次得分；
                     this.isScored = false;
+                    //为了在onUp里面能够正常使用this.bounce;
+                    var bounce = this.bounce;
                 };
 
                 this.update = function() {
@@ -383,29 +389,39 @@ define(function() {
                     if(this.ball.body.velocity.y > 0)
                     {
                         //使用overlap来给球和左右端点碰撞的时候添加旋转效果
+                        //自定义碰撞函数
                         game.physics.arcade.overlap(this.ball, this.left, function(){
                             game.add.tween(this.ballSprite).to({angle: this.ballSprite.angle - 360}, 1000, null, true, 0, 0, false);
                             this.hit = true;
+                            self.hit.play();
+                            //用于计算碰撞后球的速度
+                            var leng = Math.sqrt((this.ball.x - this.left.x) * (this.ball.x - this.left.x) + (this.ball.y - this.left.y) * (this.ball.y - this.left.y));
+                            var veloc = this.ball.body.velocity.y;
+                            //碰撞的时候，x方向上的速度和y方向上的速度减少50，模拟能量损失
+                            veloc = veloc - 50<150?150:veloc - 50;
+
+                            this.ball.body.velocity.x = veloc * (this.ball.x - this.left.x) / leng;
+                            //这里为了增加碰撞后的入篮率，将碰撞后x方向上的速度设置为170以内，170这个参数可变
+                            this.ball.body.velocity.x = Math.abs(this.ball.body.velocity.x) > 170?
+                                170 * this.ball.body.velocity.x / Math.abs(this.ball.body.velocity.x):this.ball.body.velocity.x;
+                            this.ball.body.velocity.y = veloc * (this.ball.y - this.left.y) / leng;
                         }, null, this);
+
                         game.physics.arcade.overlap(this.ball, this.right, function(){
                             game.add.tween(this.ballSprite).to({angle: this.ballSprite.angle - 360}, 1000, null, true, 0, 0, false);
                             this.hit = true;
-                        }, null, this);
-                        //初始的碰撞是y方向上的速度变反，x方向上的速度不变
-                        //为了让碰撞显得更真实，需要大概判断碰撞点，自己实现碰撞时x方向上的速度的变化
-                        game.physics.arcade.collide(this.left, this.ball, function(){
-                            if (this.ball.x > this.left.x && !this.hasHitted) 
-                            {
-                                this.ball.body.velocity.x = -this.ball.body.velocity.x;
-                                this.hasHitted = true;
-                            }
-                        }, null, this);
-                        game.physics.arcade.collide(this.right, this.ball, function(){
-                            if (this.ball.x < this.right.x && !this.hasHitted) 
-                            {
-                                this.ball.body.velocity.x = -this.ball.body.velocity.x;
-                                this.hasHitted = true;
-                            }
+                            self.hit.play();
+                            //用于计算碰撞后球的速度
+                            var leng = Math.sqrt((this.ball.x - this.right.x) * (this.ball.x - this.right.x) + (this.ball.y - this.right.y) * (this.ball.y - this.right.y));
+                            var veloc = this.ball.body.velocity.y;
+                            //碰撞的时候，x方向上的速度和y方向上的速度减少50，模拟能量损失
+                            veloc = veloc - 50<150?150:veloc - 50;
+
+                            this.ball.body.velocity.x = veloc * (this.ball.x - this.right.x) / leng;
+                            //这里为了增加碰撞后的入篮率，将碰撞后x方向上的速度设置为170以内，170这个参数可变
+                            this.ball.body.velocity.x = Math.abs(this.ball.body.velocity.x) > 170?
+                                170 * this.ball.body.velocity.x / Math.abs(this.ball.body.velocity.x):this.ball.body.velocity.x;
+                            this.ball.body.velocity.y = veloc * (this.ball.y - this.right.y) / leng;
                         }, null, this);
                         this.fall();
                     }
@@ -463,6 +479,8 @@ define(function() {
 
                     tween = game.add.tween(ballSprite);
                     tween.to({angle: ballSprite.angle - 360}, 1000, null, true, 0, -1, false);
+
+                    self.shot.play();
                 }
 
                 //球下落时调用的函数
@@ -476,7 +494,7 @@ define(function() {
                     this.hasReseted = false;
                     this.getScore();
                     
-                    if(this.ball.x < 0 || this.ball.x > game.world.width || this.ball.y > game.world.height)
+                    if(this.ball.right < 0 || this.ball.left > game.world.width || this.ball.top > game.world.height)
                     {
                         tween.stop();
                         //如果得分就重置
@@ -539,7 +557,7 @@ define(function() {
                 //用于增加分数的函数
                 this.getScore = function()
                 {
-                    if(this.ball.y > game.world.centerY && 
+                    if(this.ball.y > this.basket.bottom && 
                             (this.ball.x > this.basket.x - this.basket.width / 2) && (this.ball.x < this.basket.x + this.basket.width / 2))
                     {
                         if(!this.isScored)
@@ -549,6 +567,9 @@ define(function() {
                                 //增加分数，并且改变分数标签
                                 score += 2;
                                 this.scoreText.text = score;
+                                //播放得分音效
+                                self.twoScore.play();
+                                //显示得分标签
                                 this.twoScore.visible = true;
                                 //让得分提示向上运动
                                 game.add.tween(this.twoScore).to({y: this.twoScore.y - 100}, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
@@ -561,6 +582,9 @@ define(function() {
                                 //增加分数，并且改变分数标签
                                 score ++;
                                 this.scoreText.text = score;
+                                //播放得分音效
+                                self.oneScore.play();
+                                //显示得分标签
                                 this.oneScore.visible = true;
                                 //让得分提示向上运动
                                 game.add.tween(this.oneScore).to({y: this.oneScore.y - 100}, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
@@ -614,7 +638,6 @@ define(function() {
                             isBounced = false;
                             this.isScored = false;
                             this.hit = false;
-                            this.hasHitted = false;
                             this.change = false;
                             this.hasChanged = false;
                         }
@@ -747,6 +770,9 @@ define(function() {
                                 arr[i].body.velocity.y = -Math.random() * 300;
                             }
                         }
+
+                        self.breakRecord.play();
+
                         //设置定时器，四秒后关闭
                         game.time.events.add(4000, function(){
                                 this.recordText.destroy();
@@ -768,7 +794,7 @@ define(function() {
                                     {
                                         restart = true;
                                         score = 0;
-                                        game.state.start('create');
+                                        game.state.start('play');
                                     }
                                 }, this);
                             }, this);
@@ -792,7 +818,7 @@ define(function() {
                             {
                                 restart = true;
                                 score = 0;
-                                game.state.start('create');
+                                game.state.start('play');
                             }
                         }, this);
                     }
