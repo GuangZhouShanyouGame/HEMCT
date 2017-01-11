@@ -1,0 +1,10 @@
+Page{
+    height: 100%;
+}
+.container{
+    /*position: relative;*/
+    width: 750rpx;
+    height: 100%;
+    /*font-size: 13px;*/
+    box-sizing: border-box;
+}

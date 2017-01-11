@@ -1,0 +1,22 @@
+{
+    "pages": [
+      "pages/index/index",
+      "pages/addtheme/addtheme",
+      "pages/detail/detail"
+    ],
+    "window": {
+      "navigationBarBackgroundColor": "#353535",
+      "navigationBarTextStyle": "#fffff",
+      "navigationBarTitleText": "热门投票系统",
+      "backgroundColor": "#353535",
+      "backgroundTextStyle": "light",
+      "enablePullDownRefresh": true
+    },
+    "networkTimeout": {
+      "request": 30000,
+      "connectSocket": 30000,
+      "uploadFile": 30000,
+      "downloadFile": 30000
+    },
+    "debug":true
+}

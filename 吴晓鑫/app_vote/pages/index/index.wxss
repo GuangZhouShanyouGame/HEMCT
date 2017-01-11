@@ -1,0 +1,96 @@
+/* pages/index/index.wxss */
+/*搜索框*/
+.search_view{
+    height: 50rpx;
+    background-color: #88888a;
+    padding: 15rpx 0;
+}
+.for_bug{
+    position: relative;
+    width:700rpx;
+    height: 50rpx;
+    background: #fff;
+    border-radius: 10rpx;
+    border:1rpx solid #fff ;
+    margin: 0 auto ;
+}
+.focus_search_image{
+    width:30rpx;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-15rpx);
+    margin-left: 10rpx;
+}
+.blur_search_image{
+    width:30rpx;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-15rpx);
+    margin-left: 10rpx;   
+    left: 235rpx;
+}
+.search_input{
+    font-size: 28rpx;
+    margin-left: 50rpx;
+    letter-spacing: 8rpx;
+    height: 50rpx;
+    line-height: 50rpx;
+}
+.search_placeholder{
+    text-align: center;
+}
+
+/*内容体*/
+.content{
+    /*height: 100%;*/
+    width:100%;
+    /*position: absolute;
+    top: 80rpx;*/
+}
+
+.theme_item{
+    font-weight: 600;
+    font-size: 35rpx;
+    height: 100rpx;
+    line-height: 100rpx;
+    overflow: hidden;
+}
+.text_item{
+     display: block;
+     width:60%;
+     height: 100%;
+     overflow: hidden;
+     float: left;
+}
+
+.text_item_first{
+    float: left;
+    margin: 0 47rpx;
+}
+.text_item_end{
+    float: right;
+    margin: 0 70rpx;
+}
+.theme_item:nth-child(n+3) .text_item_first,
+.theme_item:nth-child(n+3) .text_item_end{
+    display: inline-block;
+    color:#000;
+    
+    
+}
+.theme_item:nth-child(n+3) .text_item_end{
+    color:#1aad19;
+}
+
+.theme_item:nth-child(-n+3) .text_item_first,
+.theme_item:nth-child(-n+3) .text_item_end{
+    display: inline-block;
+    color:#f7941d;
+}
+.theme_item:nth-child(1) .text_item_end{
+    margin:0 70rpx 0rpx 60rpx;
+}
+/*按下项目*/
+.theme_item_hover{
+    background-color: #ccc;
+}
