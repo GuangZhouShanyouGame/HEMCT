@@ -16,18 +16,21 @@
 	}
 	@font-face {
 		font-family: 'score';
-		src: url('assets/image/score.otf');
+		src: url('assets/fonts/score.otf');
 	}
-	
-	#fontText{
-		position: absolute;
-		left:-80px;
-		font-family: "score";
+
+	#game{
+		font-family: 'score';
+		height: 0;
+		width: 0;
+		overflow: hidden;
 	}
 	</style>
 </head>
 <body>
-<span id="fontText">12</span>
+<div id = "text">
+	<div id = "game">123</div>
+</div>
 	<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
