@@ -84,7 +84,7 @@ define(function() {
                     game.load.image('clock','assets/images/时间.png');//时间
                     game.load.image('success','assets/images/通关.png');//通关图片
                     game.load.image('wrong','assets/images/错.png');//错
-                    game.load.image('background','assets/images/bg.png');//背景图
+                    game.load.image('bg','assets/images/bg.png');//背景图
                     game.load.image('star1','assets/images/star1.png');//空心星星
                     game.load.image('star2','assets/images/star2.png');//实心星星
                     game.load.image('timeOver','assets/images/时间到.png');//时间到
@@ -123,7 +123,7 @@ define(function() {
             game.States.play = function() {
                 this.create = function() {
                     //创建游戏背景
-                    this.bg = game.add.image(0,0,'background');
+                    this.bg = game.add.image(0,0,'bg');
                     this.bg.width = game.world.width;
                     this.bg.height = game.world.height;
                     //添加顶部背景横条
