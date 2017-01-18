@@ -1,12 +1,15 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+	<meta content="black" name="apple-mobile-web-app-status-bar-style">
+	<meta content="yes" name="apple-mobile-web-app-capable">
+	<meta content="telephone=no, email=no" name="format-detection">
+	<!-- 引用平台样式 -->
+	<link rel="stylesheet" href="http://24haowan-cdn.shanyougame.com/24haowan/css/t/layout.css">
 	<title>贪吃龙</title>
-	<script src="http://24haowan-cdn.shanyougame.com/public/js/zepto.js"></script>
-	<script src="http://24haowan-cdn.shanyougame.com/public/js/phaser-2.6.2.min.js"></script>
-	<script src="http://24haowan-cdn.shanyougame.com/public/js/require.min.js"></script>
 	<!--引入外部字体-->
 	<!--<script src="http://24haowan-cdn.shanyougame.com/public/js/vconsole.min.js"></script>-->
 	<style type="text/css">
@@ -19,15 +22,23 @@
 		src: url('assets/fonts/score.otf');
 	}
 
-	#fontText{
-		font-family: "score";
-		position: absolute;
-		left:-80px;
+	#dragon{
+		font-family: 'score';
+        height: 0;
+        width: 0;
+        overflow: hidden;
 	}
 	</style>
 </head>
 <body>
-<span id="fontText">12</span>
-	<script type="text/javascript" src="js/main.js"></script>
+	<div id="dragon">12</div>
+	<div class="game-tpl-container">
+		<div id="game_div"></div>
+		<script src="//24haowan-cdn.shanyougame.com/public/js/phaser.min.js"></script>
+		<script src="//24haowan-cdn.shanyougame.com/public/js/zepto.js"></script>
+		<script src="//24haowan-cdn.shanyougame.com/public/js/phaser-2.6.2.min.js"></script>
+		<script src="//24haowan-cdn.shanyougame.com/public/js/require.min.js"></script>
+		<script type="text/javascript" src="main.js"></script>
+	</div>
 </body>
 </html>
