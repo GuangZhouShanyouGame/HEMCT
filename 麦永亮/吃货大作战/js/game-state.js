@@ -24,10 +24,10 @@ define(function() {
 			var game = this.game;
 			game.States = {};
 
-			var foodPosition;
+			var foodPosition; //记录每次食物生成位置：0代表左边，1代表右边
 
-			function Food(config) {
-				this.init = function() {
+			function Food(config) { //食物的函数
+				this.init = function() { //初始化食物
 					this.foods = game.add.group();
 					this.foods.enableBody = true;
 					this.foods.createMultiple(10, config.selfPic);
@@ -35,8 +35,8 @@ define(function() {
 					this.foods.setAll('checkWorldBounds', true);
 				}
 
-				this.generate = function(y) {
-					this.YPosition = y || 8
+				this.generate = function(y) { //生成食物
+					this.YPosition = y || 8;
 					foodPosition = game.rnd.integerInRange(0, 1);
 					if (foodPosition === 1) {
 						this.Pos = game.world.width * (1 - 0.128);
@@ -56,50 +56,46 @@ define(function() {
 					}
 				}
 
-				this.hitFood = function(actor, food) {
+				this.hitFood = function(actor, food) { //接触食物时HP增加，分数增加
 					food.kill();
 					self.HP += config.score;
 					if (self.HP > 100)
 						self.HP = 100;
-					self.score++;					
+					self.score++;
 					config.game.updateHP();
 				}
 
-				this.whenTap = function() {
+				this.whenTap = function() { //点击时食物向上移动
 					this.foods.forEachExists(function(f) {
 						f.y -= game.world.height / 9;
 					});
 				}
 			}
 
-			function Barrier() {
-				this.init = function() {
+			function Barrier() { //障碍物的函数
+				this.init = function() { //初始化障碍物
 					this.barriers = game.add.group();
 					this.barriers.enableBody = true;
 					this.barriers.createMultiple(10, 'barrier');
 					this.barriers.setAll('outOfBoundsKill', true);
 					this.barriers.setAll('checkWorldBounds', true);
-					this.Times = 0;
-					this.intervalTime = 4;
-					this.Position = 1;
+					this.Times = 0; //记录已有多少次没有生成障碍物
+					this.intervalTime = 4; //生成障碍物的间隔，每次生成障碍物后重新生成这一个东西
+					this.Position; //障碍物生成位置
 				}
 
-
-				this.normalGenerate = function(i) {					
-					if(foodPosition === 0)
-						this.Position = 1;
-					else{
-						this.Position = 0;
+				this.generate = function(y) { //生成障碍物的函数
+					this.YPosition = y || 8;
+					foodPosition === 0 ? this.Position = 1 : this.Position = 0;
+					if (this.Position === 0) {
+						this.Pos = game.world.width * 0.128;
+					} else {
+						this.Pos = game.world.width * (1 - 0.128);
 					}
 
-					if (this.Position === 0) {						
-						this.Pos = game.world.width * 0.128;						
-					} else {						
-						this.Pos = game.world.width * (1 - 0.128);						
-					}
 					var b = this.barriers.getFirstExists(false);
 					if (b) {
-						b.reset(this.Pos, game.world.height * (2 * i / 18 + 1 / 18));
+						b.reset(this.Pos, game.world.height * (2 * this.YPosition + 1) / 18);
 						b.width = game.world.width / 4;
 						b.height = game.world.height / 13;
 						b.anchor.setTo(1, 0.5);
@@ -109,28 +105,11 @@ define(function() {
 					}
 				}
 
-				this.generate = function(y) {					
-					foodPosition === 0 ? this.Position = 1 : this.Position = 0;
+				this.timeToGenerate = function(y) { //计算何时需要生成障碍
 					this.Times++;
-					if (this.Position === 0) {						
-						this.Pos = game.world.width * 0.128;						
-					} else {						
-						this.Pos = game.world.width * (1 - 0.128);						
-					}
-
-					if (this.Times >= this.intervalTime ) {
-						this.YPosition = y || 8;
-						var b = this.barriers.getFirstExists(false);
-						if (b) {
-							b.reset(this.Pos, game.world.height * (2 * this.YPosition / 18 + 1 / 18));
-							b.width = game.world.width / 4;
-							b.height = game.world.height / 13;
-							b.anchor.setTo(1, 0.5);
-							if (this.Position === 0) {
-								b.width *= -1;
-							}
-						}
-						this.Times=0;	
+					if (this.Times >= this.intervalTime) {
+						this.generate(y);
+						this.Times = 0;
 						if (self.score <= 20) {
 							this.minInterval = 3;
 							this.maxInterval = 5;
@@ -141,18 +120,17 @@ define(function() {
 							this.minInterval = 1;
 							this.maxInterval = 3;
 						}
-						this.intervalTime = game.rnd.integerInRange(this.minInterval,this.maxInterval);					
+						this.intervalTime = game.rnd.integerInRange(this.minInterval, this.maxInterval);
 					}
 				}
 
 				this.whenTap = function() {
 					this.barriers.forEachExists(function(b) {
-						b.y -= game.world.height / 9;
-					});
-					this.generate();
+						b.y -= game.world.height / 9;						
+					});					
+					this.timeToGenerate();
 				}
 			}
-
 
 			// State - boot
 			// 游戏启动
@@ -190,6 +168,7 @@ define(function() {
 					game.load.image('barrier', "assets/images/barrier.png");
 					game.load.image('hp0', "assets/images/hp0.png");
 					game.load.image('hp1', "assets/images/hp1.png");
+					game.load.image('guideIcon', "assets/images/guideIcon.png");
 
 					//加载得分榜图片
 					game.load.image('white', 'assets/images/white.png');
@@ -241,17 +220,50 @@ define(function() {
 
 				};
 
-				this.initAll = function() {
-					this.initWall();					
-					this.initActor();
+				this.initAll = function() { //初始化
+					this.initWall();
 					this.initBarrier();
 					this.initFood();
+					this.initActor();
 					this.initScoreBoard();
 					this.initHPBar();
+					this.initGuide();
 					this.isGameOver = false;
 				}
 
-				this.initHPBar = function() {
+				this.initGuide = function() {
+					this.leftGuideIcon = this.add.image(game.world.width * 0.45, game.world.height * 0.85, 'guideIcon');
+					this.leftGuideIcon.width = -game.world.width * 0.23;
+					this.leftGuideIcon.height *= -this.leftGuideIcon.width / game.cache.getImage('guideIcon').width;
+					this.leftGuideIcon.anchor.setTo(0.5, 0.5);
+					this.leftGuideIcon.x += this.leftGuideIcon.width / 2;
+
+					this.rightGuideIcon = this.add.image(game.world.width * 0.55, game.world.height * 0.85, 'guideIcon');
+					this.rightGuideIcon.width = game.world.width * 0.23;
+					this.rightGuideIcon.height *= this.rightGuideIcon.width / game.cache.getImage('guideIcon').width;
+					this.rightGuideIcon.anchor.setTo(0.5, 0.5);
+					this.rightGuideIcon.x += this.rightGuideIcon.width / 2;
+
+					this.leftGuideIconTween = this.add.tween(this.leftGuideIcon).to({
+						height: this.leftGuideIcon.height * 0.8,
+						width: this.leftGuideIcon.width * 0.8,
+					}, 1000, null, true, 0, Number.MAX_VALUE, true);
+
+					this.rightGuideIconTween = this.add.tween(this.rightGuideIcon).to({
+						height: this.rightGuideIcon.height * 0.8,
+						width: this.rightGuideIcon.width * 0.8,
+					}, 1000, null, true, 0, Number.MAX_VALUE, true);
+
+					game.input.onDown.addOnce(function() {
+						this.leftGuideIcon.destroy();
+						this.rightGuideIcon.destroy();
+						game.time.events.resume();
+					}, this);
+
+				}
+
+				this.initHPBar = function() { //初始化血条
+					self.HP = 50; //一开始的生命值
 					this.bar0 = this.add.sprite(10 + this.white.width + 15, 45, 'hp0');
 					this.bar0.width = game.world.width - this.bar0.x - 20;
 					this.bar0.height *= this.bar0.width / game.cache.getImage("hp0").width; //进度条底框
@@ -260,34 +272,37 @@ define(function() {
 					this.bar1.width = this.bar0.width * self.HP / 100;
 					this.bar1.height = this.bar0.height;
 
-					this.reduceAmount = 5;
+					this.reduceAmount = 3; //一开始每过一秒减少多少HP
 					this.reduceHpEvent = game.time.events.loop(1000, this.reduceHp, this);
 
-					this.reduceRate = 1;
-					game.time.events.loop(1000 * 15, this.accelerateReduce, this); //加速减少接口
+					this.reduceRate = 1; //该参数为每过15秒减少多少HP
+					this.reduceRateTime = 15; //该参数为每过多少秒减少一次
+					game.time.events.loop(1000 * this.reduceRateTime, this.accelerateReduce, this); //加速减少HP接口	
+					game.time.events.start();
+					game.time.events.pause();
 				}
 
-				this.reduceHp = function() {
+				this.reduceHp = function() { //每过一秒减少HP
 					if (self.HP > 0) {
 						self.HP -= this.reduceAmount;
 						if (self.HP < 0)
 							self.HP = 0;
 						this.updateHP();
-					}					
+					}
 				}
 
-				this.accelerateReduce = function() {
+				this.accelerateReduce = function() { //加速减少HP
 					rR = this.reduceRate || 0;
 					this.reduceAmount += rR;
 				}
 
-				this.initScoreBoard = function() {
+				this.initScoreBoard = function() { //初始化得分榜
 					this.scoreBoard = game.add.group();
 					this.white = this.scoreBoard.create(10, 30, 'white'); //白色底
 					this.white.width = game.world.width * 0.28;
 					this.white.height *= this.white.width / game.cache.getImage("white").width * 1.1;
 
-					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌	
+					this.gold = this.scoreBoard.create(this.white.x, this.white.y, 'gold'); //金牌
 					this.gold.width = game.world.width * 0.09;
 					this.gold.height *= this.gold.width / game.cache.getImage("gold").width;
 
@@ -301,7 +316,7 @@ define(function() {
 					this.scoreText.fontSize = game.world.width * 0.055;
 				}
 
-				this.initActor = function() {
+				this.initActor = function() { //初始化主角
 					this.actor = this.add.sprite(game.world.width * 0.128, game.world.height / 18 * 5, 'actor');
 					this.actor.width = game.world.width / 7;
 					this.actor.height = game.world.height / 15;
@@ -309,7 +324,7 @@ define(function() {
 					game.physics.enable(this.actor, Phaser.Physics.ARCADE);
 				}
 
-				this.initWall = function() {
+				this.initWall = function() { //初始化墙
 					this.walls = game.add.group();
 					this.walls.enableBody = true;
 					this.walls.createMultiple(20, "wall");
@@ -330,12 +345,12 @@ define(function() {
 					}
 				}
 
-				this.initFood = function() {
+				this.initFood = function() { //初始化食物
 					var foodTeam = {
 						food1: {
 							game: this,
 							selfPic: 'food1',
-							score: 2
+							score: 2	//食物增加的血量在这
 						},
 						food2: {
 							game: this,
@@ -364,13 +379,13 @@ define(function() {
 						} else {
 							this.food3.generate(i);
 						}
-						if(i===4||i===7){
-							this.barrier.normalGenerate(i);
+						if (i === 4 || i === 7) {
+							this.barrier.generate(i);
 						}
 					}
 				}
 
-				this.initBarrier = function() {
+				this.initBarrier = function() { //初始化障碍
 					this.barrier = new Barrier();
 					this.barrier.init();
 				}
@@ -394,7 +409,7 @@ define(function() {
 					this.food2.whenTap();
 					this.food3.whenTap();
 					this.type = game.rnd.integerInRange(0, 9);
-					if (this.type > 0 && this.type < 5) {
+					if (this.type >= 0 && this.type < 5) {
 						this.food1.generate();
 					} else if (this.type >= 5 && this.type < 8) {
 						this.food2.generate();
@@ -452,10 +467,15 @@ define(function() {
 						game.physics.arcade.overlap(this.actor, this.food3.foods, this.food3.hitFood, null, this.food3);
 						game.physics.arcade.overlap(this.actor, this.barrier.barriers, this.hitBarrier, null, this);
 					}
+					if (this.isGameOver) {
+						if (this.actor.y > this.world.height) {
+							game.state.start('end');
+						}
+					}
 				};
 				// 游戏结束
 				this.gameEnd = function() {
-					game.input.onDown.remove(this.next,this);
+					game.input.onDown.remove(this.next, this);
 					game.time.events.stop();
 				};
 			};
@@ -465,9 +485,10 @@ define(function() {
 			game.States.end = function() {
 				this.create = function() {
 					// 游戏结束
-					game.paused = true;
+					//game.paused = true;
 					console.log("得分是: " + self.score);
 					alert("得分是: " + self.score);
+					game.state.start('create');
 				}
 			};
 
