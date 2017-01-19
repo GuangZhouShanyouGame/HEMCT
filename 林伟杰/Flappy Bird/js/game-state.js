@@ -62,6 +62,8 @@ define(function() {
                     game.load.audio('hit_pipe_sound','assets/audio/pipe-hit.wav');//撞机管道的音效
                     game.load.audio('hit_ground_sound','assets/audio/ground-hit.wav');//撞机地面的音效
 
+                    game.load.bitmapFont('flappy_font', 'assets/fonts/flappyfont/flappyfont.png', 'assets/fonts/flappyfont/flappyfont.fnt'); // 加载游戏字体
+
                     // 安卓只能同时播放一个音乐
                      if (self.gameManager.device.platform != 'android') {
                         game.load.audio('fly_sound','assets/audio/flap.wav');
@@ -87,21 +89,28 @@ define(function() {
             game.States.play = function() {
                 this.create = function() {
                     //创建游戏背景
-                    this.bg = game.add.sprite(0,0,"background");
-                    this.bg.width = game.world.width;
-                    this.bg.height = game.world.height;
+                    // this.bg = game.add.sprite(0,0,"background");
+                    // this.bg.width = game.world.width;
+                    // this.bg.height = game.world.height;
+                    this.bg=game.add.image(0,0,'background');
+                    if(this.bg.width > this.bg.height){
+                        var bgScale = game.world.height/this.bg.height;
+                    }else{
+                        bgScale = game.world.width/this.bg.width;
+                    }
+                    this.bg.scale.setTo(bgScale,bgScale);
                     
                     //创建游戏元素
                     this.pipeGroup = game.add.group();//用于存放管道的组
+                    this.pipeGroup.enableBody = true; // 开启管道的物理引擎
                     this.ground = game.add.tileSprite(0,game.world.height - 112,game.world.width,112,'ground'); 
                     game.physics.enable(this.ground,Phaser.Physics.ARCADE);//开启地面的物理系统
                     this.ground.body.immovable = true;//让地面在物理环境中固定不动
                     this.bird = game.add.sprite(100,300,'bird');//鸟
                     this.bird.width = 68;
                     this.bird.height = 48;
-                    this.bird.animations.add('fly',[0,2],12,true);
+                    this.bird.animations.add('fly',[0,1,2],12,true);
                     this.bird.animations.play('fly');
-
                     this.bird.anchor.setTo(0.5,0.5);//设置中心点
                     game.physics.enable(this.bird,Phaser.Physics.ARCADE); 
                     this.bird.body.gravity.y = 0;//鸟的重力
@@ -114,9 +123,16 @@ define(function() {
                     this.playTip.width = this.playTip.width * 2.5;
                     this.playTip.height = this.playTip.height * 2.5;
                     this.playTip.anchor.setTo(0.5,0);
+                    //开启音乐资源
+                    this.soundFly = game.add.sound('fly_sound');
+                    this.soundScore = game.add.sound('score_sound');
+                    this.soundHitPipe = game.add.sound('hit_pipe_sound');
+                    this.soundHitGround = game.add.sound('hit_ground_sound');
 
-                    this.hasStarted = false;
+                    this.hasStarted = false; //标记游戏是否开始
                     game.input.onDown.addOnce(this.startGame,this);
+                    game.time.events.loop(900, this.generatePipes, this);
+                    game.time.events.stop(false);
                     score = 0;//分数初始化
                 };
                 this.startGame = function() {
@@ -185,7 +201,7 @@ define(function() {
                 /*5.管道的生成*/
                 this.generatePipes = function(gap) { 
                     gap = this.gap; 
-
+                    
                     var position = (game.world.height /2 - 112) + Math.floor(gap * Math.random());  
                     var topPipeY = position - gap - 640; //上方管道的位置
                     var bottomPipeY = position; //下方管道的位置

@@ -1,0 +1,22 @@
+/* pages/addtheme/addtheme.wxss */
+
+.text_item{
+     display: block;
+     width:66%;
+     height: 100%;
+     overflow: hidden;
+     float: left;
+     font-size:30rpx;
+     font-weight: 400;
+}
+
+.text_item_first{
+    float: left;
+    width:90rpx;
+    text-align:center;
+}
+.text_item_end{
+    float: right;
+    margin: 0 50rpx 0 10rpx;
+    
+}

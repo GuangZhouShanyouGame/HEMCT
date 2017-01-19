@@ -1,0 +1,126 @@
+Page{
+    height: 100%;
+}
+.container{
+    /*position: relative;*/
+    width: 750rpx;
+    height: 100%;
+    /*font-size: 13px;*/
+    box-sizing: border-box;
+}
+
+/*搜索框*/
+.search_view{
+    height: 50rpx;
+    background-color: #88888a;
+    padding: 15rpx 0;
+}
+.for_bug{
+    position: relative;
+    width:700rpx;
+    height: 50rpx;
+    background: #fff;
+    border-radius: 10rpx;
+    border:1rpx solid #fff ;
+    margin: 0 auto ;
+}
+.focus_search_image{
+    width:30rpx;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-15rpx);
+    margin-left: 10rpx;
+}
+.blur_search_image{
+    width:30rpx;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-15rpx);
+    margin-left: 10rpx;   
+    left: 235rpx;
+}
+.search_input{
+    font-size: 25rpx;
+    margin-left: 50rpx;
+    height: 50rpx;
+    line-height: 50rpx;
+    color: #88888a;
+}
+/*.search_placeholder{
+    text-align: center;
+    letter-spacing: 8rpx;
+}*/
+
+
+/*内容体*/
+.content{
+    /*height: 100%;*/
+    width:100%;
+    /*position: absolute;
+    top: 80rpx;*/
+}
+
+.theme_item{
+    font-weight: 600;
+    font-size: 33rpx;
+    height: 100rpx;
+    line-height: 100rpx;
+    overflow: hidden;
+}
+.theme_item:nth-child(n+3) .text_item_first,
+.theme_item:nth-child(n+3) .text_item_end{
+    display: inline-block;
+    color:#000;
+    
+    
+}
+.theme_item:nth-child(n+3) .text_item_end{
+    color:#1aad19;
+}
+
+.theme_item:nth-child(-n+3) .text_item_first,
+.theme_item:nth-child(-n+3) .text_item_end{
+    display: inline-block;
+    color:#f7941d;
+}
+.theme_item:nth-child(1) .text_item_end{
+    margin:0 50rpx 0rpx 10rpx;
+}
+/*按下项目*/
+.theme_item_hover{
+    background-color: #ccc;
+}
+/*添加主题内容*/
+.add_theme_button{
+    width:650rpx;
+    margin-top:20rpx;
+}
+.addtheme_content{
+    height: 700rpx;
+    line-height: 700rpx;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.inputTheme{
+    font-size: 33rpx;
+    font-weight: 600;
+    width:100%;
+    text-align: center;
+}
+.addInput_ph{
+    text-align: center;
+    font-size: 33rpx;
+}
+
+/*点赞图标*/
+.larger{
+    display: inline-block;
+}
+.icon_choose{
+    display: inline-block;
+    width: 50rpx;
+    height: 50rpx;
+    margin: 20rpx 0;
+}

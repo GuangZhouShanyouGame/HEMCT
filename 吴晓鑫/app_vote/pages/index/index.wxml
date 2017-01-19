@@ -1,0 +1,37 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+    <!-- 搜索框 -->
+    <view class="search_view" >
+        <view class="for_bug">
+            <image src="https://dn-ehldtiim.qbox.me/c301721ad04357877f9f.png" mode="widthFix" class="{{search_Imgclass}}"></image>
+            <input  placeholder="搜索主题"  bindinput="search_theme_handler" type="text" placeholder-class="search_placeholder" class="search_input" value="{{inputVal}}"  disabled="{{isdisabled}}"/>    
+             <!--bindfocus="sfocus" bindblur="sblur"-->
+        </view> 
+    </view>
+    <!-- 主题内容框 -->
+    <block wx:if="{{show_content}}">
+        <view class="content" >        
+            <block wx:for="{{themeArray}}" wx:for-item="themeItem" wx:for-index="index" wx:key="themeList">
+            <view class="theme_item" hover-class="theme_item_hover" bindtap="to_themeDetail" data-id="{{themeItem.theme_id}}" data-name="{{themeItem.theme_name}}">
+                <text class="text_item_first">{{index+1}}</text>
+                <text class="text_item">{{themeItem.theme_name}}</text>
+                <text class="text_item_end">{{themeItem.theme_count}}</text>    
+            </view>
+            </block>
+            <!--<block wx:if="{{isNocontent}}">
+                <view>当前24H内无相关主题</view>
+            </block>-->
+            <block wx:if="{{isNull}}">
+                <button bindtap="to_addtheme" type="primary" class="add_theme_button" bindtap="show_addtheme">搜不到？点击创建新主题</button>
+            </block>
+        </view>
+    </block>
+    <!-- 新增添加框 -->
+    <block wx:if="{{show_addtheme}}">
+        <view class="addtheme_content" bindtap="tofocus">
+            <input value="{{addinputVal}}" class="inputTheme"  bindinput="inputTheme" placeholder="输入字符不能超过15个" placeholder-class="addInput_ph" focus="{{isfocus}}" maxlength="15"/>
+        </view>
+        <button type="primary" class="add_theme_button" bindtap="confirm" disabled="{{inputdisabled}}">确认</button>
+        <button class="add_theme_button" style="border: 1px #ccc solid;" bindtap="cancle">取消</button>
+    </block>
+</view>

@@ -1,0 +1,42 @@
+<!--pages/detail/detail.wxml-->
+<view class="container">
+     <view class="search_view" >
+        <view class="for_bug">
+            <image src="https://dn-ehldtiim.qbox.me/c301721ad04357877f9f.png" mode="widthFix" class="{{search_Imgclass}}"></image>
+            <input placeholder="搜索选项" bindinput="search_item_handler" type="text" placeholder-class="search_placeholder" class="search_input" value="{{inputVal}}" disabled="{{isdisabled}}" />    
+            <!--bindfocus="sfocus" bindblur="sblur"-->
+        </view> 
+    </view>   
+    <block wx:if="{{show_content}}">
+        <view class="content" >
+            <!--<view class="theme_item" hover-class="theme_item_hover" >
+                <text class="text_item_first">1</text>
+                <text class="text_item">name</text>
+                <image src="https://dn-ehldtiim.qbox.me/26fbe00ed987d4d8ea07.png" mode="widthFix" class="icon_choose"></image>
+                <text class="text_item_end">12</text>    
+            </view>        -->
+            <block wx:for="{{itemArray}}" wx:for-item="itemItem" wx:for-index="index" wx:key="itemList">
+            <view class="theme_item" hover-class="theme_item_hover" bindtap="to_itemDetail" data-id="{{itemItem.item_id}}">
+                <text class="text_item_first">{{index+1}}</text>
+                <text class="text_item">{{itemItem.item_name}}</text>
+                <image  wx:if="{{itemItem.ischoose}}" src="https://dn-ehldtiim.qbox.me/b6ccbae4f8d6ff3fe4e1.png" mode="widthFix" class="icon_choose" bindtap="choose" data-tid="{{itemItem.item_id}}" data-objid="{{itemItem.obj_id}}" data-index="{{index}}" data-obj="{{itemItem}}"></image>
+                <image  wx:else src="https://dn-ehldtiim.qbox.me/de33305eba848261dd7e.png" mode="widthFix" class="icon_choose" bindtap="nochoose" data-tid="{{itemItem.item_id}}" data-objid="{{itemItem.obj_id}}"  data-index="{{index}}" data-obj="{{itemItem}}"></image>
+                <text class="text_item_end">{{itemItem.item_count}}</text>    
+            </view>
+            </block>
+            <!--<block wx:if="{{isNocontent}}">
+                <view>当前24H内无相关主题</view>
+            </block>-->
+            <block wx:if="{{isNull}}">
+                <button bindtap="to_additem" type="primary" class="add_theme_button" bindtap="show_additem">点击添加新选项</button>
+            </block>
+        </view>
+    </block>
+    <block wx:if="{{show_addtheme}}">
+        <view class="addtheme_content" bindtap="tofocus">
+            <input value="{{addinputVal}}" class="inputTheme" placeholder-class="addInput_ph" bindinput="inputItem" placeholder="输入字符不能超过15个" focus="{{isfocus}}" maxlength="15"/>
+        </view>
+        <button type="primary" class="add_theme_button" bindtap="confirm" disabled="{{inputdisabled}}">确认</button>
+        <button class="add_theme_button" style="border: 1px #ccc solid;" bindtap="cancle">取消</button>
+    </block>
+</view>
