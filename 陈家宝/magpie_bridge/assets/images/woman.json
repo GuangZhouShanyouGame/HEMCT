@@ -1,0 +1,39 @@
+{"frames": [
+
+{
+	"filename": "织女1.png",
+	"frame": {"x":0,"y":0,"w":183,"h":461},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":183,"h":461},
+	"sourceSize": {"w":183,"h":461},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "织女2.png",
+	"frame": {"x":183,"y":0,"w":181,"h":464},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":181,"h":464},
+	"sourceSize": {"w":181,"h":464},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "织女3.png",
+	"frame": {"x":364,"y":0,"w":207,"h":465},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":207,"h":465},
+	"sourceSize": {"w":207,"h":465},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "woman.png",
+	"format": "RGBA8888",
+	"size": {"w":571,"h":465},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:f799e24e8f3c9af0c264eb474aba0a04:aa9ea28999b2ad73ad666a639ad198c0:a2756bfcdb8917aebb0f4ba2864baab4$"
+}
+}

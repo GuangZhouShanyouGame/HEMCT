@@ -1,0 +1,30 @@
+{"frames": [
+
+{
+	"filename": "小黄鸟1.png",
+	"frame": {"x":0,"y":0,"w":190,"h":133},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":190,"h":133},
+	"sourceSize": {"w":190,"h":133},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "小黄鸟2.png",
+	"frame": {"x":0,"y":133,"w":190,"h":116},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":190,"h":116},
+	"sourceSize": {"w":190,"h":116},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "littleBirdYellow.png",
+	"format": "RGBA8888",
+	"size": {"w":190,"h":249},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:d37c4da7195059310980a1a549791aa5:93baa35397d75b0912c73ae7a1191abc:91add241b9da17c0ac5e8ed6f48b1e12$"
+}
+}

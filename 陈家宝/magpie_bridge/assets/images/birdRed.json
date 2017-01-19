@@ -1,0 +1,30 @@
+{"frames": [
+
+{
+	"filename": "红鸟1.png",
+	"frame": {"x":0,"y":0,"w":294,"h":206},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":294,"h":206},
+	"sourceSize": {"w":294,"h":206},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "红鸟2.png",
+	"frame": {"x":0,"y":206,"w":295,"h":180},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":295,"h":180},
+	"sourceSize": {"w":295,"h":180},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "birdRed.png",
+	"format": "RGBA8888",
+	"size": {"w":295,"h":386},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:b750302936f953e67ebfcadc4014ee65:92410486ccdd5c2a4c660aa974e3d15a:94f32329c174f3b8043ad199787bac59$"
+}
+}

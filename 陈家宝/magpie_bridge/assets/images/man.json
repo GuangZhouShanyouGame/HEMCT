@@ -1,0 +1,39 @@
+{"frames": [
+
+{
+	"filename": "牛郎1.png",
+	"frame": {"x":0,"y":0,"w":337,"h":506},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":337,"h":506},
+	"sourceSize": {"w":337,"h":506},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "牛郎2.png",
+	"frame": {"x":337,"y":0,"w":182,"h":521},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":182,"h":521},
+	"sourceSize": {"w":182,"h":521},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "牛郎3.png",
+	"frame": {"x":519,"y":0,"w":336,"h":506},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":336,"h":506},
+	"sourceSize": {"w":336,"h":506},
+	"pivot": {"x":0.5,"y":0.5}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "man.png",
+	"format": "RGBA8888",
+	"size": {"w":855,"h":521},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:e8ded9b3ae3ab1390a6f9cef0575c53d:4b86bd88bc3fee2e6ff9053e147b4924:7cb16ae2a7812a83bde2d0f7d63f713f$"
+}
+}
