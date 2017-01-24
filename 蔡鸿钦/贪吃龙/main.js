@@ -308,23 +308,21 @@ Game.prototype = {
                 	that.bg.height = that.bg.width * temp_bgScale;
                 }
 
-                //创建存放茶道具的组并开启物理引擎
+                //创建存放茶道具的组
                 that.teaGroup = game.add.group();
-                that.teaGroup.enableBody = true;
                 //创建存放酒道具的组并开启物理引擎
                 that.alcoholGroup = game.add.group();
-                that.alcoholGroup.enableBody = true;
-                //创建存放红包的组并开启物理引擎
+                //创建存放红包的组
                 that.redPaperGroup = game.add.group();
-                that.redPaperGroup.enableBody = true;
-                //创建存放龙的数组并开启物理引擎
+                //创建存放龙的数组
                 that.dragonGroup = game.add.group();
-                that.dragonGroup.enableBody = true;
-                //创建存放加分标签的数组并开启物理引擎
+                //创建存放加分标签的数组
                 that.oneScoreGroup = game.add.group();
-                that.oneScoreGroup.enableBody = true;
                 //创建存放拐弯图片的数组
                 that.roundGroup = game.add.group();
+
+                //用于检测是否创建了游戏元素
+                that.hasCreated = false;
 
                 //不是重新开始游戏，加载提示图片
                 if(! g_restart)
@@ -373,9 +371,7 @@ Game.prototype = {
                     that.CreateGameElement();
                 }
 
-                //用于检测是否创建了游戏元素
-                that.hasCreated = false;
-
+                console.log('add');
                 //添加点击事件
 				$(game.canvas).off(g_eventStart, this.Select);
 				$(game.canvas).off(g_eventMove, this.Swipe);
@@ -383,6 +379,7 @@ Game.prototype = {
 				$(game.canvas).on(g_eventStart, this.Select);
 				$(game.canvas).on(g_eventMove, this.Swipe);
 				$(game.canvas).on(g_eventEnd, this.SelectEnd);
+				console.log('yes');
 			};
 
 			//创建游戏元素
@@ -406,26 +403,6 @@ Game.prototype = {
                 that.dragon[g_length - 1].anchor.set(0.5, 0.5);
                 that.dragon[g_length - 1].x = that.dragon[g_length - 2].x - that.dragon[g_length - 2].width;
                 game.physics.enable(that.dragon[g_length - 1], Phaser.Physics.ARCADE);
-
-                // //创建龙身，暂时先把身体的第一节当做龙头
-                // for(var i = 1;i < g_length - 4;i++)
-                // {
-                //     that.dragon[i] = game.add.sprite(that.dragon[i - 1].x - that.dragon[i - 1].width, game.world.centerY, 'body');
-                //     that.dragon[i].anchor.set(0.5, 0.5);
-                //     that.dragonGroup.add(that.dragon[i]);
-                // }
-                // //创建连接龙头和龙身的那两节
-                // that.dragon[g_length - 4] = game.add.sprite(that.dragon[g_length - 5].x - that.dragon[g_length - 5].width, game.world.centerY, 'body');
-                // that.dragon[g_length - 4].anchor.set(0.5, 0.5);
-                // that.dragon[g_length - 3] = game.add.sprite(that.dragon[g_length - 4].x - that.dragon[g_length - 4].width, game.world.centerY, 'body');
-                // that.dragon[g_length - 3].anchor.set(0.5, 0.5);
-                // that.dragon[g_length - 2] = game.add.sprite(that.dragon[g_length - 3].x - that.dragon[g_length - 3].width, game.world.centerY, 'body');
-                // that.dragon[g_length - 2].anchor.set(0.5, 0.5);
-                // //创建龙头
-                // that.dragon[g_length - 1] = game.add.sprite(0, game.world.centerY, 'head');
-                // that.dragon[g_length - 1].anchor.set(0.5, 0.5);
-                // that.dragon[g_length - 1].x = that.dragon[g_length - 2].x - that.dragon[g_length - 2].width;
-                // game.physics.enable(that.dragon[g_length - 1], Phaser.Physics.ARCADE);
 
                 //创建龙头高兴的图片
                 that.happy = game.add.sprite(game.world.centerX, game.world.centerY, 'happy');
@@ -521,7 +498,7 @@ Game.prototype = {
 						// 横向
 						if (deltaX > deltaY) 
 						{ 
-							if (x >= g_selectX) //右
+							if (x >= g_selectX && that.moveX >= 0) //右
 							{
 								that.moveX = that.dragon[1].width;
                                 that.moveY = 0;
@@ -537,7 +514,7 @@ Game.prototype = {
                                 }
                                 that.inflectedRotation[g_length - 1] = 180;
 							} 
-							else  //左
+							if (x < g_selectX && that.moveX <= 0)  //左
 							{
 								that.moveX = -that.dragon[1].width;
                                 that.moveY = 0;
@@ -557,7 +534,7 @@ Game.prototype = {
 						// 纵向
 						else 
 						{ 
-							if (y >= g_selectY) //下
+							if (y >= g_selectY && that.moveY >= 0) //下
 							{
 								that.moveX = 0;
                                 that.moveY = that.dragon[1].height;
@@ -573,7 +550,7 @@ Game.prototype = {
                                 }
                                 that.inflectedRotation[g_length - 1] = -90;
 							} 
-							else //上
+							if (y <= g_selectY && that.moveY <= 0) //上
 							{
 								that.moveX = 0;
                                 that.moveY = -that.dragon[1].height;
@@ -642,25 +619,12 @@ Game.prototype = {
 							that.gameover();
 						}
 					}, that);
-					// game.physics.arcade.overlap(that.dragonGroup, that.dragon[g_length - 1], that.gameover);
 
 					//检测是否吃到道具
 					that.teaGroup.forEachExists(function(prop)
 						{
-							// game.physics.arcade.overlap(prop, that.dragon[g_length - 1], function()
-							// // {
-							// 	if(Math.abs(that.dragon[g_length - 1].x - prop.x) < that.dragon[g_length - 1].width / 2 
-							// 		&& Math.abs(that.dragon[g_length - 1].y - prop.y) < that.dragon[g_length - 1].height / 2)
-								// if(prop.alpha >= 0.5)
-								// {
-								// 	prop.x = -game.world.width;
-								// 	that.GetTea();
-								// }
-								// prop.x = -game.world.width;
-								// that.GetTea();
-							//}, null, this)
-							if(Math.abs(that.dragon[g_length - 1].x - prop.x) < that.dragon[g_length - 1].width / 2 
-								&& Math.abs(that.dragon[g_length - 1].y - prop.y) < that.dragon[g_length - 1].height / 2)
+							if(Math.abs(that.dragon[g_length - 1].x - prop.x) < prop.width / 2 
+								&& Math.abs(that.dragon[g_length - 1].y - prop.y) < prop.height / 2)
 							{
 								prop.x = -game.world.width;
 								that.GetTea();
@@ -668,20 +632,8 @@ Game.prototype = {
 						}, this);
 					that.alcoholGroup.forEachExists(function(prop)
 						{
-							// game.physics.arcade.overlap(prop, that.dragon[g_length - 1], function()
-							// {
-								// if(Math.abs(that.dragon[g_length - 1].x - prop.x) < that.dragon[g_length - 1].width / 2 
-								// 	&& Math.abs(that.dragon[g_length - 1].y - prop.y) < that.dragon[g_length - 1].height / 2)
-								// if(prop.alpha >= 0.5)
-								// {
-								// 	prop.x = -game.world.width;
-								// 	that.GetAlcohol();
-								// }
-							// 	prop.x = -game.world.width;
-							// 	that.GetAlcohol();
-							// }, null, this)
-							if(Math.abs(that.dragon[g_length - 1].x - prop.x) < that.dragon[g_length - 1].width / 2 
-								&& Math.abs(that.dragon[g_length - 1].y - prop.y) < that.dragon[g_length - 1].height / 2)
+							if(Math.abs(that.dragon[g_length - 1].x - prop.x) < prop.width / 2 
+								&& Math.abs(that.dragon[g_length - 1].y - prop.y) < prop.height / 2)
 							{
 								prop.x = -game.world.width;
 								that.GetAlcohol()
@@ -689,20 +641,8 @@ Game.prototype = {
 						}, this);
 					that.redPaperGroup.forEachExists(function(prop)
 						{
-							// game.physics.arcade.overlap(prop, that.dragon[g_length - 1], function()
-							// {
-								// if(Math.abs(that.dragon[g_length - 1].x - prop.x) < that.dragon[g_length - 1].width / 2 
-								// 	&& Math.abs(that.dragon[g_length - 1].y - prop.y) < that.dragon[g_length - 1].height / 2)
-								// if(prop.alpha >= 0.5)
-								// {
-								// 	that.GetRedPaper(prop);
-								// 	prop.x = -game.world.width;
-								// }
-							// 	that.GetRedPaper(prop);
-							// 	prop.x = -game.world.width;
-							// }, null, this)
-							if(Math.abs(that.dragon[g_length - 1].x - prop.x) < that.dragon[g_length - 1].width / 2 
-								&& Math.abs(that.dragon[g_length - 1].y - prop.y) < that.dragon[g_length - 1].height / 2)
+							if(Math.abs(that.dragon[g_length - 1].x - prop.x) < prop.width / 2 
+								&& Math.abs(that.dragon[g_length - 1].y - prop.y) < prop.height / 2)
 							{
 								that.GetRedPaper(prop);
 								prop.x = -game.world.width;
@@ -727,36 +667,12 @@ Game.prototype = {
             	that.dragon[g_length - 1].y = (that.dragon[g_length - 1].y + that.moveY + game.world.height) % game.world.height;
 
             	//转弯的时候，每一步只有一个节点是拐弯的
-            	// for(temp_count = 1; temp_count < g_length - 1; temp_count++)
-            	// {
-            	// 	//如果有拐点，更新round数组
-            	// 	if(that.round[temp_count + 1] != 0)
-            	// 	{
-            	// 		//把拐弯点的图片变换为拐弯图片
-            	// 		that.dragon[temp_count].visible = false;
-	            // 		that.dragon[temp_count + 1].visible = true;
-	            // 		if(!g_hasTurned)
-	            // 		{
-            	// 			that.CreateRound(that.dragon[temp_count].x, that.dragon[temp_count].y, that.round[temp_count + 1]);
-            				
-	            // 		}
-            	// 		//更新round数组
-            	// 		that.round[temp_count] = that.round[temp_count + 1];
-            	// 		that.round[temp_count + 1] = 0;
-            	// 	}
-            	// }
-            	// g_hasTurned = true;
-            	  	
-
-            	//转弯的时候，每一步只有一个节点是拐弯的
+            	//先加载拐弯图片，每次拐弯只加载一张
             	for(temp_count = g_length - 2; temp_count > 0; temp_count--)
             	{
             		//如果有拐点，更新round数组
             		if(that.round[temp_count + 1] != 0)
             		{
-            			//把拐弯点的图片变换为拐弯图片
-            			that.dragon[temp_count].visible = false;
-	            		that.dragon[temp_count + 1].visible = true;
 	            		if(!g_hasTurned)
 	            		{
             				that.CreateRound(that.dragon[temp_count].x, that.dragon[temp_count].y, that.round[temp_count + 1]);
@@ -764,8 +680,20 @@ Game.prototype = {
 	            		}
             		}
             	}
-            	
-            	//转弯的时候，每一步只有一个节点是拐弯的
+            	//把处于拐弯点的图片设置为不可见
+            	//离开拐弯点的图片设置为可见
+            	for(temp_i = 1; temp_i < g_length - 1; temp_i++)
+            	{
+            		if(that.round[temp_i + 1] != 0)
+            		{
+            			that.dragon[temp_i].visible = false;
+            		}
+            		else
+            		{
+            			that.dragon[temp_i].visible = true;
+            		}
+            	}
+            	//更新round数组，此时为下次运动的信息
             	for(temp_count = 1; temp_count < g_length - 1; temp_count++)
             	{
             		//如果有拐点，更新round数组
@@ -776,14 +704,13 @@ Game.prototype = {
             			that.round[temp_count + 1] = 0;
             		}
             	}
-
-            	//此时，拐弯结束
+            	//此时，一次拐弯结束
             	if(that.roundGroup[1] != 0)
             	{
             		that.dragon[1].visible = true;
         			that.roundGroup.forEachExists(function(round)
         			{
-        				if(round.x === that.dragon[0].x && round.y === that.dragon[0].y)
+        				if(round.x === that.dragon[1].x && round.y === that.dragon[1].y)
         				{
         					round.kill();
         				}
@@ -936,6 +863,10 @@ Game.prototype = {
 			            	game.time.events.start();
 	            			temp_i ++;
             			}
+            			else
+            			{
+            				temp_i++;
+            			}
             		}, that);
             	}
             	else if(that.groupNumber === 1)
@@ -957,6 +888,10 @@ Game.prototype = {
 			            	}, this);
 			            	game.time.events.start();
 	            			temp_i ++;
+            			}
+            			else
+            			{
+            				temp_i++;
             			}
             		}, that);
             	}
@@ -1065,13 +1000,12 @@ Game.prototype = {
 
             this.CreateOneScore = function(prop)
             {
-            	var temp_oneScore;
 
             	if(that.ResetOneScore(prop.x, prop.top))
             		return;
 
             	//创建一个临时的‘+1’标签
-            	temp_oneScore = game.add.sprite(prop.x, prop.top, 'one_score');
+            	var temp_oneScore = game.add.sprite(prop.x, prop.top, 'one_score');
             	temp_oneScore.anchor.set(0.5, 0.5);
             	//对‘+1’标签按照原始比例进行缩放
             	var temp_oneScoreScale = temp_oneScore.height / temp_oneScore.width;
@@ -1084,22 +1018,23 @@ Game.prototype = {
                 game.add.tween(temp_oneScore).to({y: temp_oneScore.y - temp_oneScore.height, alpha: 0}, 1000, null, true, 0, 0, false);
                 game.time.events.add(1100, function()
                 {
-                	temp_oneScore.destroy();
+                	temp_oneScore.kill();
                 }, that);
                 game.time.events.start();
             }
 
             this.ResetOneScore = function(x, y)
             {
-            	var temp_i;
+            	var temp_i = 0;
             	that.oneScoreGroup.forEachDead(function(oneScore)
             	{
             		oneScore.reset(x, y);
+            		oneScore.alpha = 1;
             		//让加分标签上升并且渐变消失
-	                game.add.tween(temp_oneScore).to({y: temp_oneScore.y - temp_oneScore.height, alpha: 0}, 1000, null, true, 0, 0, false);
+	                game.add.tween(oneScore).to({y: oneScore.y - oneScore.height, alpha: 0}, 1000, null, true, 0, 0, false);
 	                game.time.events.add(1100, function()
 	                {
-	                	temp_oneScore.destroy();
+	                	oneScore.kill();
 	                }, that);
 	                game.time.events.start();
             		temp_i ++;
@@ -1114,10 +1049,9 @@ Game.prototype = {
             	score ++;
             	that.scoreText.text = score + " ";
 
+            	//制造+1分效果
             	that.CreateOneScore(prop);
 
-
-            	
 				var temp_body = game.add.sprite(that.dragon[g_length - 2].x + that.moveX, that.dragon[g_length - 2].y + that.moveY, 'body');
             	temp_body.anchor.set(0.5, 0.5);
             	// that.dragonGroup.add(that.dragon[g_length - 4]);
@@ -1129,6 +1063,7 @@ Game.prototype = {
             	that.dragon[g_length - 1].bringToTop();
             	that.sleepy.bringToTop();
             	that.happy.bringToTop();
+            	//that.titleGroup.bringToTop();
   	
             	that.inflectedRotation.length = g_length;
             	that.inflectedRotation[g_length - 1] = that.inflectedRotation[g_length - 2];
@@ -1215,6 +1150,18 @@ Game.prototype = {
 				---------------------------- */
 
 				this.bg = game.add.image(0, 0, "bg");
+				if(this.bg.width > this.bg.height)
+                {
+                	var temp_bgScale = this.bg.width / this.bg.height;
+                	this.bg.height = game.world.width;
+                	this.bg.width = this.bg.height * temp_bgScale;
+                }
+                else
+                {
+                	temp_bgScale = this.bg.height / this.bg.width;
+                	this.bg.width = game.world.width;
+                	this.bg.height = this.bg.width * temp_bgScale;
+                }
 
                 var temp_button;
 
@@ -1227,7 +1174,7 @@ Game.prototype = {
                     temp_button = game.add.image(game.world.centerX, game.world.height * 4 / 5, 'knew');
                     temp_button.anchor.set(0.5, 0.5);
 
-                    game.input.onDown.add(function(p)
+                    game.input.onDown.addOnce(function(p)
                     {
                         if (Math.abs(p.x - temp_button.x / 2) <= temp_button.width / 2 && Math.abs(p.y - temp_button.y / 2) <= temp_button.height / 2)
                         {
