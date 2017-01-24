@@ -357,7 +357,6 @@ Game.prototype = {
 	                            temp_tips.destroy();
 	                            temp_knew.destroy();
 
-	                            that.hasCreated = true;
 
 	                            //创建游戏元素
 	                            that.CreateGameElement();
@@ -385,6 +384,8 @@ Game.prototype = {
 			//创建游戏元素
 			this.CreateGameElement = function()
 			{
+
+	            that.hasCreated = true;
 				//创建龙
                 that.dragon = new Array(g_length);
                 //创建龙尾
@@ -439,6 +440,7 @@ Game.prototype = {
 
                 //开启定时器
                 that.timeManager = game.time.events;
+                //每隔三秒随机产生一个道具
                 that.timeManager.loop(3000, this.CreateProp, this);
 
                 //添加分数条
@@ -471,6 +473,7 @@ Game.prototype = {
 				}
 				g_selectX = x;
 				g_selectY = y;
+				console.log('Select');
 			};
 
 			//手指移动
@@ -655,16 +658,17 @@ Game.prototype = {
             //这里的move只是移动了一步
             this.Move = function()
             {   
+            	var temp_length = g_length - 1;
             	//改变龙各节的坐标以及角度值
-                for(var temp_count = 0; temp_count < g_length - 1; temp_count++)
+                for(var temp_count = 0; temp_count < temp_length; temp_count++)
                 {
                 	that.inflectedRotation[temp_count] = that.inflectedRotation[temp_count + 1];
                     that.dragon[temp_count].x = that.dragon[temp_count + 1].x;
                     that.dragon[temp_count].y = that.dragon[temp_count + 1].y;
                     that.dragon[temp_count].angle = that.inflectedRotation[temp_count];
                 }
-            	that.dragon[g_length - 1].x = (that.dragon[g_length - 1].x + that.moveX + game.world.width) % game.world.width;
-            	that.dragon[g_length - 1].y = (that.dragon[g_length - 1].y + that.moveY + game.world.height) % game.world.height;
+            	that.dragon[temp_length].x = (that.dragon[temp_length].x + that.moveX + game.world.width) % game.world.width;
+            	that.dragon[temp_length].y = (that.dragon[temp_length].y + that.moveY + game.world.height) % game.world.height;
 
             	//转弯的时候，每一步只有一个节点是拐弯的
             	//先加载拐弯图片，每次拐弯只加载一张
@@ -682,7 +686,7 @@ Game.prototype = {
             	}
             	//把处于拐弯点的图片设置为不可见
             	//离开拐弯点的图片设置为可见
-            	for(temp_i = 1; temp_i < g_length - 1; temp_i++)
+            	for(temp_i = 1; temp_i < temp_length; temp_i++)
             	{
             		if(that.round[temp_i + 1] != 0)
             		{
@@ -720,24 +724,24 @@ Game.prototype = {
 
 
             	//判断龙的当前朝向，改变龙头的朝向
-            	if(that.inflectedRotation[g_length - 1] === 180)
+            	if(that.inflectedRotation[temp_length] === 180)
             	{
-            		if(that.dragon[g_length - 1].width > 0)
+            		if(that.dragon[temp_length].width > 0)
             		{
-            			that.dragon[g_length - 1].angle = 0;
-            			that.dragon[g_length - 1].width *= -1;
+            			that.dragon[temp_length].angle = 0;
+            			that.dragon[temp_length].width *= -1;
             		}	
             	}
             	else
             	{
-            		if(that.dragon[g_length - 1].width < 0)
+            		if(that.dragon[temp_length].width < 0)
             		{
-            			that.dragon[g_length - 1].width *= -1;
-            			that.dragon[g_length-1].angle = that.inflectedRotation[g_length - 1];
+            			that.dragon[temp_length].width *= -1;
+            			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
             		}
             		else
             		{
-            			that.dragon[g_length- 1].angle = that.inflectedRotation[g_length - 1];
+            			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
             		}
             	}
             };
@@ -1181,6 +1185,9 @@ Game.prototype = {
                             g_restart = true;
                             score = 0;
                             g_length = 8;
+                            g_slectAble = true;
+							g_selectX = null;
+							g_selectY = null;
                             game.state.start('play');
                         }
                     }, this);
