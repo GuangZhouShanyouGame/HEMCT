@@ -23,11 +23,11 @@ Game.prototype = {
     //龙的长度
     length: 8,
     //龙的正常速度
-    normalSpeed: 12,
+    normalSpeed: 8,
     //龙减速之后的速度
-    lowSpeed: 15,
+    lowSpeed: 8,
     //龙加速之后的速度
-    highSpeed: 8,
+    highSpeed: 3,
 
 
 	// 设备信息
@@ -105,9 +105,6 @@ Game.prototype = {
 
 		//游戏逻辑添加部分
 		var g_restart = this.restart;
-
-
-
         var score = this.score;
         var g_length = this.length;
         var g_normalSpeed = this.normalSpeed;
@@ -117,12 +114,13 @@ Game.prototype = {
         var g_speed = g_normalSpeed;
         //在update函数中自增，判断是否要调用Move函数
         var g_timer = 0;
-        //判断是否拐弯
-        var g_turnBegin = false;
-
-        var g_turnEnd = true;
         //判断是否已经拐弯了
         var g_hasTurned = false;
+
+        var g_turn = false;
+
+        var g_slide = false;
+
 
 
         //这些变量用于手指移动检测
@@ -396,27 +394,23 @@ Game.prototype = {
                 //创建龙尾
                 that.dragon[0] = game.add.sprite(game.world.width - 70, game.world.centerY, 'tail');
                 that.dragon[0].anchor.set(0.5, 0.5);
-                game.physics.enable(that.dragon[0], Phaser.Physics.ARCADE);
                 that.dragonGroup.add(that.dragon[0]);
-
                 //创建龙身，暂时先把身体的第一节当做龙头
                 for(var i = 1;i < g_length - 1;i++)
                 {
                     that.dragon[i] = game.add.sprite(that.dragon[i - 1].x - that.dragon[i - 1].width, game.world.centerY, 'body');
                     that.dragon[i].anchor.set(0.5, 0.5);
                     that.dragonGroup.add(that.dragon[i]);
-                    game.physics.enable(that.dragon[i], Phaser.Physics.ARCADE);
                 }
                 //创建龙头
                 that.dragon[g_length - 1] = game.add.sprite(0, game.world.centerY, 'head');
                 that.dragon[g_length - 1].anchor.set(0.5, 0.5);
-                that.dragon[g_length - 1].x = that.dragon[g_length - 2].x - that.dragon[g_length - 2].width / 2;
-                game.physics.enable(that.dragon[g_length - 1], Phaser.Physics.ARCADE);
+                that.dragon[g_length - 1].x = that.dragon[g_length - 2].x - that.dragon[g_length - 2].width;
+                
 
                 for(i = 0; i < g_length; i++)
                 {
-                	that.dragon[i].body.velocity.x = -100;
-                	that.dragon[i].body.velocity.y = 0;
+                	game.physics.enable(that.dragon[i], Phaser.Physics.ARCADE);
                 }
 
                 //创建龙头高兴的图片
@@ -435,15 +429,6 @@ Game.prototype = {
                 that.moveX = -that.dragon[1].width;
                 that.moveY = 0;
 
-                //创建速度数组
-                that.velocityX = new Array(g_length);
-                that.velocityY = new Array(g_length);
-
-                for(i = 0; i < g_length; i++)
-                {
-                	that.velocityX[i] = -100;
-                	that.velocityY[i] = 0;
-                }
 
                 //创建旋转角度数组，用于保存每个节点的角度信息，初始角度为0
                 that.inflectedRotation = new Array(g_length);
@@ -459,13 +444,13 @@ Game.prototype = {
                 	that.round[i] = 0;
                 }
 
-                that.positionX = [];
-                that.positionY = [];
+                
 
                 //开启定时器
                 that.timeManager = game.time.events;
                 //每隔三秒随机产生一个道具
                 that.timeManager.loop(3000, this.CreateProp, this);
+
 
                 //添加分数条
                 that.titleGroup = game.add.group();
@@ -527,40 +512,60 @@ Game.prototype = {
 							if (x >= g_selectX && that.moveX >= 0) //右
 							{
 								that.moveX = that.dragon[1].width;
-        						that.moveY = 0;
-        						that.velocityX[g_length - 1] = 100;
-        						that.velocityY[g_length - 1] = 0;
+                                that.moveY = 0;
                                 if(that.inflectedRotation[g_length - 1] === 90) //由上往右拐弯
                                 {
                                 	that.round[g_length - 1] = 3;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 if(that.inflectedRotation[g_length - 1] === -90) //由下往右拐弯
                                 {
                                 	that.round[g_length - 1] = 4;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 that.inflectedRotation[g_length - 1] = 180;
 							} 
 							if (x < g_selectX && that.moveX <= 0)  //左
 							{
 								that.moveX = -that.dragon[1].width;
-        						that.moveY = 0;
-        						that.velocityX[g_length - 1] = -100;
-        						that.velocityY[g_length - 1] = 0;
+                                that.moveY = 0;
                                 if(that.inflectedRotation[g_length - 1] === 90) //由上往左拐弯
                                 {
                                 	that.round[g_length - 1] = 1;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 if(that.inflectedRotation[g_length - 1] === -90) //由下往左拐弯
                                 {
                                 	that.round[g_length - 1] = 2;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 that.inflectedRotation[g_length - 1] = 0;
 							}
@@ -571,40 +576,60 @@ Game.prototype = {
 							if (y >= g_selectY && that.moveY >= 0) //下
 							{
 								that.moveX = 0;
-        						that.moveY = that.dragon[1].height;
-        						that.velocityX[g_length - 1] = 0;
-        						that.velocityY[g_length - 1] = 100;
+                                that.moveY = that.dragon[1].height;
                                 if(that.inflectedRotation[g_length - 1] === 0) //由左往下拐弯
                                 {
                                 	that.round[g_length - 1] = 3;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 if(that.inflectedRotation[g_length - 1] === 180) //由右往下拐弯
                                 {
                                 	that.round[g_length - 1] = 1;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 that.inflectedRotation[g_length - 1] = -90;
 							} 
 							if (y <= g_selectY && that.moveY <= 0) //上
 							{
 								that.moveX = 0;
-        						that.moveY = -that.dragon[1].height;
-        						that.velocityX[g_length - 1] = 0;
-        						that.velocityY[g_length - 1] = -100;
+                                that.moveY = -that.dragon[1].height;
                                 if(that.inflectedRotation[g_length - 1] === 0) //由左往上拐弯
                                 {
                                 	that.round[g_length - 1] = 4;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 if(that.inflectedRotation[g_length - 1] === 180) //由右往上拐弯
                                 {
                                 	that.round[g_length - 1] = 2;
-                                	g_hasTurned = true;
-                                	g_turnBegin = true;
+                                	g_hasTurned = false;
+                                	g_turn = true;
+                                	g_slide = false;
+                                	for(var temp_t = 0; temp_t < g_length; temp_t++)
+									{
+										that.dragon[temp_t].body.velocity.x = 0;
+										that.dragon[temp_t].body.velocity.y = 0;
+									}
                                 }
                                 that.inflectedRotation[g_length - 1] = 90;
 							}
@@ -622,51 +647,39 @@ Game.prototype = {
 			};
 
 
-			this.update = function() 
-			{	
+			this.update = function() {	
 				//进行判断游戏元素是否已经被加载了
 				if(that.hasCreated || g_restart)
 				{	
-					//拐弯动作
-					that.Turn(that.dragon[g_length - 1].x, that.dragon[g_length - 1].y);
-
-					if(that.positionX.length != 0)
+					if(g_turn)
 					{
-
-						for(var temp_j = 0; temp_j < that.positionX.length; temp_j++)
+						if(g_timer % g_speed == 0)
 						{
-							for(var temp_i = g_length - 2; temp_i > 0; temp_i--)
+							that.Move();
+						}
+						g_timer++;
+					}
+					else
+					{
+						if(!g_slide)
+						{
+							for(var temp_q = 0; temp_q < g_length; temp_q++)
 							{
-								console.log(that.dragon[temp_i].x, that.dragon[temp_i].y);
-								if(Math.abs(that.dragon[temp_i].x - that.positionX[temp_j]) < 1 
-									&& Math.abs(that.dragon[temp_i].y - that.positionY[temp_j]) < 1)
-								{
-									that.velocityX[temp_i] = that.velocityX[temp_i + 1];
-									that.velocityY[temp_i] = that.velocityY[temp_i + 1];
-								}
+								that.dragon[temp_q].body.velocity.x = that.moveX * 60 / g_speed - that.moveX / that.dragon[1].width * 50;
+								that.dragon[temp_q].body.velocity.y = that.moveY * 60 / g_speed - that.moveY / that.dragon[1].height * 50;
 							}
+							g_slide = true;
 						}
-						if(Math.abs(that.dragon[0].x - that.positionX[0]) < 1 
-									&& Math.abs(that.dragon[0].y - that.positionY[0]) < 1)
+						for(temp_q = 0; temp_q < g_length; temp_q++)
 						{
-							that.velocityX[0] = that.velocityX[1];
-							that.velocityY[0] = that.velocityY[1];
-							that.dragon[0].body.velocity.x = that.velocityX[1];
-							that.dragon[0].body.velocity.y = that.velocityY[1];
-							
-							//一次拐弯结束
-							that.roundGroup.forEachExists(function(round)
-		        			{
-		        				if(round.x === that.positionX.shift() && round.y === that.positionY.shift())
-		        				{
-		        					round.kill();
-		        				}
-		        			}, that);
-						}
-						for(temp_j = 0; temp_j < g_length; temp_j++)
-						{
-							that.dragon[temp_j].body.velocity.x = that.velocityX[temp_j];
-							that.dragon[temp_j].body.velocity.y = that.velocityY[temp_j];
+							if(that.dragon[temp_q].x < 0 || that.dragon[temp_q].x > game.world.width)
+							{
+								that.dragon[temp_q].x = (that.dragon[temp_q].x + game.world.width) % game.world.width;
+							}
+							if(that.dragon[temp_q].y < 0 || that.dragon[temp_q].y > game.world.height)
+							{
+								that.dragon[temp_q].y = (that.dragon[temp_q].y + game.world.height) % game.world.height;
+							} 
 						}
 					}
 
@@ -733,142 +746,106 @@ Game.prototype = {
 
 
             //这里的move只是移动了一步
-           //  this.Move = function()
-           //  {   
-           //  	var temp_length = g_length - 1;
-           //  	//改变龙各节的坐标以及角度值
-           //      for(var temp_count = 0; temp_count < temp_length; temp_count++)
-           //      {
-           //      	that.inflectedRotation[temp_count] = that.inflectedRotation[temp_count + 1];
-           //          that.dragon[temp_count].x = that.dragon[temp_count + 1].x;
-           //          that.dragon[temp_count].y = that.dragon[temp_count + 1].y;
-           //          that.dragon[temp_count].angle = that.inflectedRotation[temp_count];
-           //      }
-           //  	that.dragon[temp_length].x = (that.dragon[temp_length].x + that.moveX + game.world.width) % game.world.width;
-           //  	that.dragon[temp_length].y = (that.dragon[temp_length].y + that.moveY + game.world.height) % game.world.height;
-
-           //  	//转弯的时候，每一步只有一个节点是拐弯的
-           //  	//先加载拐弯图片，每次拐弯只加载一张
-           //  	for(temp_count = g_length - 2; temp_count > 0; temp_count--)
-           //  	{
-           //  		//如果有拐点，加载拐弯图片
-           //  		if(that.round[temp_count + 1] != 0)
-           //  		{
-	          //   		if(!g_hasTurned)
-	          //   		{
-           //  				that.CreateRound(that.dragon[temp_count].x, that.dragon[temp_count].y, that.round[temp_count + 1]);
-           //  				g_hasTurned = true;
-	          //   		}
-           //  		}
-           //  	}
-           //  	//把处于拐弯点的图片设置为不可见
-           //  	//离开拐弯点的图片设置为可见
-           //  	for(temp_i = 1; temp_i < temp_length; temp_i++)
-           //  	{
-           //  		if(that.round[temp_i + 1] != 0)
-           //  		{
-           //  			that.dragon[temp_i].visible = false;
-           //  		}
-           //  		else
-           //  		{
-           //  			that.dragon[temp_i].visible = true;
-           //  		}
-           //  	}
-           //  	//更新round数组，此时为下次运动的信息
-           //  	for(temp_count = 1; temp_count < g_length - 1; temp_count++)
-           //  	{
-           //  		//如果有拐点，更新round数组
-           //  		if(that.round[temp_count + 1] != 0)
-           //  		{
-           //  			//更新round数组
-           //  			that.round[temp_count] = that.round[temp_count + 1];
-           //  			that.round[temp_count + 1] = 0;
-           //  		}
-           //  	}
-           //  	//此时，一次拐弯结束
-           //  	if(that.roundGroup[1] != 0)
-           //  	{
-           //  		that.dragon[1].visible = true;
-        			// that.roundGroup.forEachExists(function(round)
-        			// {
-        			// 	if(round.x === that.dragon[1].x && round.y === that.dragon[1].y)
-        			// 	{
-        			// 		round.kill();
-        			// 	}
-        			// }, that);
-        			// that.round[1] = 0;
-           //  	}
-
-
-           //  	//判断龙的当前朝向，改变龙头的朝向
-           //  	if(that.inflectedRotation[temp_length] === 180)
-           //  	{
-           //  		if(that.dragon[temp_length].width > 0)
-           //  		{
-           //  			that.dragon[temp_length].angle = 0;
-           //  			that.dragon[temp_length].width *= -1;
-           //  		}	
-           //  	}
-           //  	else
-           //  	{
-           //  		if(that.dragon[temp_length].width < 0)
-           //  		{
-           //  			that.dragon[temp_length].width *= -1;
-           //  			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
-           //  		}
-           //  		else
-           //  		{
-           //  			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
-           //  		}
-           //  	}
-           //  };
-
-
-           this.Turn = function(temp_x, temp_y)
+            this.Move = function()
             {   
-            	if(g_hasTurned && g_turnBegin)
-        		{
-        			that.positionX.push(temp_x);
-        			that.positionY.push(temp_y);
-        			console.log('turn point', temp_x, temp_y);
-
-        			//转弯的时候，每一步只有一个节点是拐弯的
-            		var temp_length = g_length - 1;
-        			
-        			//先加载拐弯图片，每次拐弯只加载一张
-    				that.CreateRound(temp_x, temp_y, that.round[temp_length]);
-
-    				//改变龙头坐标
-	            	that.dragon[temp_length].x = (that.dragon[temp_length].x + that.moveX+ game.world.width) % game.world.width;
+            	var temp_length = g_length - 1;
+            	if(g_turn)
+            	{
+            		//改变龙各节的坐标以及角度值
+	                for(var temp_count = 0; temp_count < temp_length; temp_count++)
+	                {
+	                	that.inflectedRotation[temp_count] = that.inflectedRotation[temp_count + 1];
+	                    that.dragon[temp_count].x = that.dragon[temp_count + 1].x;
+	                    that.dragon[temp_count].y = that.dragon[temp_count + 1].y;
+	                    that.dragon[temp_count].angle = that.inflectedRotation[temp_count];
+	                }
+	            	that.dragon[temp_length].x = (that.dragon[temp_length].x + that.moveX + game.world.width) % game.world.width;
 	            	that.dragon[temp_length].y = (that.dragon[temp_length].y + that.moveY + game.world.height) % game.world.height;
-	            	
+            	}
+            	
 
-	            	//判断龙的当前朝向，改变龙头的朝向
-	            	if(that.inflectedRotation[temp_length] === 180)
-	            	{
-	            		if(that.dragon[temp_length].width > 0)
+            	//转弯的时候，每一步只有一个节点是拐弯的
+            	//先加载拐弯图片，每次拐弯只加载一张
+            	for(temp_count = g_length - 2; temp_count > 0; temp_count--)
+            	{
+            		//如果有拐点，更新round数组
+            		if(that.round[temp_count + 1] != 0)
+            		{
+	            		if(!g_hasTurned)
 	            		{
-	            			that.dragon[temp_length].angle = 0;
-	            			that.dragon[temp_length].width *= -1;
-	            		}	
-	            	}
-	            	else
-	            	{
-	            		if(that.dragon[temp_length].width < 0)
-	            		{
-	            			that.dragon[temp_length].width *= -1;
-	            			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
+            				that.CreateRound(that.dragon[temp_count].x, that.dragon[temp_count].y, that.round[temp_count + 1]);
+            				g_hasTurned = true;
 	            		}
-	            		else
-	            		{
-	            			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
-	            		}
-	            	}
+            		}
+            	}
+            	//把处于拐弯点的图片设置为不可见
+            	//离开拐弯点的图片设置为可见
+            	for(temp_i = 1; temp_i < temp_length; temp_i++)
+            	{
+            		if(that.round[temp_i + 1] != 0)
+            		{
+            			that.dragon[temp_i].visible = false;
+            		}
+            		else
+            		{
+            			that.dragon[temp_i].visible = true;
+            		}
+            	}
+            	//更新round数组，此时为下次运动的信息
+            	for(temp_count = 1; temp_count < g_length - 1; temp_count++)
+            	{
+            		//如果有拐点，更新round数组
+            		if(that.round[temp_count + 1] != 0)
+            		{
+            			//更新round数组
+            			that.round[temp_count] = that.round[temp_count + 1];
+            			that.round[temp_count + 1] = 0;
+            		}
+            	}
+            	temp_count = 0;
+            	//此时，一次拐弯结束
+            	if(that.roundGroup[1] != 0)
+            	{
+            		that.dragon[1].visible = true;
+        			that.roundGroup.forEachExists(function(round)
+        			{
+        				temp_count++;
+        				if(round.x === that.dragon[1].x && round.y === that.dragon[1].y)
+        				{
+        					round.kill();
+        				}
+        			}, that);
+        			that.round[1] = 0;
+            	}
 
-	            	
-    				g_turnBegin = false;
-        		}	
+            	if(temp_count === 0)
+            	{
+            		g_turn = false;
+            	}
+
+            	//判断龙的当前朝向，改变龙头的朝向
+            	if(that.inflectedRotation[temp_length] === 180)
+            	{
+            		if(that.dragon[temp_length].width > 0)
+            		{
+            			that.dragon[temp_length].angle = 0;
+            			that.dragon[temp_length].width *= -1;
+            		}	
+            	}
+            	else
+            	{
+            		if(that.dragon[temp_length].width < 0)
+            		{
+            			that.dragon[temp_length].width *= -1;
+            			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
+            		}
+            		else
+            		{
+            			that.dragon[temp_length].angle = that.inflectedRotation[temp_length];
+            		}
+            	}
             };
+
 
             this.CreateRound = function(x, y, r)
             {
@@ -1007,7 +984,8 @@ Game.prototype = {
 			            	//先把道具设置为透明
 			            	prop.alpha = 0;
 			            	//给道具添加动画
-			            	game.add.tween(prop).to({y: prop.y + game.world.height / 6, alpha: 1}, 2000, Phaser.Easing.Bounce.Out,true, 0, 0, false);
+			            	game.add.tween(prop).to({y: prop.y + game.world.height / 6, alpha: 1}, 
+			            		2000, Phaser.Easing.Bounce.Out,true, 0, 0, false);
 			            	//设置道具的回收时间
 			            	game.time.events.add(10000, function()
 			            	{
@@ -1180,8 +1158,7 @@ Game.prototype = {
             	that.CreateOneScore(prop);
 
 				var temp_body = game.add.sprite(that.dragon[g_length - 2].x + that.moveX, that.dragon[g_length - 2].y + that.moveY, 'body');
-				temp_body.width /= 2;
-				temp_body.height /= 2;
+				game.physics.enable(temp_body, Phaser.Physics.ARCADE);
             	temp_body.anchor.set(0.5, 0.5);
 
             	that.dragonGroup.add(temp_body);
@@ -1192,6 +1169,7 @@ Game.prototype = {
             	that.dragon[g_length - 1].bringToTop();
             	that.sleepy.bringToTop();
             	that.happy.bringToTop();
+            	//that.titleGroup.bringToTop();
   	
             	that.inflectedRotation.length = g_length;
             	that.inflectedRotation[g_length - 1] = that.inflectedRotation[g_length - 2];
