@@ -1,0 +1,173 @@
+{
+    "activity-text-auto-show": true,
+    "activity-gift-show": "yes",
+    "activity-gift-num-show": "yes",
+    "activity-qrcode": "//24haowan-cdn.shanyougame.com/game_tpl/activity-qrcode.jpg",
+    "activity-qrcode-show": false,
+    "bottom-link": "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzIwODI2NTA0Mg==#wechat_redirect",
+    "bottom-link-set": true,
+    "bottom-show": true,
+    "disable-rank": false,
+    "game-title-img": "//24haowan-cdn.shanyougame.com/game-banner/skip.png",
+    "game-title-img-show": true,
+    "game-title-img-size": "576px*112px",
+    "game-title-img-ext-desc": "这是额外说明",
+    "mobileOnly": false,
+
+    "message": {
+        "msg": [],
+        "share": {
+            "desc": "点进来，挑战经典游戏贪吃龙，驾驭贪吃龙，吃到尽量多的红包。",
+            "desc-default": "点进来，挑战经典游戏贪吃龙，驾驭神龙，吃到尽量多的红包。",
+            "link": "share",
+            "pic": "//img-2.24haowan.shanyougame.com/24haowan_share_img/skip.png",
+            "title": "我能驾驭神龙，吃了｛score｝个红包，你呢？",
+            "title-default": "点进来，挑战经典游戏贪吃龙，驾驭神龙，吃到尽量多的红包。",
+            "union": "yes"
+        }
+    },
+
+    "style": {
+        "background": {
+            "game-over-menu": "//24haowan-cdn.shanyougame.com/game-bg/skip.png",
+            "share-sign-in": "//24haowan-cdn.shanyougame.com/game-bg/skip.png",
+            "start-menu": "//24haowan-cdn.shanyougame.com/game-bg/skip.png"
+        },
+        "banner": {
+            "share-sign-in": "/static_resource/images/banner.png", // 横幅图片地址
+            "size": "300px*335px"
+        },
+        "color": {
+            "deputy": "#ffb837",
+            "deputy-shadow": "#eb940b",
+            "main": "#1db494",
+            "main-shadow": "#1aa98b"
+        },
+        "barColor": "#1abc9c",
+        "loadingBanner": "/static_resource/images/banner.png",
+        "loadingColor": "#fdffc6",
+        "game-title-color": "#ffffff",
+        "share-text-color": "#ffffff",
+        "shareLabel": "#ffffff"
+    },
+    "text": {
+        "game-title-text": "贪吃龙",
+        "activity-text": "上下左右滑动屏幕，让龙吃到红包，每吃一个红包便会长一节，吃到牛奶会加速。贪吃龙撞到自己或时间结束，则游戏结束。",
+        "brand-text": "24好玩",
+        "game-wechat-text": "我驾驭神龙，吃了{score}个红包，点击挑战我！",
+        "shareLabel": "邀请好友一起来玩吧~",
+        "start": "开始游戏",
+        "play-again-btn": "再玩一次",
+        "challenge": "我也挑战一下",
+    },
+
+
+    "game": {
+        "head": "/static_resource/images/head.png",
+        "body": "/static_resource/images/body.png",
+        "tail": "/static_resource/images/tail.png",
+        "round": "/static_resource/images/round.png",
+        "redPaper": "/static_resource/images/redPaper.png",
+        "end": "/static_resource/images/end.png",
+        "timeUp": "/static_resource/images/timeUp.png",
+        "alcohol": "/static_resource/images/alcohol.png",
+        "happy": "/static_resource/images/happy.png",
+        "bg": "/static_resource/images/background.png",
+
+        "music_bg": "/static_resource/music/bgm.mp3",
+        "music_end": "/static_resource/music/end.mp3",
+        "music_score": "/static_resource/music/score.mp3",
+        "music_speedUp": "/static_resource/music/speedUp.mp3",
+
+        "color": {
+            "main": "#207756"
+        }
+    },
+
+    "platform": {
+        "game": {
+            "head": {
+                "name": "龙头",
+                "size": "152px*150px",
+                "url": "/static_resource/images/head.png"
+            },
+            "body": {
+                "name": "龙身",
+                "size": "50px*50px",
+                "url": "/static_resource/images/body.png"
+            },
+            "tail": {
+                "name": "龙尾",
+                "size": "50px*50px",
+                "url": "/static_resource/images/tail.png"
+            },
+            "round": {
+                "name": "拐弯图片",
+                "size": "50px*50px",
+                "url": "/static_resource/images/round.png"
+            },
+            "happy": {
+                "name": "加速时的龙头",
+                "size": "152px*150px",
+                "url": "/static_resource/images/happy.png"
+            },
+            "alcohol": {
+                "name": "加速道具",
+                "size": "100px*100px",
+                "url": "/static_resource/images/alcohol.png"
+            },
+            "redPaper": {
+                "name": "红包",
+                "size": "100px*100px",
+                "url": "/static_resource/images/redPaper.png"
+            },
+            "end": {
+                "name": "龙吃到自己使用的图片",
+                "size": "320px*90px",
+                "url": "/static_resource/images/end.png"
+            },
+            "timeUp": {
+                "name": "时间用完使用的图片",
+                "size": "458px*134px",
+                "url": "/static_resource/images/timeUp.png"
+            },
+
+            "bg": {
+                "name": "活动页背景",
+                "url": "/static_resource/images/background.png"
+            },
+
+            "music_bg": {
+                "name": "背景音乐",
+                "url": "/static_resource/music/bgm.mp3"
+            },
+            "music_end": {
+                "name": "游戏结束",
+                "url": "/static_resource/music/end.mp3"
+            },
+            "music_score": {
+                "name": "得分音效",
+                "url": "/static_resource/music/score.mp3"
+            },
+            "music_speedUp": {
+                "name": "加速音效",
+                "url": "/static_resource/music/speedUp.mp3"
+            },
+
+            "color": {
+                "main": {
+                    "name": "主题颜色",
+                    "color": "#207756"
+                }
+            }
+        }
+    },
+
+    "db_info" : {
+        "name" : "贪吃龙",
+        "describe" : "经典贪吃蛇小游戏改版，简单易上手。除本身贪吃蛇的规则，还加上了时间限制，可保证游戏在限时内结束", 
+        "type" : 1,
+        "lable" : "分数",
+        "game_img" : "/static_resource/images/banner.png"
+    }
+}
